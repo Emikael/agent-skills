@@ -74,7 +74,7 @@ If a skill or description change is rejected based on eval results, add one row 
 
 ## Repo-scoped files
 
-`AGENTS.md` and `CLAUDE.md` at the repo root configure agents working on the [`Emikael/agent-skills`](https://github.com/Emikael/agent-skills) repository itself. When writing setup guides or docs, do not instruct users to copy these files into their own projects or into a global agent configuration; the reusable assets are the skills in `skills/`.
+`AGENTS.md` and `CLAUDE.md` at the repo root configure agents working on the [`Emikael/e6-agent-skills`](https://github.com/Emikael/e6-agent-skills) repository itself. When writing setup guides or docs, do not instruct users to copy these files into their own projects or into a global agent configuration; the reusable assets are the skills in `skills/`.
 
 ## Translations
 

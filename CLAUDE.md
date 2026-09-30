@@ -2,7 +2,7 @@
 
 This is the e6-agent-skills project — a collection of production-grade engineering skills for AI coding agents.
 
-> **Scope:** This file configures agents working on the [`Emikael/agent-skills`](https://github.com/Emikael/agent-skills) repository itself, not other projects. Don't copy it into another project or a global agent configuration; the reusable assets are the skills in `skills/`.
+> **Scope:** This file configures agents working on the [`Emikael/e6-agent-skills`](https://github.com/Emikael/e6-agent-skills) repository itself, not other projects. Don't copy it into another project or a global agent configuration; the reusable assets are the skills in `skills/`.
 
 ## Project Structure
 
