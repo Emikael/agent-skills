@@ -46,7 +46,7 @@ Evaluate every change across these five dimensions:
 
 ## Output Format
 
-Categorize every finding, using the same severity labels as the `code-review-and-quality` skill:
+Categorize every finding, using the same severity labels as the `e6-code-review-and-quality` skill:
 
 **Critical** — Blocks merge (security vulnerability, data loss risk, broken functionality)
 

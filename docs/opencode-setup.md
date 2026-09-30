@@ -23,14 +23,14 @@ After either step, create your own project-local `AGENTS.md` and, if you want th
 The fastest path is the open [`skills` CLI](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add addyosmani/agent-skills            # install selected skills
-npx skills add addyosmani/agent-skills --list     # browse before installing
+npx skills add Emikael/agent-skills            # install selected skills
+npx skills add Emikael/agent-skills --list     # browse before installing
 ```
 
 Install a single skill:
 
 ```bash
-npx skills add addyosmani/agent-skills --skill spec-driven-development
+npx skills add Emikael/agent-skills --skill e6-spec-driven-development
 ```
 
 By default `npx skills` installs into a tool-specific directory (often `.claude/skills/` or a shared location). OpenCode will discover skills placed there because it reads `.claude/skills/<name>/SKILL.md` and the generic `.agents/skills/<name>/SKILL.md` paths.
@@ -49,7 +49,7 @@ cp -r .claude/skills/<skill-name> .opencode/skills/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
+git clone https://github.com/Emikael/agent-skills.git
 ```
 
 2. Copy the desired skills into one of the OpenCode skill discovery paths.
@@ -58,22 +58,22 @@ git clone https://github.com/addyosmani/agent-skills.git
 
 ```bash
 mkdir -p .opencode/skills
-cp -r /path/to/agent-skills/skills/<skill-name> .opencode/skills/
+cp -r /path/to/e6-agent-skills/skills/<skill-name> .opencode/skills/
 ```
 
-For example, to install `spec-driven-development` and `incremental-implementation`:
+For example, to install `e6-spec-driven-development` and `e6-incremental-implementation`:
 
 ```bash
 mkdir -p .opencode/skills
-cp -r /path/to/agent-skills/skills/spec-driven-development .opencode/skills/
-cp -r /path/to/agent-skills/skills/incremental-implementation .opencode/skills/
+cp -r /path/to/e6-agent-skills/skills/e6-spec-driven-development .opencode/skills/
+cp -r /path/to/e6-agent-skills/skills/e6-incremental-implementation .opencode/skills/
 ```
 
 #### Global installation
 
 ```bash
 mkdir -p ~/.config/opencode/skills
-cp -r /path/to/agent-skills/skills/<skill-name> ~/.config/opencode/skills/
+cp -r /path/to/e6-agent-skills/skills/<skill-name> ~/.config/opencode/skills/
 ```
 
 #### Cross-compatible paths
@@ -89,16 +89,16 @@ If you already share skills across Claude Code and OpenCode, any of these locati
 
 ### What to copy
 
-Copy the directories under `skills/` (for example `skills/spec-driven-development/`). Each directory must contain a `SKILL.md` file. Do not copy the repository's root `AGENTS.md` or `CLAUDE.md`; those files configure development of this repository itself.
+Copy the directories under `skills/` (for example `skills/e6-spec-driven-development/`). Each directory must contain a `SKILL.md` file. Do not copy the repository's root `AGENTS.md` or `CLAUDE.md`; those files configure development of this repository itself.
 
 ## Project `AGENTS.md`
 
-Create an `AGENTS.md` in **your own project** root. This is the system prompt that tells OpenCode when and how to invoke the installed skills. Unlike the repo-scoped `AGENTS.md` in `addyosmani/agent-skills`, this file belongs to your project and should be adapted to your stack.
+Create an `AGENTS.md` in **your own project** root. This is the system prompt that tells OpenCode when and how to invoke the installed skills. Unlike the repo-scoped `AGENTS.md` in `Emikael/agent-skills`, this file belongs to your project and should be adapted to your stack.
 
 Below is a template you can paste into your project's `AGENTS.md`:
 
 ```markdown
-# Agent Skills (OpenCode)
+# e6-agent-skills (OpenCode)
 
 This project uses skills installed under `.opencode/skills/` (or a compatible path).
 
@@ -113,13 +113,13 @@ This project uses skills installed under `.opencode/skills/` (or a compatible pa
 
 Map the user's intent to the matching skill automatically:
 
-- Feature / new functionality → `spec-driven-development`, then `incremental-implementation` and `test-driven-development`
-- Planning / breakdown → `planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring / simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
-- UI work → `frontend-ui-engineering`
+- Feature / new functionality → `e6-spec-driven-development`, then `e6-incremental-implementation` and `e6-test-driven-development`
+- Planning / breakdown → `e6-planning-and-task-breakdown`
+- Bug / failure / unexpected behavior → `e6-debugging-and-error-recovery`
+- Code review → `e6-code-review-and-quality`
+- Refactoring / simplification → `e6-code-simplification`
+- API or interface design → `e6-api-and-interface-design`
+- UI work → `e6-frontend-ui-engineering`
 
 ## Execution Model
 
@@ -133,7 +133,7 @@ For every request:
 
 Save this as `AGENTS.md` in your project root. OpenCode will load it automatically.
 
-> **Note:** The root `AGENTS.md` inside the `addyosmani/agent-skills` repository is intended for contributors working on this repository and should not be copied into other projects. See [CONTRIBUTING.md](../CONTRIBUTING.md#repo-scoped-files).
+> **Note:** The root `AGENTS.md` inside the `Emikael/agent-skills` repository is intended for contributors working on this repository and should not be copied into other projects. See [CONTRIBUTING.md](../CONTRIBUTING.md#repo-scoped-files).
 
 ## How It Works
 
@@ -156,21 +156,21 @@ When your project's `AGENTS.md` instructs the agent to use skills, the agent eva
 
 Examples:
 
-- "build a feature" → `incremental-implementation` + `test-driven-development`
-- "design a system" → `spec-driven-development`
-- "fix a bug" → `debugging-and-error-recovery`
-- "review this code" → `code-review-and-quality`
+- "build a feature" → `e6-incremental-implementation` + `e6-test-driven-development`
+- "design a system" → `e6-spec-driven-development`
+- "fix a bug" → `e6-debugging-and-error-recovery`
+- "review this code" → `e6-code-review-and-quality`
 
 ### 3. Lifecycle Mapping (Implicit Commands)
 
 OpenCode does not require slash commands, but if you prefer them see the next section. In agent-driven mode the lifecycle is mapped implicitly:
 
-- DEFINE → `spec-driven-development`
-- PLAN → `planning-and-task-breakdown`
-- BUILD → `incremental-implementation` + `test-driven-development`
-- VERIFY → `debugging-and-error-recovery`
-- REVIEW → `code-review-and-quality`
-- SHIP → `shipping-and-launch`
+- DEFINE → `e6-spec-driven-development`
+- PLAN → `e6-planning-and-task-breakdown`
+- BUILD → `e6-incremental-implementation` + `e6-test-driven-development`
+- VERIFY → `e6-debugging-and-error-recovery`
+- REVIEW → `e6-code-review-and-quality`
+- SHIP → `e6-shipping-and-launch`
 
 ### Copy the optional slash commands
 
@@ -178,7 +178,7 @@ If you prefer explicit commands, copy the example command files from this reposi
 
 ```bash
 mkdir -p .opencode/commands
-cp /path/to/agent-skills/.opencode/commands/*.md .opencode/commands/
+cp /path/to/e6-agent-skills/.opencode/commands/*.md .opencode/commands/
 ```
 
 > **Note:** The repository currently does not include `.opencode/commands/*.md` on `main`. You can create your own command files or watch PR #200, which proposes adding them. Once they exist, the pattern above applies.
@@ -190,7 +190,7 @@ A typical command file looks like:
 description: Break work into small verifiable tasks
 ---
 
-Invoke the planning-and-task-breakdown skill. Read the spec and create tasks with acceptance criteria.
+Invoke the e6-planning-and-task-breakdown skill. Read the spec and create tasks with acceptance criteria.
 ```
 
 Save it as `.opencode/commands/plan.md` to enable `/plan` in OpenCode.
@@ -206,7 +206,7 @@ Add authentication to this app
 
 Agent behavior:
 - Detects feature work
-- Invokes `spec-driven-development`
+- Invokes `e6-spec-driven-development`
 - Produces a spec before writing code
 - Moves to planning and implementation skills
 
@@ -218,7 +218,7 @@ This endpoint is returning 500 errors
 ```
 
 Agent behavior:
-- Invokes `debugging-and-error-recovery`
+- Invokes `e6-debugging-and-error-recovery`
 - Reproduces → localizes → fixes → adds guards
 
 ### Example 3: Code Review
@@ -229,7 +229,7 @@ Review this PR
 ```
 
 Agent behavior:
-- Invokes `code-review-and-quality`
+- Invokes `e6-code-review-and-quality`
 - Applies structured review (correctness, design, readability, etc.)
 
 ## Agent Expectations
@@ -251,9 +251,9 @@ These rules are enforced by your project's `AGENTS.md`, not by the copy of the s
 
 ## Summary
 
-1. Install the skills you need, either with `npx skills add addyosmani/agent-skills` or by copying them from a clone of this repository into `.opencode/skills/` (project), `~/.config/opencode/skills/` (global), or a cross-compatible path such as `.claude/skills/` / `.agents/skills/`.
+1. Install the skills you need, either with `npx skills add Emikael/agent-skills` or by copying them from a clone of this repository into `.opencode/skills/` (project), `~/.config/opencode/skills/` (global), or a cross-compatible path such as `.claude/skills/` / `.agents/skills/`.
 2. Create your own project-local `AGENTS.md` with the rules and intent mapping above.
 3. OpenCode discovers the skills and your `AGENTS.md` guides the agent to invoke them.
 4. Optionally add `.opencode/commands/*.md` for explicit slash commands.
 
-This keeps the reusable assets (skills) separate from the repository-specific configuration (the `addyosmani/agent-skills` root `AGENTS.md`).
+This keeps the reusable assets (skills) separate from the repository-specific configuration (the `Emikael/agent-skills` root `AGENTS.md`).

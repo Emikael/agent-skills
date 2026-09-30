@@ -608,13 +608,13 @@ test('accepted grading omits run key when no metadata is provided', () => {
 });
 
 test('materializes a git baseline and applies a working-tree patch', () => {
-  const workspace = materializeWorkspace({ files: ['git-workflow-and-versioning'] });
+  const workspace = materializeWorkspace({ files: ['e6-git-workflow-and-versioning'] });
   try {
     const status = spawnSync('git', ['status', '--short'], { cwd: workspace, encoding: 'utf8' });
     const commits = spawnSync('git', ['rev-list', '--count', 'HEAD'], { cwd: workspace, encoding: 'utf8' });
 
     assert.equal(status.status, 0, status.stdout + status.stderr);
-    assert.match(status.stdout, / M git-workflow-and-versioning\/app\.js/);
+    assert.match(status.stdout, / M e6-git-workflow-and-versioning\/app\.js/);
     assert.equal(commits.stdout.trim(), '1');
     assert.equal(fs.existsSync(path.join(workspace, '.eval')), false);
   } finally {

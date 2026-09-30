@@ -2,7 +2,7 @@
 description: Define and enforce this project's quality bar — interview, sane defaults, CONSTRAINTS.md
 ---
 
-Invoke the agent-skills:constraint-driven-development skill.
+Invoke the e6-agent-skills:e6-constraint-driven-development skill.
 
 $ARGUMENTS
 

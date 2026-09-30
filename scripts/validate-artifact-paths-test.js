@@ -45,8 +45,8 @@ test('passes when producers and consumers use the canonical artifact paths', () 
   writeFile(root, '.claude/commands/spec.md', 'Save the spec as `SPEC.md` in the project root.\n');
   writeFile(root, '.claude/commands/plan.md', 'Save the plan to `tasks/plan.md` and task list to `tasks/todo.md`.\n');
   writeFile(root, '.claude/commands/build.md', 'Look for a spec at `SPEC.md`, `docs/SPEC.md`, or under `spec/`. Require `tasks/plan.md`.\n');
-  writeFile(root, 'skills/spec-driven-development/SKILL.md', 'Save the plan to `tasks/plan.md` and the task list to `tasks/todo.md`.\n');
-  writeFile(root, 'skills/planning-and-task-breakdown/SKILL.md', 'Save to `tasks/plan.md` and `tasks/todo.md`.\n');
+  writeFile(root, 'skills/e6-spec-driven-development/SKILL.md', 'Save the plan to `tasks/plan.md` and the task list to `tasks/todo.md`.\n');
+  writeFile(root, 'skills/e6-planning-and-task-breakdown/SKILL.md', 'Save to `tasks/plan.md` and `tasks/todo.md`.\n');
 
   const result = run(root);
 
@@ -94,7 +94,7 @@ test('ignores non-artifact markdown references (no false positives)', () => {
   const root = makeSandbox();
   writeFile(
     root,
-    'skills/spec-driven-development/SKILL.md',
+    'skills/e6-spec-driven-development/SKILL.md',
     'See `SKILL.md` and `references/testing-patterns.md`. Save the plan to `tasks/plan.md`.\n',
   );
 

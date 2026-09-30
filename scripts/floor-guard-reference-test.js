@@ -2,7 +2,7 @@
 
 'use strict';
 
-// Contract test for skills/constraint-driven-development/references/floor-guard.md.
+// Contract test for skills/e6-constraint-driven-development/references/floor-guard.md.
 // The fenced `js` block is extracted unchanged and run, with real git, against fourteen
 // small fixtures: each is a fresh repository with one source file, one test file and a
 // CONSTRAINTS.md carrying a floor bullet, a coverage minimum, a bundle maximum and an
@@ -16,7 +16,7 @@ const { spawnSync } = require('node:child_process');
 const { after, before, test } = require('node:test');
 
 const REFERENCE = path.join(
-  __dirname, '..', 'skills', 'constraint-driven-development', 'references', 'floor-guard.md',
+  __dirname, '..', 'skills', 'e6-constraint-driven-development', 'references', 'floor-guard.md',
 );
 const CONSTRAINTS = [
   '# Constraints',

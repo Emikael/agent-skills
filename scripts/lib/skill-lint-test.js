@@ -78,7 +78,7 @@ test('a directory named after an Object.prototype key is not exempt from section
 test('a genuinely allowlisted skill is still exempt', () => {
   const content = [
     '---',
-    'name: using-agent-skills',
+    'name: e6-using-agent-skills',
     'description: Routes to other skills. Use when choosing one.',
     '---',
     '',
@@ -86,7 +86,7 @@ test('a genuinely allowlisted skill is still exempt', () => {
     '',
   ].join('\n');
 
-  const { errors, exempt } = lintSkillContent('using-agent-skills', content, KNOWN);
+  const { errors, exempt } = lintSkillContent('e6-using-agent-skills', content, KNOWN);
 
   assert.equal(exempt, true);
   assert.deepEqual(errors.filter(e => /Missing required section/.test(e)), []);

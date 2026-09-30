@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * run-evals.js — skill eval runner for agent-skills.
+ * run-evals.js — skill eval runner for e6-agent-skills.
  *
  * Tiers (see evals/README.md):
  *   Tier 2 (default, deterministic, CI-safe):

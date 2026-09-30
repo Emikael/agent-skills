@@ -2,16 +2,14 @@
 description: Start spec-driven development — write a structured specification before writing code
 ---
 
-Invoke the agent-skills:spec-driven-development skill.
+Invoke the e6-agent-skills:e6-spec-driven-development skill.
 
-Begin by understanding what the user wants to build. Ask clarifying questions about:
-1. The objective and target users
-2. Core features and acceptance criteria
-3. Tech stack preferences and constraints
-4. Known boundaries (what to always do, ask first about, and never do)
+If the user's intent is not yet confirmed (who it is for, why now, what success looks like, what is out of scope), follow the e6-interview-me skill before writing a spec. One question at a time.
 
-Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
+If the request bundles several independently testable capabilities, first propose a capability map (module ids, dependency direction, build order) per the skill's Phase 0 and get it approved, then spec each module in dependency order. Save the map as CAPABILITY-MAP.md and each module spec as SPEC-<module-id>.md.
 
-If the request bundles several independently testable capabilities, first propose a capability map (module ids, dependency direction, build order) per the skill's Phase 0 and get it approved, then spec each module in dependency order.
+Otherwise write one feature spec at SPEC.md in the project root (docs/SPEC.md when that is the project's existing spec path). The spec records outcome, actors, in scope, out of scope, requirements with ids and observable scenarios, data invariants, interfaces, error behavior, and blocking questions. Commands, directory layout, code style, and agent boundaries belong in the project's rules file, not in the spec.
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+A decision that changes behavior, money, permissions, or stored data stays in Blocking questions until the user gives an explicit yes. Do not promote an assumption into a requirement.
+
+Before asking for approval, run the skill's adversarial pass. An explicit yes is required. Hedged agreement is not approval. Do not write implementation code.

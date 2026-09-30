@@ -2,7 +2,7 @@
 description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
 ---
 
-Invoke the agent-skills:code-simplification skill.
+Invoke the e6-agent-skills:e6-code-simplification skill.
 
 Simplify recently changed code (or the specified scope) while preserving exact behavior:
 
@@ -19,4 +19,4 @@ Simplify recently changed code (or the specified scope) while preserving exact b
 5. Apply each simplification incrementally — run tests after each change
 6. Verify all tests pass, the build succeeds, and the diff is clean
 
-If tests fail after a simplification, revert that change and reconsider. Use `code-review-and-quality` to review the result.
+If tests fail after a simplification, revert that change and reconsider. Use `e6-code-review-and-quality` to review the result.

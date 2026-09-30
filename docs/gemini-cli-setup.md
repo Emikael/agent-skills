@@ -1,4 +1,4 @@
-# Using agent-skills with Gemini CLI
+# Using e6-agent-skills with Gemini CLI
 
 ## Setup
 
@@ -9,20 +9,20 @@ Gemini CLI has a native skills system that auto-discovers `SKILL.md` files in `.
 **Install from the repo:**
 
 ```bash
-gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
+gemini skills install https://github.com/Emikael/agent-skills.git --path skills
 ```
 
 **Or install from a local clone:**
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
-gemini skills install /path/to/agent-skills/skills/
+git clone https://github.com/Emikael/agent-skills.git
+gemini skills install /path/to/e6-agent-skills/skills/
 ```
 
 **Install for a specific workspace only:**
 
 ```bash
-gemini skills install /path/to/agent-skills/skills/ --scope workspace
+gemini skills install /path/to/e6-agent-skills/skills/ --scope workspace
 ```
 
 Skills installed at workspace scope go into `.gemini/skills/` (or `.agents/skills/`). User-level skills go into `~/.gemini/skills/`.
@@ -41,9 +41,9 @@ For skills you want always loaded as persistent project context (rather than on-
 
 ```bash
 # Create GEMINI.md with core skills as persistent context
-cat /path/to/agent-skills/skills/incremental-implementation/SKILL.md > GEMINI.md
+cat /path/to/e6-agent-skills/skills/e6-incremental-implementation/SKILL.md > GEMINI.md
 echo -e "\n---\n" >> GEMINI.md
-cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> GEMINI.md
+cat /path/to/e6-agent-skills/skills/e6-code-review-and-quality/SKILL.md >> GEMINI.md
 ```
 
 You can also modularize by importing from separate files:
@@ -51,8 +51,8 @@ You can also modularize by importing from separate files:
 ```markdown
 # Project Instructions
 
-@skills/test-driven-development/SKILL.md
-@skills/incremental-implementation/SKILL.md
+@skills/e6-test-driven-development/SKILL.md
+@skills/e6-incremental-implementation/SKILL.md
 ```
 
 Use `/memory show` to verify loaded context, and `/memory reload` to refresh after changes.
@@ -65,18 +65,18 @@ Use `/memory show` to verify loaded context, and `/memory reload` to refresh aft
 
 Add these as persistent context for every session:
 
-- `incremental-implementation` — Build in small verifiable slices
-- `code-review-and-quality` — Five-axis review
+- `e6-incremental-implementation` — Build in small verifiable slices
+- `e6-code-review-and-quality` — Five-axis review
 
 ### On-Demand (Skills)
 
 Install these as skills so they activate only when relevant:
 
-- `test-driven-development` — Activates when implementing logic or fixing bugs
-- `spec-driven-development` — Activates when starting a new project or feature
-- `frontend-ui-engineering` — Activates when building UI
-- `security-and-hardening` — Activates during security reviews
-- `performance-optimization` — Activates during performance work
+- `e6-test-driven-development` — Activates when implementing logic or fixing bugs
+- `e6-spec-driven-development` — Activates when starting a new project or feature
+- `e6-frontend-ui-engineering` — Activates when building UI
+- `e6-security-and-hardening` — Activates during security reviews
+- `e6-performance-optimization` — Activates during performance work
 
 ## Advanced Configuration
 
@@ -84,8 +84,8 @@ Install these as skills so they activate only when relevant:
 
 Many skills in this pack leverage [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) tools to interact with the environment. For example:
 
-- `browser-testing-with-devtools` uses the `chrome-devtools` MCP extension.
-- `performance-optimization` can benefit from performance-related MCP tools.
+- `e6-browser-testing-with-devtools` uses the `chrome-devtools` MCP extension.
+- `e6-performance-optimization` can benefit from performance-related MCP tools.
 
 To enable these, ensure you have the relevant MCP extensions installed in your Gemini CLI configuration (`~/.gemini/config.json`).
 
@@ -93,14 +93,14 @@ To enable these, ensure you have the relevant MCP extensions installed in your G
 
 Gemini CLI supports session lifecycle hooks. You can use these to automatically inject context or run validation scripts at the start of a session.
 
-To replicate the `agent-skills` experience from other tools, you can configure a `SessionStart` hook that reminds you of the available skills or loads a meta-skill. `hooks/session-start.sh` in this repo is a ready-made script for that: it prints the `using-agent-skills` meta-skill as a standard `SessionStart` JSON envelope on stdout.
+To replicate the `e6-agent-skills` experience from other tools, you can configure a `SessionStart` hook that reminds you of the available skills or loads a meta-skill. `hooks/session-start.sh` in this repo is a ready-made script for that: it prints the `e6-using-agent-skills` meta-skill as a standard `SessionStart` JSON envelope on stdout.
 
 ### Explicit Context Loading
 
 You can explicitly load any skill into your current session by referencing it with the `@` symbol in your prompt:
 
 ```markdown
-Use the @skills/test-driven-development/SKILL.md skill to implement this fix.
+Use the @skills/e6-test-driven-development/SKILL.md skill to implement this fix.
 ```
 
 This is useful when you want to ensure a specific workflow is followed without waiting for auto-discovery.

@@ -1,6 +1,6 @@
 # Developer Onboarding
 
-This guide is for people working **on** the agent-skills repository itself: contributing skills, fixing docs, improving the eval harness. If you want to *use* the skills in your own projects, you're looking for [getting-started.md](getting-started.md) instead.
+This guide is for people working **on** the e6-agent-skills repository itself: contributing skills, fixing docs, improving the eval harness. If you want to *use* the skills in your own projects, you're looking for [getting-started.md](getting-started.md) instead.
 
 It's a guided tour, not a rulebook. The rules live in [CONTRIBUTING.md](../CONTRIBUTING.md) (contribution workflow), [skill-anatomy.md](skill-anatomy.md) (skill format), and [evals/README.md](../evals/README.md) (eval framework); this document tells you when to read each one and how the pieces fit.
 
@@ -30,8 +30,8 @@ Note that commands exist in three parallel directories (Claude Code, Gemini CLI,
 ## 2. Local setup
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
-cd agent-skills
+git clone https://github.com/Emikael/agent-skills.git
+cd e6-agent-skills
 ```
 
 There's no build step and no `package.json`; validators are plain Node scripts. You need:
@@ -44,7 +44,7 @@ There's no build step and no `package.json`; validators are plain Node scripts. 
 To try the pack live against a local checkout:
 
 ```bash
-claude --plugin-dir /path/to/agent-skills
+claude --plugin-dir /path/to/e6-agent-skills
 ```
 
 ## 3. The verification loop
@@ -65,7 +65,7 @@ node scripts/run-evals.js
 node scripts/run-evals.js --behavioral <skill-name> --dry-run
 
 # Hook regression test, required if you touch hooks/session-start.sh
-# or skills/using-agent-skills/SKILL.md
+# or skills/e6-using-agent-skills/SKILL.md
 bash hooks/session-start-test.sh
 ```
 
@@ -100,17 +100,17 @@ One point worth internalizing rather than looking up: when writing trigger promp
 - [ ] Tier 1 green: `node scripts/validate-skills.js`
 - [ ] Tier 2 green: `node scripts/run-evals.js`
 - [ ] Command parity green if you touched any command directory: `node scripts/validate-commands.js`
-- [ ] Hook test green if you touched `hooks/` or `using-agent-skills`
+- [ ] Hook test green if you touched `hooks/` or `e6-using-agent-skills`
 - [ ] New skill → eval case file present with the minimum trigger/behavioral counts
 - [ ] New skill → gap justified in the PR description; catalog and open PRs checked
 - [ ] No duplicated content; cross-references used instead
-- [ ] Change is small and focused (the repo's own `code-review-and-quality` change-sizing guidance applies to contributions here too)
+- [ ] Change is small and focused (the repo's own `e6-code-review-and-quality` change-sizing guidance applies to contributions here too)
 
 ## 6. Suggested reading order
 
 1. [README.md](../README.md): the catalog and the lifecycle diagram (10 min)
-2. `skills/using-agent-skills/SKILL.md`: how routing works from the agent's side
-3. One well-established skill end to end (e.g. `test-driven-development`): internalize the anatomy by example
+2. `skills/e6-using-agent-skills/SKILL.md`: how routing works from the agent's side
+3. One well-established skill end to end (e.g. `e6-test-driven-development`): internalize the anatomy by example
 4. [skill-anatomy.md](skill-anatomy.md): the format spec, now with context
 5. [evals/README.md](../evals/README.md): the three tiers and the case format
 6. [CONTRIBUTING.md](../CONTRIBUTING.md) + [AGENTS.md](../AGENTS.md): the rules and the repo-scoped agent config

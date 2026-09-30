@@ -1,7 +1,7 @@
 description = "Define and enforce this project's quality bar — interview, sane defaults, CONSTRAINTS.md"
 
 prompt = """
-Invoke the constraint-driven-development skill.
+Invoke the e6-constraint-driven-development skill.
 
 $ARGUMENTS
 

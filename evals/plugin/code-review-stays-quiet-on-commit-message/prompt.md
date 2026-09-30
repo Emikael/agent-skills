@@ -1,6 +1,6 @@
 ---
-description: A pasted diff with a request that belongs to git-workflow-and-versioning. Guards the "even when the diff is pasted inline" clause of the review skill's description, since a pasted diff alone must not make the review skill fire.
-expected_outcome: A commit message; code-review-and-quality is never invoked.
+description: A pasted diff with a request that belongs to e6-git-workflow-and-versioning. Guards the "even when the diff is pasted inline" clause of the review skill's description, since a pasted diff alone must not make the review skill fire.
+expected_outcome: A commit message; e6-code-review-and-quality is never invoked.
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]
 ---
