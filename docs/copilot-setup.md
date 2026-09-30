@@ -20,7 +20,7 @@ cat /path/to/e6-agent-skills/skills/e6-code-review-and-quality/SKILL.md > .githu
 
 Whichever of these two routes you use, the result is one `SKILL.md` per skill directory under one of those three project paths. An installer run with a global/user flag writes somewhere else instead — check its output for the path it used. Run `/skills` in Copilot Chat to open the **Configure Skills** menu and confirm what got discovered.
 
-For more details, refer [Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and the VS Code guide to [agent skills](https://code.visualstudio.com/docs/agent-customization/e6-agent-skills).
+For more details, refer [Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and the VS Code guide to [agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills).
 
 ### Agent Personas (*.agent.md)
 
@@ -147,7 +147,7 @@ Write the body yourself, or take it from this table, rather than copying `.claud
 
 Work through these in order — `/e6-spec-driven-development` missing and `/spec` missing have different causes:
 
-1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/` — but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/e6-agent-skills), then re-install into the project if you wanted it project-scoped.
+1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/` — but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/agent-skills), then re-install into the project if you wanted it project-scoped.
 2. **Check the frontmatter.** `name` must be present and valid — it *is* the slash command. A skill whose frontmatter opts out of user invocation won't appear.
 3. **Check the Configure Skills menu.** Run `/skills` and confirm the skill is enabled here.
 4. **Start a fresh session.** Newly added skills aren't always picked up mid-conversation.
