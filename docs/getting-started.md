@@ -18,7 +18,7 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Emikael/agent-skills.git
+git clone https://github.com/Emikael/e6-agent-skills.git
 ```
 
 ### 2. Choose a skill

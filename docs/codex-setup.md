@@ -5,7 +5,7 @@ This repository is also a [Codex plugin](https://developers.openai.com/codex/plu
 ## Install
 
 ```bash
-codex plugin marketplace add Emikael/agent-skills
+codex plugin marketplace add Emikael/e6-agent-skills
 codex plugin add e6-agent-skills@e6-agent-skills
 ```
 

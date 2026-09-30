@@ -55,6 +55,8 @@ e6-agent-skills organizes the **entire product lifecycle** as skills, with a met
 
 What is newer, and the current point of difference: a **three-tier eval framework** lives in the repo. Tier 1 checks structure, Tier 2 checks that each skill's description carries the vocabulary users actually say and that no two skills collide on routing (deterministic, runs in CI), and Tier 3 grades an agent's real execution trace against per-skill expectations. Neither of the other two ships that kind of in-repo, catalog-wide measurement today. The honest trade-off in the other direction: e6-agent-skills has less of a single opinionated "run" than Superpowers, and none of the three has yet solved durable cross-session memory well.
 
+**Repo:** <https://github.com/Emikael/e6-agent-skills>
+
 ---
 
 ## A real head-to-head: Superpowers vs. e6-agent-skills
@@ -122,6 +124,7 @@ What does not work is running two of them as your **active router at the same ti
 
 ## Sources
 
+- e6-agent-skills: <https://github.com/Emikael/e6-agent-skills>
 - Superpowers: <https://github.com/obra/superpowers>
 - Matt Pocock's skills: <https://github.com/mattpocock/skills>
 - Om Mishra, *Superpowers vs Agent-Skills*: <https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/>
