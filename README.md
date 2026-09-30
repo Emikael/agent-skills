@@ -4,9 +4,7 @@
 
 Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. These ones are packaged so AI agents follow them consistently across every phase of development.
 
-<a href="https://trendshift.io/repositories/25200" target="_blank"><img src="https://trendshift.io/api/badge/repositories/25200" alt="addyosmani%2Fagent-skills | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-
-![Addy's Agent Skills](https://addyosmani.com/assets/images/addys-agent-skills.jpg)
+![e6-agent-skills](docs/images/e6-agent-skills.png)
 
 ```
   DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
@@ -91,8 +89,8 @@ Prefer a native integration? Pick your tool below.
 **Local / development:**
 
 ```bash
-git clone https://github.com/Emikael/agent-skills.git
-claude --plugin-dir /path/to/e6-agent-skills
+git clone https://github.com/Emikael/agent-skills.git e6-agent-skills
+claude --plugin-dir ./e6-agent-skills
 ```
 
 </details>
@@ -118,7 +116,7 @@ agy plugin install https://github.com/Emikael/agent-skills.git
 **Install from a local clone:**
 
 ```bash
-git clone https://github.com/Emikael/agent-skills.git
+git clone https://github.com/Emikael/agent-skills.git e6-agent-skills
 agy plugin install ./e6-agent-skills
 ```
 
