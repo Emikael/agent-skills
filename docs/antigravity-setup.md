@@ -1,6 +1,6 @@
-# Using agent-skills with Antigravity CLI (agy)
+# Using e6-agent-skills with Antigravity CLI (agy)
 
-The `agent-skills` package can be installed as a native plugin in the Antigravity CLI (`agy`), giving the agent access to structured workflows and personas.
+The `e6-agent-skills` package can be installed as a native plugin in the Antigravity CLI (`agy`), giving the agent access to structured workflows and personas.
 
 ## Setup
 
@@ -11,27 +11,27 @@ Antigravity CLI has a first-class [plugin system](https://www.agy.dev/docs/plugi
 **Install from the remote repository:**
 
 ```bash
-agy plugin install https://github.com/addyosmani/agent-skills.git
+agy plugin install https://github.com/Emikael/e6-agent-skills.git
 ```
 
 **Install from a local clone:**
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/addyosmani/agent-skills.git
+   git clone https://github.com/Emikael/e6-agent-skills.git
    ```
 2. Install the plugin using `agy`:
    ```bash
-   agy plugin install /path/to/agent-skills
+   agy plugin install /path/to/e6-agent-skills
    ```
 
-This will validate the plugin and install it into your global Antigravity configuration directory (`~/.gemini/config/plugins/agent-skills/`).
+This will validate the plugin and install it into your global Antigravity configuration directory (`~/.gemini/config/plugins/e6-agent-skills/`).
 
-> **Note:** on current agy releases the plugin lands under `~/.gemini/config/plugins/`, not the legacy `~/.gemini/antigravity-cli/plugins/` path used by older versions. If you don't see the plugin at the legacy path, check `~/.gemini/config/plugins/agent-skills/` first.
+> **Note:** on current agy releases the plugin lands under `~/.gemini/config/plugins/`, not the legacy `~/.gemini/antigravity-cli/plugins/` path used by older versions. If you don't see the plugin at the legacy path, check `~/.gemini/config/plugins/e6-agent-skills/` first.
 
 ### Option 2: Import from Gemini CLI
 
-If you have already installed `agent-skills` under your legacy Gemini CLI installation, you can import it directly:
+If you have already installed `e6-agent-skills` under your legacy Gemini CLI installation, you can import it directly:
 ```bash
 agy plugin import gemini
 ```
@@ -45,20 +45,20 @@ agy plugin list
 
 ## Lifecycle Workflows and Command Compatibility
 
-Antigravity's [migration tooling](https://www.agy.dev/docs/cli/gcli-migration/) reports the 9 legacy definitions in `commands/*.toml` as "converted to skills." In affected `agy` 1.1.x releases, validation succeeds but the converted wrappers do not appear in the slash-command or skill catalog. A successful `agy plugin validate` therefore confirms the files are well formed, not that `/build` and the other short wrappers are available. This is tracked in [agent-skills #445](https://github.com/addyosmani/agent-skills/issues/445) and upstream in [antigravity-cli #788](https://github.com/google-antigravity/antigravity-cli/issues/788).
+Antigravity's [migration tooling](https://www.agy.dev/docs/cli/gcli-migration/) reports the 9 legacy definitions in `commands/*.toml` as "converted to skills." In affected `agy` 1.1.x releases, validation succeeds but the converted wrappers do not appear in the slash-command or skill catalog. A successful `agy plugin validate` therefore confirms the files are well formed, not that `/build` and the other short wrappers are available. This is tracked in [e6-agent-skills #445](https://github.com/addyosmani/agent-skills/issues/445) and upstream in [antigravity-cli #788](https://github.com/google-antigravity/antigravity-cli/issues/788).
 
 Use the native plugin skills directly while that importer limitation applies:
 
 | Intended wrapper | Direct Antigravity invocation | Notes |
 |------------------|-------------------------------|-------|
-| `/spec` | `/agent-skills:spec-driven-development` | Writes a structured spec before code |
-| `/constraints` | `/agent-skills:constraint-driven-development` | Defines and enforces the project's quality bar |
-| `/planning` | `/agent-skills:planning-and-task-breakdown` | Antigravity's built-in `/planning` command is a separate plan-mode control |
-| `/build` | `/agent-skills:incremental-implementation` | Also invoke `/agent-skills:test-driven-development`; wrapper-only `/build auto` orchestration is unavailable |
-| `/test` | `/agent-skills:test-driven-development` | Runs the red-green-refactor workflow |
-| `/review` | `/agent-skills:code-review-and-quality` | Runs the five-axis review workflow |
-| `/code-simplify` | `/agent-skills:code-simplification` | Simplifies without changing behavior |
-| `/ship` | `/agent-skills:shipping-and-launch` | The wrapper's automatic persona fan-out is unavailable; invoke specialist agents separately |
+| `/spec` | `/e6-agent-skills:e6-spec-driven-development` | Writes a structured spec before code |
+| `/constraints` | `/e6-agent-skills:e6-constraint-driven-development` | Defines and enforces the project's quality bar |
+| `/planning` | `/e6-agent-skills:e6-planning-and-task-breakdown` | Antigravity's built-in `/planning` command is a separate plan-mode control |
+| `/build` | `/e6-agent-skills:e6-incremental-implementation` | Also invoke `/e6-agent-skills:e6-test-driven-development`; wrapper-only `/build auto` orchestration is unavailable |
+| `/test` | `/e6-agent-skills:e6-test-driven-development` | Runs the red-green-refactor workflow |
+| `/review` | `/e6-agent-skills:e6-code-review-and-quality` | Runs the five-axis review workflow |
+| `/code-simplify` | `/e6-agent-skills:e6-code-simplification` | Simplifies without changing behavior |
+| `/ship` | `/e6-agent-skills:e6-shipping-and-launch` | The wrapper's automatic persona fan-out is unavailable; invoke specialist agents separately |
 | `/webperf` | Select `web-performance-auditor` from `/agents` | This workflow is a persona, not a skill |
 
 Do not add YAML frontmatter to the TOML files as a workaround. Gemini CLI reads the parallel TOML command format with a strict parser, and `---` frontmatter makes those files invalid TOML without changing Antigravity's conversion behavior.
@@ -77,10 +77,10 @@ Antigravity automatically discovers skills inside the plugin's `skills/` directo
 
 To validate that your local plugin is correctly structured and contains all skills, run:
 ```bash
-agy plugin validate /path/to/agent-skills
+agy plugin validate /path/to/e6-agent-skills
 ```
 
-Then start a fresh session and type `/agent-skills:` to inspect the namespaced skill catalog. If the validator reports that commands were converted but `/build` returns `No matches`, use the direct invocations above; reinstalling or adding a TOML `name` field does not resolve the known importer limitation.
+Then start a fresh session and type `/e6-agent-skills:` to inspect the namespaced skill catalog. If the validator reports that commands were converted but `/build` returns `No matches`, use the direct invocations above; reinstalling or adding a TOML `name` field does not resolve the known importer limitation.
 
 ---
 
@@ -90,9 +90,9 @@ Then start a fresh session and type `/agent-skills:` to inspect the namespaced s
 Antigravity CLI automatically discovers the `SKILL.md` files located in the `skills/` directory of the installed plugin. Using the trigger descriptions in each skill's frontmatter, the agent will dynamically activate the appropriate workflow when it detects matching developer intent.
 
 For example, when you ask the agent to:
-- **Design a new system** &rarr; It will suggest/activate `spec-driven-development`.
-- **Implement a feature** &rarr; It will activate `incremental-implementation` and `test-driven-development`.
-- **Fix a bug** &rarr; It will activate `debugging-and-error-recovery`.
+- **Design a new system** &rarr; It will suggest/activate `e6-spec-driven-development`.
+- **Implement a feature** &rarr; It will activate `e6-incremental-implementation` and `e6-test-driven-development`.
+- **Fix a bug** &rarr; It will activate `e6-debugging-and-error-recovery`.
 
 ### 2. Specialized Agent Personas
 The plugin registers reusable subagent definitions from the `agents/` directory:

@@ -33,11 +33,11 @@ if (typeof out.additionalContext !== 'string' || !out.additionalContext.trim()) 
 
 const ctx = out.additionalContext;
 if (hasJq) {
-  if (!ctx.includes('agent-skills loaded.')) {
+  if (!ctx.includes('e6-agent-skills loaded.')) {
     throw new Error('additionalContext is missing startup preface');
   }
   if (!ctx.includes('# Using Agent Skills')) {
-    throw new Error('additionalContext is missing using-agent-skills content');
+    throw new Error('additionalContext is missing e6-using-agent-skills content');
   }
 } else if (!ctx.includes('jq is required')) {
   throw new Error('additionalContext is missing jq fallback guidance');

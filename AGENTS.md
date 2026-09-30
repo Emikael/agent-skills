@@ -2,7 +2,7 @@
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Antigravity, etc.) when working with code in this repository.
 
-> **Scope:** This file configures agents working on the [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) repository itself. It is not meant to be copied into other projects or into a global agent configuration; the reusable assets are the skills in `skills/`, not this file.
+> **Scope:** This file configures agents working on the [`Emikael/e6-agent-skills`](https://github.com/Emikael/e6-agent-skills) repository itself. It is not meant to be copied into other projects or into a global agent configuration; the reusable assets are the skills in `skills/`, not this file.
 
 ## Repository Overview
 
@@ -23,13 +23,13 @@ OpenCode uses a **skill-driven execution model** powered by the `skill` tool and
 
 The agent should automatically map user intent to skills:
 
-- Feature / new functionality → `spec-driven-development`, then `incremental-implementation`, `test-driven-development`
-- Planning / breakdown → `planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring / simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
-- UI work → `frontend-ui-engineering`
+- Feature / new functionality → `e6-spec-driven-development`, then `e6-incremental-implementation`, `e6-test-driven-development`
+- Planning / breakdown → `e6-planning-and-task-breakdown`
+- Bug / failure / unexpected behavior → `e6-debugging-and-error-recovery`
+- Code review → `e6-code-review-and-quality`
+- Refactoring / simplification → `e6-code-simplification`
+- API or interface design → `e6-api-and-interface-design`
+- UI work → `e6-frontend-ui-engineering`
 
 ### Lifecycle Mapping (Implicit Commands)
 
@@ -37,12 +37,12 @@ OpenCode does not support slash commands like `/spec` or `/plan`.
 
 Instead, the agent must internally follow this lifecycle:
 
-- DEFINE → `spec-driven-development`
-- PLAN → `planning-and-task-breakdown`
-- BUILD → `incremental-implementation` + `test-driven-development`
-- VERIFY → `debugging-and-error-recovery`
-- REVIEW → `code-review-and-quality`
-- SHIP → `shipping-and-launch`
+- DEFINE → `e6-spec-driven-development`
+- PLAN → `e6-planning-and-task-breakdown`
+- BUILD → `e6-incremental-implementation` + `e6-test-driven-development`
+- VERIFY → `e6-debugging-and-error-recovery`
+- REVIEW → `e6-code-review-and-quality`
+- SHIP → `e6-shipping-and-launch`
 
 ### Execution Model
 

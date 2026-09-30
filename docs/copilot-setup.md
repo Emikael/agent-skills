@@ -1,8 +1,8 @@
-# Using agent-skills with GitHub Copilot
+# Using e6-agent-skills with GitHub Copilot
 
 This guide covers Copilot in VS Code. For the standalone `copilot` command-line tool, see [copilot-cli-setup.md](copilot-cli-setup.md).
 
-**What an install actually gives you:** the skills. Each installed skill becomes a slash command named after its frontmatter `name` — `/spec-driven-development`, `/test-driven-development`, and so on. `npx skills add addyosmani/agent-skills` and the manual copy below both install skills only. Neither of those two routes copies this repo's short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`) — those are Claude Code commands living in `.claude/commands/`. Use the full skill names, or add your own aliases — see [Lifecycle workflows](#lifecycle-workflows).
+**What an install actually gives you:** the skills. Each installed skill becomes a slash command named after its frontmatter `name` — `/e6-spec-driven-development`, `/e6-test-driven-development`, and so on. `npx skills add Emikael/e6-agent-skills` and the manual copy below both install skills only. Neither of those two routes copies this repo's short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`) — those are Claude Code commands living in `.claude/commands/`. Use the full skill names, or add your own aliases — see [Lifecycle workflows](#lifecycle-workflows).
 
 ## Setup
 
@@ -11,20 +11,20 @@ This guide covers Copilot in VS Code. For the standalone `copilot` command-line 
 Copilot supports creating agent skills using a `.github/skills`, `.claude/skills`, or `.agents/skills` directory in your repository.
 
 ```bash
-mkdir -p .github/skills/test-driven-development .github/skills/code-review-and-quality
+mkdir -p .github/skills/e6-test-driven-development .github/skills/e6-code-review-and-quality
 
 # Create files for essential skills
-cat /path/to/agent-skills/skills/test-driven-development/SKILL.md > .github/skills/test-driven-development/SKILL.md
-cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md > .github/skills/code-review-and-quality/SKILL.md
+cat /path/to/e6-agent-skills/skills/e6-test-driven-development/SKILL.md > .github/skills/e6-test-driven-development/SKILL.md
+cat /path/to/e6-agent-skills/skills/e6-code-review-and-quality/SKILL.md > .github/skills/e6-code-review-and-quality/SKILL.md
 ```
 
 Whichever of these two routes you use, the result is one `SKILL.md` per skill directory under one of those three project paths. An installer run with a global/user flag writes somewhere else instead — check its output for the path it used. Run `/skills` in Copilot Chat to open the **Configure Skills** menu and confirm what got discovered.
 
-For more details, refer [Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and the VS Code guide to [agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills).
+For more details, refer [Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and the VS Code guide to [agent skills](https://code.visualstudio.com/docs/agent-customization/e6-agent-skills).
 
 ### Agent Personas (*.agent.md)
 
-Copilot supports specialized agent personas. Use the agent-skills agents:
+Copilot supports specialized agent personas. Use the e6-agent-skills agents:
 
 > **Important:** GitHub Copilot requires custom agent files to be named `*.agent.md`.
 > Files named `*.md` are silently ignored by Copilot.
@@ -33,9 +33,9 @@ Copilot supports specialized agent personas. Use the agent-skills agents:
 ```bash
 # Create the agents directory and copy agent definitions
 mkdir -p .github/agents
-cp /path/to/agent-skills/agents/code-reviewer.md .github/agents/code-reviewer.agent.md
-cp /path/to/agent-skills/agents/test-engineer.md .github/agents/test-engineer.agent.md
-cp /path/to/agent-skills/agents/security-auditor.md .github/agents/security-auditor.agent.md
+cp /path/to/e6-agent-skills/agents/code-reviewer.md .github/agents/code-reviewer.agent.md
+cp /path/to/e6-agent-skills/agents/test-engineer.md .github/agents/test-engineer.agent.md
+cp /path/to/e6-agent-skills/agents/security-auditor.md .github/agents/security-auditor.agent.md
 ```
 
 Invoke agents in Copilot Chat:
@@ -91,20 +91,20 @@ Skills are user-invocable by default, so once they're discovered the whole lifec
 
 | Workflow | Copilot invocation | Notes |
 |----------|--------------------|-------|
-| Define | `/spec-driven-development` | Writes a structured spec before code |
-| Plan | `/planning-and-task-breakdown` | Produces `tasks/plan.md` and `tasks/todo.md` |
-| Build | `/incremental-implementation` | Pair with `/test-driven-development`; one slice at a time |
-| Verify | `/test-driven-development` | Red-green-refactor, Prove-It for bugs |
-| Review | `/code-review-and-quality` | Five-axis review |
-| Ship | `/shipping-and-launch` | Launch readiness |
+| Define | `/e6-spec-driven-development` | Writes a structured spec before code |
+| Plan | `/e6-planning-and-task-breakdown` | Produces `tasks/plan.md` and `tasks/todo.md` |
+| Build | `/e6-incremental-implementation` | Pair with `/e6-test-driven-development`; one slice at a time |
+| Verify | `/e6-test-driven-development` | Red-green-refactor, Prove-It for bugs |
+| Review | `/e6-code-review-and-quality` | Five-axis review |
+| Ship | `/e6-shipping-and-launch` | Launch readiness |
 
 Type `/` to browse what's actually loaded in this workspace.
 
 Natural language is the fallback, and works in any Copilot surface whether or not the slash commands show up:
 
-> Use the spec-driven-development skill to write a spec for [the feature].
+> Use the e6-spec-driven-development skill to write a spec for [the feature].
 
-> Use the code-review-and-quality skill to review my staged changes.
+> Use the e6-code-review-and-quality skill to review my staged changes.
 
 ### Optional: short `/spec`-style aliases
 
@@ -121,7 +121,7 @@ mkdir -p .github/prompts
 description: Write a structured spec before writing code
 ---
 
-Use the spec-driven-development skill.
+Use the e6-spec-driven-development skill.
 
 Ask clarifying questions about the objective and target users, core features and
 acceptance criteria, stack preferences and constraints, and known boundaries.
@@ -137,21 +137,21 @@ For the rest, run the same `mkdir`/`cat` block with the filename swapped (the fi
 
 | Alias file | `description` | Complete body — everything below the frontmatter |
 |------------|---------------|--------------------------------------------------|
-| `.github/prompts/plan.prompt.md` | Break an approved spec into ordered, verifiable tasks | Use the planning-and-task-breakdown skill. Read the spec, then break the work into small, independently verifiable tasks, each with acceptance criteria and explicit dependency order. Save the result to `tasks/plan.md` and `tasks/todo.md`. Write no product code — show me the plan and wait for my approval. |
-| `.github/prompts/build.prompt.md` | Implement the next planned task, test-first | Use the incremental-implementation and test-driven-development skills. Read `tasks/plan.md` and `tasks/todo.md`, then take the next unchecked task and only that one. Write a failing test first, make it pass, refactor, run the suite, and tick the task off. Stop there and report what changed. |
-| `.github/prompts/test.prompt.md` | Write tests before the code that satisfies them | Use the test-driven-development skill. For new behavior, write a failing test that captures it before any implementation. For a bug, reproduce it with a failing test first, then fix it. Run the suite after each step and show me the red and the green output. |
+| `.github/prompts/plan.prompt.md` | Break an approved spec into ordered, verifiable tasks | Use the e6-planning-and-task-breakdown skill. Read the spec, then break the work into small, independently verifiable tasks, each with acceptance criteria and explicit dependency order. Save the result to `tasks/plan.md` and `tasks/todo.md`. Write no product code — show me the plan and wait for my approval. |
+| `.github/prompts/build.prompt.md` | Implement the next planned task, test-first | Use the e6-incremental-implementation and e6-test-driven-development skills. Read `tasks/plan.md` and `tasks/todo.md`, then take the next unchecked task and only that one. Write a failing test first, make it pass, refactor, run the suite, and tick the task off. Stop there and report what changed. |
+| `.github/prompts/test.prompt.md` | Write tests before the code that satisfies them | Use the e6-test-driven-development skill. For new behavior, write a failing test that captures it before any implementation. For a bug, reproduce it with a failing test first, then fix it. Run the suite after each step and show me the red and the green output. |
 
-Write the body yourself, or take it from this table, rather than copying `.claude/commands/*.md` verbatim: those files reference skills as `agent-skills:<name>`, a Claude Code plugin namespace that means nothing to Copilot.
+Write the body yourself, or take it from this table, rather than copying `.claude/commands/*.md` verbatim: those files reference skills as `e6-agent-skills:<name>`, a Claude Code plugin namespace that means nothing to Copilot.
 
 ### If the skill slash commands don't appear
 
-Work through these in order — `/spec-driven-development` missing and `/spec` missing have different causes:
+Work through these in order — `/e6-spec-driven-development` missing and `/spec` missing have different causes:
 
-1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/` — but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/agent-skills), then re-install into the project if you wanted it project-scoped.
+1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/` — but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/e6-agent-skills), then re-install into the project if you wanted it project-scoped.
 2. **Check the frontmatter.** `name` must be present and valid — it *is* the slash command. A skill whose frontmatter opts out of user invocation won't appear.
 3. **Check the Configure Skills menu.** Run `/skills` and confirm the skill is enabled here.
 4. **Start a fresh session.** Newly added skills aren't always picked up mid-conversation.
-5. **Check the host.** If `/spec-driven-development` works but your `/spec` alias doesn't, you're likely on the Agent Host, which doesn't read prompt files.
+5. **Check the host.** If `/e6-spec-driven-development` works but your `/spec` alias doesn't, you're likely on the Agent Host, which doesn't read prompt files.
 6. **Check versions.** VS Code (**Help → About**) and the Copilot Chat extension; skills-as-slash-commands is recent, so update if either is behind.
 
 ## Usage Tips

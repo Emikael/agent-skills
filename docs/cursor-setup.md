@@ -1,6 +1,6 @@
-# Using agent-skills with Cursor
+# Using e6-agent-skills with Cursor
 
-How to wire [agent-skills](../README.md) into **Cursor** using current, supported project context — not legacy monolith files or Kaizen-specific layouts.
+How to wire [e6-agent-skills](../README.md) into **Cursor** using current, supported project context — not legacy monolith files or Kaizen-specific layouts.
 
 ---
 
@@ -20,7 +20,7 @@ Docs: [Rules](https://docs.cursor.com/context/rules) · [Skills](https://docs.cu
 ### Rules vs skills
 
 - **Rules** — concise, stable (“use conventional commits”, “type-annotate public Python APIs”). Prefer one concern per file; avoid large pasted guides.
-- **Skills** — step-by-step processes from this repo (`test-driven-development`, `code-review-and-quality`, etc.). **Do not** copy entire `SKILL.md` bodies into rules; that duplicates `.cursor/skills/` and wastes context.
+- **Skills** — step-by-step processes from this repo (`e6-test-driven-development`, `e6-code-review-and-quality`, etc.). **Do not** copy entire `SKILL.md` bodies into rules; that duplicates `.cursor/skills/` and wastes context.
 
 ### Legacy (avoid for new setups)
 
@@ -38,18 +38,18 @@ Docs: [Rules](https://docs.cursor.com/context/rules) · [Skills](https://docs.cu
 your-project/
 ├── .cursor/
 │   ├── rules/                    # Short .mdc policies (yours)
-│   │   └── agent-skills.mdc      # Optional: “use project skills” pointer
+│   │   └── e6-agent-skills.mdc      # Optional: “use project skills” pointer
 │   └── skills/                   # What Cursor Agent loads
-│       ├── using-agent-skills/
-│       ├── test-driven-development/
-│       ├── code-review-and-quality/
-│       └── …                     # Synced from agent-skills + your own skills
-└── agent-skills/                 # Optional: git submodule or vendor clone
+│       ├── e6-using-agent-skills/
+│       ├── e6-test-driven-development/
+│       ├── e6-code-review-and-quality/
+│       └── …                     # Synced from e6-agent-skills + your own skills
+└── e6-agent-skills/                 # Optional: git submodule or vendor clone
     └── skills/                   # Upstream source only
 ```
 
 **Source of truth for the agent:** `.cursor/skills/`.  
-Treat `agent-skills/skills/` (or a cloned [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)) as **upstream** — sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
+Treat `e6-agent-skills/skills/` (or a cloned [Emikael/e6-agent-skills](https://github.com/Emikael/e6-agent-skills)) as **upstream** — sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
 
 ---
 
@@ -57,30 +57,30 @@ Treat `agent-skills/skills/` (or a cloned [addyosmani/agent-skills](https://gith
 
 ### 1. Install skills into `.cursor/skills/`
 
-**From a local clone of agent-skills** (at project root or elsewhere):
+**From a local clone of e6-agent-skills** (at project root or elsewhere):
 
 ```bash
 mkdir -p .cursor/skills
-rsync -a /path/to/agent-skills/skills/ .cursor/skills/
+rsync -a /path/to/e6-agent-skills/skills/ .cursor/skills/
 ```
 
 **First-time copy without overwriting your custom skills:**
 
 ```bash
-rsync -a --ignore-existing /path/to/agent-skills/skills/ .cursor/skills/
+rsync -a --ignore-existing /path/to/e6-agent-skills/skills/ .cursor/skills/
 ```
 
 **After upstream updates:**
 
 ```bash
-rsync -a /path/to/agent-skills/skills/ .cursor/skills/
+rsync -a /path/to/e6-agent-skills/skills/ .cursor/skills/
 ```
 
 Each skill folder must contain `SKILL.md` with YAML frontmatter, at minimum:
 
 ```yaml
 ---
-name: test-driven-development
+name: e6-test-driven-development
 description: Drives development with tests. Use when implementing logic, fixing bugs, or changing behavior.
 ---
 ```
@@ -89,17 +89,17 @@ Cursor uses `description` (and related metadata) to decide when to apply a skill
 
 ### 2. Add minimal project rules (optional but useful)
 
-Create `.cursor/rules/agent-skills.mdc`:
+Create `.cursor/rules/e6-agent-skills.mdc`:
 
 ```markdown
 ---
-description: Use agent-skills workflows from .cursor/skills
+description: Use e6-agent-skills workflows from .cursor/skills
 alwaysApply: true
 ---
 
 Before non-trivial technical work:
 
-1. Route via `.cursor/skills/using-agent-skills/SKILL.md`.
+1. Route via `.cursor/skills/e6-using-agent-skills/SKILL.md`.
 2. Read and follow the matching skill under `.cursor/skills/<name>/SKILL.md`.
 3. Open `reference.md` in that folder when the skill links to it.
 4. Prefer project skills over guessing; user does not need to say "read skill" each time.
@@ -127,7 +127,7 @@ globs: "**/*.{ts,tsx}"
 
 ### 3. User-level skills (optional)
 
-Copy or install skills you want everywhere under `~/.cursor/skills/`. Use for stack-wide guides (e.g. language patterns) that are not part of agent-skills.
+Copy or install skills you want everywhere under `~/.cursor/skills/`. Use for stack-wide guides (e.g. language patterns) that are not part of e6-agent-skills.
 
 Project skills in `.cursor/skills/` take precedence for **this** repo’s workflows.
 
@@ -135,33 +135,33 @@ Project skills in `.cursor/skills/` take precedence for **this** repo’s workfl
 
 1. **Settings → Rules** — project `.mdc` files listed.
 2. **Agent chat** — skills from `.cursor/skills/` appear in the skill list (if your Cursor build exposes it).
-3. Run a task that maps to a skill (e.g. “add a feature with tests first”) without naming the file — agent should open `test-driven-development` when routing works.
+3. Run a task that maps to a skill (e.g. “add a feature with tests first”) without naming the file — agent should open `e6-test-driven-development` when routing works.
 
 ---
 
 ## How agents should use skills
 
-1. **Discover** — `using-agent-skills` maps task phase → skill name.
+1. **Discover** — `e6-using-agent-skills` maps task phase → skill name.
 2. **Read** — full process in `.cursor/skills/<name>/SKILL.md`.
 3. **Deep dive** — `reference.md`, `references/*.md`, or linked checklists when the skill says so.
-4. **Combine** — e.g. `incremental-implementation` + `api-and-interface-design` for an API slice.
+4. **Combine** — e.g. `e6-incremental-implementation` + `e6-api-and-interface-design` for an API slice.
 
-Explicit user phrases (“follow TDD”, “use code-review-and-quality”) still help if the agent drifts.
+Explicit user phrases (“follow TDD”, “use e6-code-review-and-quality”) still help if the agent drifts.
 
 ### Phase → skill (quick map)
 
 | You are… | Skill |
 |----------|--------|
-| Clarifying requirements | `interview-me`, `idea-refine`, `spec-driven-development` |
-| Planning tasks | `planning-and-task-breakdown` |
-| Implementing | `incremental-implementation`, `frontend-ui-engineering`, `api-and-interface-design` |
-| Testing | `test-driven-development`, `browser-testing-with-devtools` |
-| Debugging | `debugging-and-error-recovery` |
-| Reviewing | `code-review-and-quality`, `code-simplification` |
-| Security / performance | `security-and-hardening`, `performance-optimization` |
-| Git / CI / ship | `git-workflow-and-versioning`, `ci-cd-and-automation`, `shipping-and-launch` |
+| Clarifying requirements | `e6-interview-me`, `e6-idea-refine`, `e6-spec-driven-development` |
+| Planning tasks | `e6-planning-and-task-breakdown` |
+| Implementing | `e6-incremental-implementation`, `e6-frontend-ui-engineering`, `e6-api-and-interface-design` |
+| Testing | `e6-test-driven-development`, `e6-browser-testing-with-devtools` |
+| Debugging | `e6-debugging-and-error-recovery` |
+| Reviewing | `e6-code-review-and-quality`, `e6-code-simplification` |
+| Security / performance | `e6-security-and-hardening`, `e6-performance-optimization` |
+| Git / CI / ship | `e6-git-workflow-and-versioning`, `e6-ci-cd-and-automation`, `e6-shipping-and-launch` |
 
-Full tree: `skills/using-agent-skills/SKILL.md` in the repo.
+Full tree: `skills/e6-using-agent-skills/SKILL.md` in the repo.
 
 ---
 
@@ -173,7 +173,7 @@ Full tree: `skills/using-agent-skills/SKILL.md` in the repo.
 | Maintain two diverging copies | `rsync` from upstream; commit `.cursor/skills/` |
 | Many `alwaysApply: true` rules | One routing rule + focused globs rules |
 | Rely on `.cursorrules` only | Migrate to `.mdc` + skills |
-| Expect `agent-skills/agents/*.md` to auto-load | Paste in chat, or distill a short rule |
+| Expect `e6-agent-skills/agents/*.md` to auto-load | Paste in chat, or distill a short rule |
 
 ---
 
@@ -188,9 +188,9 @@ Full tree: `skills/using-agent-skills/SKILL.md` in the repo.
 
 ## `agents/` directory
 
-Files under `agent-skills/agents/` (e.g. code reviewer persona) are **not** loaded automatically by Cursor. Options:
+Files under `e6-agent-skills/agents/` (e.g. code reviewer persona) are **not** loaded automatically by Cursor. Options:
 
-- Reference the skill equivalent (`code-review-and-quality`).
+- Reference the skill equivalent (`e6-code-review-and-quality`).
 - Paste agent markdown into the chat for one review.
 - Extract a **short** checklist into a `.mdc` rule.
 
@@ -202,7 +202,7 @@ Files under `agent-skills/agents/` (e.g. code reviewer persona) are **not** load
 |---------|--------|
 | Skill never used | `SKILL.md` under `.cursor/skills/<name>/`? Valid frontmatter `description`? |
 | Rules ignored | Extension `.mdc`? Correct `alwaysApply` / `globs`? |
-| Stale workflow | Re-`rsync` from `agent-skills/skills/` |
+| Stale workflow | Re-`rsync` from `e6-agent-skills/skills/` |
 | Duplicate instructions | Remove skill content from rules; keep one source |
 | Wrong skill picked | Narrow `description` in custom skills; nudge in chat |
 
@@ -210,8 +210,8 @@ Files under `agent-skills/agents/` (e.g. code reviewer persona) are **not** load
 
 ## Checklist (new project)
 
-- [ ] `mkdir -p .cursor/skills` and sync from `agent-skills/skills/`
-- [ ] Optional: `.cursor/rules/agent-skills.mdc` with routing hint
+- [ ] `mkdir -p .cursor/skills` and sync from `e6-agent-skills/skills/`
+- [ ] Optional: `.cursor/rules/e6-agent-skills.mdc` with routing hint
 - [ ] Add repo-specific rules as separate small `.mdc` files
 - [ ] Commit `.cursor/skills/` and `.cursor/rules/` (team shares behavior)
 - [ ] Skip giant `.cursorrules` unless required by legacy tooling
@@ -222,4 +222,4 @@ Files under `agent-skills/agents/` (e.g. code reviewer persona) are **not** load
 
 - [getting-started.md](getting-started.md)
 - [../README.md](../README.md) — Cursor quick blurb
-- Upstream: [github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
+- Upstream: [github.com/Emikael/e6-agent-skills](https://github.com/Emikael/e6-agent-skills)

@@ -1,6 +1,6 @@
 # Skill Anatomy
 
-This document describes the structure and format of agent-skills skill files. Use this as a guide when contributing new skills or understanding existing ones.
+This document describes the structure and format of e6-agent-skills skill files. Use this as a guide when contributing new skills or understanding existing ones.
 
 ## File Location
 
@@ -33,7 +33,7 @@ description: Guides agents through [task/workflow]. Use when [specific trigger c
 - `description`: Start with what the skill does in third person, then include one or more clear "Use when" trigger conditions. Include both *what* and *when*. Maximum 1024 characters.
 
 Published names are compatibility identifiers. In particular,
-`browser-testing-with-devtools` is the stable upstream name because other
+`e6-browser-testing-with-devtools` is the stable upstream name because other
 skills refer to it directly. A downstream catalog may rename it, but that
 catalog owns the alias or migration mapping; downstream-only aliases are not
 maintained in this repository.
@@ -181,8 +181,8 @@ This is about skill *content*; the portability of `references/` *paths* is a sep
 Reference other skills by name:
 
 ```markdown
-Follow the `test-driven-development` skill for writing tests.
-If the build breaks, use the `debugging-and-error-recovery` skill.
+Follow the `e6-test-driven-development` skill for writing tests.
+If the build breaks, use the `e6-debugging-and-error-recovery` skill.
 ```
 
 Don't duplicate content between skills — reference and link instead.

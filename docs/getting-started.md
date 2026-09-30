@@ -1,6 +1,6 @@
-# Getting Started with agent-skills
+# Getting Started with e6-agent-skills
 
-agent-skills works with any AI coding agent that accepts Markdown instructions. This guide covers the universal approach. For tool-specific setup, see the dedicated guides.
+e6-agent-skills works with any AI coding agent that accepts Markdown instructions. This guide covers the universal approach. For tool-specific setup, see the dedicated guides.
 
 Want a worked example before setting up your own project? The
 [interactive tutorials](https://skills.addy.ie/tutorials/) walk through a
@@ -18,7 +18,7 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
+git clone https://github.com/Emikael/e6-agent-skills.git
 ```
 
 ### 2. Choose a skill
@@ -38,13 +38,13 @@ Copy the relevant `SKILL.md` content into your agent's system prompt, rules file
 
 **Rules file:** Add skill content to your project's rules file (CLAUDE.md, .cursorrules, etc.).
 
-**Conversation:** Reference the skill when giving instructions: "Follow the test-driven-development process for this change."
+**Conversation:** Reference the skill when giving instructions: "Follow the e6-test-driven-development process for this change."
 
 ### 4. Use the meta-skill for discovery when needed
 
-If your agent does not route skills natively, start with the `using-agent-skills` skill loaded. It contains a flowchart that maps task types to the appropriate skill.
+If your agent does not route skills natively, start with the `e6-using-agent-skills` skill loaded. It contains a flowchart that maps task types to the appropriate skill.
 
-If your host already discovers and activates skills from their descriptions, do not also paste `using-agent-skills` into an always-on system prompt or rules file. That creates two routers for the same task. Install the individual skills and let the host activate them on demand instead.
+If your host already discovers and activates skills from their descriptions, do not also paste `e6-using-agent-skills` into an always-on system prompt or rules file. That creates two routers for the same task. Install the individual skills and let the host activate them on demand instead.
 
 ### Existing projects need no migration
 
@@ -54,7 +54,7 @@ tasks; they do not require a new repository layout or a one-time conversion of
 existing code.
 
 Do not copy this repository's root `AGENTS.md` or `CLAUDE.md` into the project.
-Those files configure contributors to agent-skills itself. Add only the skills
+Those files configure contributors to e6-agent-skills itself. Add only the skills
 and any project-specific instructions your agent normally reads. For a gradual
 rollout in an established codebase, follow the [Adoption Guide](adoption-guide.md).
 
@@ -66,9 +66,9 @@ Rolling out to a real project? The **[Adoption Guide](adoption-guide.md)** cover
 
 Load three essential skills into your rules file:
 
-1. **spec-driven-development** — For defining what to build
-2. **test-driven-development** — For proving it works
-3. **code-review-and-quality** — For verifying quality before merge
+1. **e6-spec-driven-development** — For defining what to build
+2. **e6-test-driven-development** — For proving it works
+3. **e6-code-review-and-quality** — For verifying quality before merge
 
 These three cover the most critical quality gaps in AI-assisted development.
 
@@ -77,19 +77,19 @@ These three cover the most critical quality gaps in AI-assisted development.
 For comprehensive coverage, load skills by phase:
 
 ```
-Starting a project:  spec-driven-development → planning-and-task-breakdown
-During development:  incremental-implementation + test-driven-development
-Before merge:        code-review-and-quality + security-and-hardening
-Before deploy:       shipping-and-launch
+Starting a project:  e6-spec-driven-development → e6-planning-and-task-breakdown
+During development:  e6-incremental-implementation + e6-test-driven-development
+Before merge:        e6-code-review-and-quality + e6-security-and-hardening
+Before deploy:       e6-shipping-and-launch
 ```
 
 ### Context-Aware Loading
 
 Don't load all skills at once — it wastes context. Load skills relevant to the current task:
 
-- Working on UI? Load `frontend-ui-engineering`
-- Debugging? Load `debugging-and-error-recovery`
-- Setting up CI? Load `ci-cd-and-automation`
+- Working on UI? Load `e6-frontend-ui-engineering`
+- Debugging? Load `e6-debugging-and-error-recovery`
+- Setting up CI? Load `e6-ci-cd-and-automation`
 
 ## Skill Anatomy
 
@@ -127,15 +127,15 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 
 | Command | Skill Invoked |
 |---------|---------------|
-| `/spec` | spec-driven-development |
-| `/constraints` | constraint-driven-development |
-| `/plan` | planning-and-task-breakdown |
-| `/build` | incremental-implementation + test-driven-development |
-| `/build auto` | planning-and-task-breakdown → incremental-implementation + test-driven-development (whole plan, one approval) |
-| `/test` | test-driven-development |
-| `/review` | code-review-and-quality |
-| `/code-simplify` | code-simplification |
-| `/ship` | shipping-and-launch |
+| `/spec` | e6-spec-driven-development |
+| `/constraints` | e6-constraint-driven-development |
+| `/plan` | e6-planning-and-task-breakdown |
+| `/build` | e6-incremental-implementation + e6-test-driven-development |
+| `/build auto` | e6-planning-and-task-breakdown → e6-incremental-implementation + e6-test-driven-development (whole plan, one approval) |
+| `/test` | e6-test-driven-development |
+| `/review` | e6-code-review-and-quality |
+| `/code-simplify` | e6-code-simplification |
+| `/ship` | e6-shipping-and-launch |
 | `/webperf` | web-performance-auditor (specialist agent, web apps only) |
 
 > **Note:** When installed as a Claude Code plugin you may see a warning like
@@ -150,13 +150,13 @@ The `references/` directory contains supplementary checklists:
 
 | Reference | Use With |
 |-----------|----------|
-| `testing-patterns.md` | test-driven-development |
-| `performance-checklist.md` | performance-optimization |
-| `security-checklist.md` | security-and-hardening |
-| `accessibility-checklist.md` | frontend-ui-engineering |
+| `testing-patterns.md` | e6-test-driven-development |
+| `performance-checklist.md` | e6-performance-optimization |
+| `security-checklist.md` | e6-security-and-hardening |
+| `accessibility-checklist.md` | e6-frontend-ui-engineering |
 | `definition-of-done.md` | all skills / every change |
-| `observability-checklist.md` | observability-and-instrumentation |
-| `orchestration-patterns.md` | doubt-driven-development |
+| `observability-checklist.md` | e6-observability-and-instrumentation |
+| `orchestration-patterns.md` | e6-doubt-driven-development |
 
 Load a reference when you need detailed patterns beyond what the skill covers.
 
@@ -166,7 +166,7 @@ to supplementary checklists in the repo-level `references/` directory are
 unavailable. Use a whole-repo integration, clone the repository, or copy the
 needed checklist into a `references/` directory inside the installed skill.
 This portability gap is tracked in
-[addyosmani/agent-skills#361](https://github.com/addyosmani/agent-skills/issues/361).
+[Emikael/e6-agent-skills#361](https://github.com/addyosmani/agent-skills/issues/361).
 
 ## Spec and task artifacts
 
@@ -191,7 +191,7 @@ The same artifacts are the handoff between sessions. For a small task, run the w
 
 `/build auto` can run the whole approved plan in one session. It does not require or perform a fresh process per task. Its per-task status updates, verification results, and commits make each completed task a restartable boundary, so a capable external harness may exit and resume there without depending on chat history.
 
-A shell-level "Ralph loop" is harness behavior, not a separate skill workflow. If you use one, restart only after the current task has reached a recorded boundary; on re-entry, read the durable artifacts and repository state before selecting the next pending task. A process exit is not evidence that a task passed, and a restart must not bypass an approval gate. See the `context-engineering` skill's **Restartable Session Boundaries** section for the handoff checklist.
+A shell-level "Ralph loop" is harness behavior, not a separate skill workflow. If you use one, restart only after the current task has reached a recorded boundary; on re-entry, read the durable artifacts and repository state before selecting the next pending task. A process exit is not evidence that a task passed, and a restart must not bypass an approval gate. See the `e6-context-engineering` skill's **Restartable Session Boundaries** section for the handoff checklist.
 
 This doesn't need the `/spec` and `/plan` wrappers — plain requests work in any agent, including a `npx skills add` install that only has the skills:
 
@@ -201,8 +201,8 @@ This doesn't need the `/spec` and `/plan` wrappers — plain requests work in an
 
 ## Tips
 
-1. **Start with spec-driven-development** for any non-trivial work
-2. **Always load test-driven-development** when writing code
+1. **Start with e6-spec-driven-development** for any non-trivial work
+2. **Always load e6-test-driven-development** when writing code
 3. **Don't skip verification steps** — they're the whole point
 4. **Load skills selectively** — more context isn't always better
 5. **Use the agents for review** — different perspectives catch different issues

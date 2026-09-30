@@ -1,8 +1,8 @@
-# agent-skills
+# e6-agent-skills
 
-This is the agent-skills project — a collection of production-grade engineering skills for AI coding agents.
+This is the e6-agent-skills project — a collection of production-grade engineering skills for AI coding agents.
 
-> **Scope:** This file configures agents working on the [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) repository itself, not other projects. Don't copy it into another project or a global agent configuration; the reusable assets are the skills in `skills/`.
+> **Scope:** This file configures agents working on the [`Emikael/e6-agent-skills`](https://github.com/Emikael/e6-agent-skills) repository itself, not other projects. Don't copy it into another project or a global agent configuration; the reusable assets are the skills in `skills/`.
 
 ## Project Structure
 
@@ -18,12 +18,12 @@ docs/         → Setup guides for different tools
 
 ## Skills by Phase
 
-**Define:** interview-me, idea-refine, spec-driven-development
-**Plan:** planning-and-task-breakdown
-**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, doubt-driven-development, frontend-ui-engineering, api-and-interface-design
-**Verify:** browser-testing-with-devtools, debugging-and-error-recovery
-**Review:** code-review-and-quality, code-simplification, security-and-hardening, performance-optimization
-**Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, observability-and-instrumentation, shipping-and-launch
+**Define:** e6-interview-me, e6-idea-refine, e6-spec-driven-development
+**Plan:** e6-planning-and-task-breakdown
+**Build:** e6-incremental-implementation, e6-test-driven-development, e6-context-engineering, e6-source-driven-development, e6-doubt-driven-development, e6-frontend-ui-engineering, e6-api-and-interface-design
+**Verify:** e6-browser-testing-with-devtools, e6-debugging-and-error-recovery
+**Review:** e6-code-review-and-quality, e6-code-simplification, e6-security-and-hardening, e6-performance-optimization
+**Ship:** e6-git-workflow-and-versioning, e6-ci-cd-and-automation, e6-deprecation-and-migration, e6-documentation-and-adrs, e6-observability-and-instrumentation, e6-shipping-and-launch
 
 ## Conventions
 

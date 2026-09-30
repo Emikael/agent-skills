@@ -4,17 +4,17 @@
   stays out of the agent's working set.
 -->
 
-# How agent-skills compares
+# How e6-agent-skills compares
 
-People often ask how **agent-skills** relates to the two other "skills for coding agents" collections they hear about most: **Superpowers** (Jesse Vincent / obra) and **Matt Pocock's skills**. All three are good, share a lot of DNA, and are worth learning from. This page is an honest map of how they are *shaped* differently, so you can pick the one that fits how you work, or borrow across all three.
+People often ask how **e6-agent-skills** relates to the two other "skills for coding agents" collections they hear about most: **Superpowers** (Jesse Vincent / obra) and **Matt Pocock's skills**. All three are good, share a lot of DNA, and are worth learning from. This page is an honest map of how they are *shaped* differently, so you can pick the one that fits how you work, or borrow across all three.
 
-> **TL;DR** — They optimize for different moments. **agent-skills** organizes the *whole product lifecycle* (Define, Plan, Build, Verify, Review, Ship) with review personas, anti-rationalization guards, and an in-repo eval framework that checks the skills actually route and behave. **Superpowers** leans into *autonomous, reasoning-heavy* runs with subagents, a strict pipeline, and worktree isolation. **Matt Pocock's skills** are a *sharp, opinionated Claude Code toolkit* distilled from one expert's daily workflow, with a signature "grill me" interrogation loop. None is "best" in the abstract; it depends on the work in front of you.
+> **TL;DR** — They optimize for different moments. **e6-agent-skills** organizes the *whole product lifecycle* (Define, Plan, Build, Verify, Review, Ship) with review personas, anti-rationalization guards, and an in-repo eval framework that checks the skills actually route and behave. **Superpowers** leans into *autonomous, reasoning-heavy* runs with subagents, a strict pipeline, and worktree isolation. **Matt Pocock's skills** are a *sharp, opinionated Claude Code toolkit* distilled from one expert's daily workflow, with a signature "grill me" interrogation loop. None is "best" in the abstract; it depends on the work in front of you.
 
 ---
 
 ## At a glance
 
-| | **agent-skills** | **Superpowers** | **Matt Pocock's skills** |
+| | **e6-agent-skills** | **Superpowers** | **Matt Pocock's skills** |
 |---|---|---|---|
 | **Core idea** | Encode the full senior-engineering lifecycle as skills | A complete development *methodology* built on composable skills | One expert's Claude Code workflow, open-sourced and evolving |
 | **Organizing principle** | SDLC **phases** (Define to Ship) behind a meta-skill router | A single disciplined loop: brainstorm, plan, execute, review | A curated toolbox of focused, composable commands |
@@ -49,15 +49,15 @@ Its strengths are authenticity and sharpness: this is how one very good engineer
 
 **Repo:** <https://github.com/mattpocock/skills> · related: <https://github.com/mattpocock/agent-rules-books>
 
-### agent-skills (this project)
+### e6-agent-skills (this project)
 
-agent-skills organizes the **entire product lifecycle** as skills, with a meta-skill (`using-agent-skills`) that routes a task to the right one. Every skill carries a **Common Rationalizations** table (the excuses an agent makes to skip a step, each rebutted) and **Red Flags**. Slash commands map one-to-one to lifecycle phases; `/build auto` runs a whole approved plan in one pass; and `/ship` fans out review **personas** (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`) in parallel, then merges them into a go/no-go. It keeps a human checkpoint at each phase, ships seven reference checklists including a Definition of Done, and runs across most major agent tools with a single-command install on several of them.
+e6-agent-skills organizes the **entire product lifecycle** as skills, with a meta-skill (`e6-using-agent-skills`) that routes a task to the right one. Every skill carries a **Common Rationalizations** table (the excuses an agent makes to skip a step, each rebutted) and **Red Flags**. Slash commands map one-to-one to lifecycle phases; `/build auto` runs a whole approved plan in one pass; and `/ship` fans out review **personas** (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`) in parallel, then merges them into a go/no-go. It keeps a human checkpoint at each phase, ships seven reference checklists including a Definition of Done, and runs across most major agent tools with a single-command install on several of them.
 
-What is newer, and the current point of difference: a **three-tier eval framework** lives in the repo. Tier 1 checks structure, Tier 2 checks that each skill's description carries the vocabulary users actually say and that no two skills collide on routing (deterministic, runs in CI), and Tier 3 grades an agent's real execution trace against per-skill expectations. Neither of the other two ships that kind of in-repo, catalog-wide measurement today. The honest trade-off in the other direction: agent-skills has less of a single opinionated "run" than Superpowers, and none of the three has yet solved durable cross-session memory well.
+What is newer, and the current point of difference: a **three-tier eval framework** lives in the repo. Tier 1 checks structure, Tier 2 checks that each skill's description carries the vocabulary users actually say and that no two skills collide on routing (deterministic, runs in CI), and Tier 3 grades an agent's real execution trace against per-skill expectations. Neither of the other two ships that kind of in-repo, catalog-wide measurement today. The honest trade-off in the other direction: e6-agent-skills has less of a single opinionated "run" than Superpowers, and none of the three has yet solved durable cross-session memory well.
 
 ---
 
-## A real head-to-head: Superpowers vs. agent-skills
+## A real head-to-head: Superpowers vs. e6-agent-skills
 
 Om Mishra ran a controlled experiment, same model, same repo, same prompt in Claude Code, changing only the skill framework, and wrote it up:
 
@@ -65,7 +65,7 @@ Om Mishra ran a controlled experiment, same model, same repo, same prompt in Cla
 
 Summarized fairly:
 
-- **agent-skills** moved to code faster (~8 min vs ~12) and ran **more validation passes** (7 vs 5, including the full test suite). That broader validation caught a compatibility issue *outside* the immediate feature that the feature-specific tests missed. He gave it the edge on **validation depth** for that task.
+- **e6-agent-skills** moved to code faster (~8 min vs ~12) and ran **more validation passes** (7 vs 5, including the full test suite). That broader validation caught a compatibility issue *outside* the immediate feature that the feature-specific tests missed. He gave it the edge on **validation depth** for that task.
 - **Superpowers** invested more **upfront architectural reasoning**, which he still prefers as his daily driver for evolving production systems and exploratory work with no established pattern to follow.
 - Token efficiency was effectively identical; both replanned once.
 
@@ -79,32 +79,32 @@ The at-a-glance table tells you how they are shaped. This is how to choose in pr
 
 ### Start with the shape of your work
 
-- **A whole feature, front to back?** agent-skills. It is the only one of the three that carries you from spec through security, performance, and launch with a checkpoint at each phase, so nothing quietly skips the review or the pre-flight.
+- **A whole feature, front to back?** e6-agent-skills. It is the only one of the three that carries you from spec through security, performance, and launch with a checkpoint at each phase, so nothing quietly skips the review or the pre-flight.
 - **A big, ambiguous chunk you want to hand off and walk away from?** Superpowers. Its pipeline and subagent review are built to run for a long time and hand back a result that has already been reviewed against the spec.
 - **A fast, focused daily loop, especially getting requirements right before code?** Matt Pocock's skills. The grilling loop is the sharpest requirements tool of the three, and the toolkit stays out of your way.
 
 ### Then weight what you actually care about
 
-- **Breadth of coverage** (security, performance, CI/CD, observability, launch): agent-skills is the clear pick; the others are inner-loop focused.
+- **Breadth of coverage** (security, performance, CI/CD, observability, launch): e6-agent-skills is the clear pick; the others are inner-loop focused.
 - **Autonomy over a long run**: Superpowers, by design.
-- **Low ceremony on small changes**: Pocock's toolkit is lightest; agent-skills offers a middle gear (a small change can skip straight to `/test` and `/review`); Superpowers is the most process-heavy.
-- **Confidence that the skills themselves work**: agent-skills is the only one with catalog-wide evals in the repo, so a description or routing regression fails CI rather than surfacing as a mysterious "why didn't the skill fire" later.
-- **Requirements interrogation**: Pocock's grilling is the reference implementation; agent-skills' `interview-me` is close in spirit and gaining an opt-in collaborative mode.
-- **Platform spread**: agent-skills and Superpowers both run almost everywhere; Pocock is happiest on Claude Code.
-- **A human gate at each step vs. a hands-off run**: agent-skills checkpoints by default; Superpowers minimizes mid-run check-ins on purpose.
+- **Low ceremony on small changes**: Pocock's toolkit is lightest; e6-agent-skills offers a middle gear (a small change can skip straight to `/test` and `/review`); Superpowers is the most process-heavy.
+- **Confidence that the skills themselves work**: e6-agent-skills is the only one with catalog-wide evals in the repo, so a description or routing regression fails CI rather than surfacing as a mysterious "why didn't the skill fire" later.
+- **Requirements interrogation**: Pocock's grilling is the reference implementation; e6-agent-skills' `e6-interview-me` is close in spirit and gaining an opt-in collaborative mode.
+- **Platform spread**: e6-agent-skills and Superpowers both run almost everywhere; Pocock is happiest on Claude Code.
+- **A human gate at each step vs. a hands-off run**: e6-agent-skills checkpoints by default; Superpowers minimizes mid-run check-ins on purpose.
 
 ### Concrete scenarios
 
-- *"Ship a new endpoint with auth, tests, and a security pass before merge."* agent-skills: `/spec` to `/ship`, with the security-auditor and test-engineer personas fanning out at the end.
+- *"Ship a new endpoint with auth, tests, and a security pass before merge."* e6-agent-skills: `/spec` to `/ship`, with the security-auditor and test-engineer personas fanning out at the end.
 - *"Refactor a gnarly subsystem overnight and review it in the morning."* Superpowers: hand it the plan, let subagent-driven development and the task reviewer run.
-- *"I have a vague idea and keep letting the agent guess the requirements."* Pocock's `grill-me` (or agent-skills' `interview-me`) to pin down intent before any code.
+- *"I have a vague idea and keep letting the agent guess the requirements."* Pocock's `grill-me` (or e6-agent-skills' `e6-interview-me`) to pin down intent before any code.
 - *"Fix one clear bug, test-first."* Any of them; reach for the lightest one you already have installed.
-- *"Standardize how a team of engineers uses agents across a repo."* agent-skills: the phase commands, personas, and shared checklists give a team a common vocabulary, and the evals keep custom skills honest.
-- *"Roll my own skills and know they trigger correctly."* agent-skills, and borrow Superpowers' pressure-testing discipline for the ones that must not be rationalized away.
+- *"Standardize how a team of engineers uses agents across a repo."* e6-agent-skills: the phase commands, personas, and shared checklists give a team a common vocabulary, and the evals keep custom skills honest.
+- *"Roll my own skills and know they trigger correctly."* e6-agent-skills, and borrow Superpowers' pressure-testing discipline for the ones that must not be rationalized away.
 
 ### Solo vs. team
 
-For a solo developer, taste and momentum win: pick the one whose defaults match how you already work, and the lowest-ceremony option is often the most-used one. For a team, the calculus shifts toward shared structure and guardrails you can enforce: named phases, review personas, checklists, and evals that fail CI are what keep five people (and their agents) converging on the same standard rather than five private workflows. That is the situation agent-skills is built for, though a team can absolutely adopt Superpowers' review discipline or Pocock's grilling loop within it.
+For a solo developer, taste and momentum win: pick the one whose defaults match how you already work, and the lowest-ceremony option is often the most-used one. For a team, the calculus shifts toward shared structure and guardrails you can enforce: named phases, review personas, checklists, and evals that fail CI are what keep five people (and their agents) converging on the same standard rather than five private workflows. That is the situation e6-agent-skills is built for, though a team can absolutely adopt Superpowers' review discipline or Pocock's grilling loop within it.
 
 ### The shared frontier (true of all three)
 

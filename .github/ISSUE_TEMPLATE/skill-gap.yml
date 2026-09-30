@@ -15,30 +15,31 @@ body:
       label: Affected skill
       description: Which skill did not work as expected?
       options:
-        - api-and-interface-design
-        - browser-testing-with-devtools
-        - ci-cd-and-automation
-        - code-review-and-quality
-        - code-simplification
-        - context-engineering
-        - debugging-and-error-recovery
-        - deprecation-and-migration
-        - documentation-and-adrs
-        - doubt-driven-development
-        - frontend-ui-engineering
-        - git-workflow-and-versioning
-        - idea-refine
-        - incremental-implementation
-        - interview-me
-        - observability-and-instrumentation
-        - performance-optimization
-        - planning-and-task-breakdown
-        - security-and-hardening
-        - shipping-and-launch
-        - source-driven-development
-        - spec-driven-development
-        - test-driven-development
-        - using-agent-skills
+        - e6-api-and-interface-design
+        - e6-browser-testing-with-devtools
+        - e6-ci-cd-and-automation
+        - e6-code-review-and-quality
+        - e6-code-simplification
+        - e6-constraint-driven-development
+        - e6-context-engineering
+        - e6-debugging-and-error-recovery
+        - e6-deprecation-and-migration
+        - e6-documentation-and-adrs
+        - e6-doubt-driven-development
+        - e6-frontend-ui-engineering
+        - e6-git-workflow-and-versioning
+        - e6-idea-refine
+        - e6-incremental-implementation
+        - e6-interview-me
+        - e6-observability-and-instrumentation
+        - e6-performance-optimization
+        - e6-planning-and-task-breakdown
+        - e6-security-and-hardening
+        - e6-shipping-and-launch
+        - e6-source-driven-development
+        - e6-spec-driven-development
+        - e6-test-driven-development
+        - e6-using-agent-skills
         - other / not sure
     validations:
       required: true
