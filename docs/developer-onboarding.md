@@ -30,7 +30,7 @@ Note that commands exist in three parallel directories (Claude Code, Gemini CLI,
 ## 2. Local setup
 
 ```bash
-git clone https://github.com/Emikael/agent-skills.git
+git clone https://github.com/Emikael/e6-agent-skills.git
 cd e6-agent-skills
 ```
 
