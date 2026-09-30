@@ -6,8 +6,8 @@
     "name": "Addy Osmani",
     "url": "https://github.com/addyosmani"
   },
-  "homepage": "https://github.com/Emikael/e6-agent-skills",
-  "repository": "https://github.com/Emikael/e6-agent-skills",
+  "homepage": "https://github.com/Emikael/agent-skills",
+  "repository": "https://github.com/Emikael/agent-skills",
   "license": "MIT",
   "skills": "./skills/",
   "interface": {

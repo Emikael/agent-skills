@@ -49,7 +49,7 @@ your-project/
 ```
 
 **Source of truth for the agent:** `.cursor/skills/`.  
-Treat `e6-agent-skills/skills/` (or a cloned [Emikael/e6-agent-skills](https://github.com/Emikael/e6-agent-skills)) as **upstream** — sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
+Treat `e6-agent-skills/skills/` (or a cloned [Emikael/agent-skills](https://github.com/Emikael/agent-skills)) as **upstream** — sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
 
 ---
 
@@ -222,4 +222,4 @@ Files under `e6-agent-skills/agents/` (e.g. code reviewer persona) are **not** l
 
 - [getting-started.md](getting-started.md)
 - [../README.md](../README.md) — Cursor quick blurb
-- Upstream: [github.com/Emikael/e6-agent-skills](https://github.com/Emikael/e6-agent-skills)
+- Upstream: [github.com/Emikael/agent-skills](https://github.com/Emikael/agent-skills)

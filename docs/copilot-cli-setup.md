@@ -7,20 +7,20 @@ The standalone `copilot` command-line tool installs this repository as a plugin 
 **From this repository's marketplace** — register it, then install from it. `e6-agent-skills` is the marketplace name this repository declares, not a GitHub-wide registry, and the name only resolves after the `marketplace add`:
 
 ```bash
-copilot plugin marketplace add Emikael/e6-agent-skills
+copilot plugin marketplace add Emikael/agent-skills
 copilot plugin install e6-agent-skills@e6-agent-skills
 ```
 
 **Directly from the repository**, without registering a marketplace:
 
 ```bash
-copilot plugin install Emikael/e6-agent-skills
+copilot plugin install Emikael/agent-skills
 ```
 
 **From a local clone**, for a session-scoped development install:
 
 ```bash
-git clone https://github.com/Emikael/e6-agent-skills.git
+git clone https://github.com/Emikael/agent-skills.git
 copilot --plugin-dir /path/to/e6-agent-skills
 ```
 
@@ -58,7 +58,7 @@ Name the skill you want, or describe the task and let the agent route to it:
 
 | Symptom | What to check |
 |---------|---------------|
-| `plugin install` can't resolve `e6-agent-skills@e6-agent-skills` | Run `copilot plugin marketplace add Emikael/e6-agent-skills` first — that name only resolves once the marketplace is registered. Or install the repository directly. |
+| `plugin install` can't resolve `e6-agent-skills@e6-agent-skills` | Run `copilot plugin marketplace add Emikael/agent-skills` first — that name only resolves once the marketplace is registered. Or install the repository directly. |
 | Plugin installed but no skills | `copilot plugin list` to confirm the plugin, then `copilot skill list` (or `/skills list` in session) to see what was discovered. |
 | `/spec`, `/build` and friends are not found | Expected, not a broken install: the root manifest registers no commands. Ask for the skill by name instead. |
 | Skills changed locally but the CLI shows the old copy | Start a fresh session, or run with `--plugin-dir` pointing at your clone. |

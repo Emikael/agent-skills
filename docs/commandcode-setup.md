@@ -9,7 +9,7 @@ The Command Code binary is available as `cmd` (with aliases `cmdc` on Windows an
 **Project scope** (installs into `.commandcode/skills/` at the current git root — the default):
 
 ```bash
-cmd skills add Emikael/e6-agent-skills
+cmd skills add Emikael/agent-skills
 ```
 
 In an interactive terminal this shows a multi-select so you can choose which of the 25 skills to install. Pipe/non-interactive invocations install all discovered skills.
@@ -17,21 +17,21 @@ In an interactive terminal this shows a multi-select so you can choose which of 
 **Install a specific skill:**
 
 ```bash
-cmd skills add Emikael/e6-agent-skills -s e6-spec-driven-development
+cmd skills add Emikael/agent-skills -s e6-spec-driven-development
 ```
 
 **User scope** (installs into `~/.commandcode/skills/`, available in every project):
 
 ```bash
-cmd skills add Emikael/e6-agent-skills --global
+cmd skills add Emikael/agent-skills --global
 ```
 
 **Other supported forms:**
 
 ```bash
-cmd skills add Emikael/e6-agent-skills@main            # a specific branch
-cmd skills add Emikael/e6-agent-skills/skills/e6-interview-me   # a specific path in the repo
-cmd skills add Emikael/e6-agent-skills --force         # overwrite / update if already installed
+cmd skills add Emikael/agent-skills@main            # a specific branch
+cmd skills add Emikael/agent-skills/skills/e6-interview-me   # a specific path in the repo
+cmd skills add Emikael/agent-skills --force         # overwrite / update if already installed
 ```
 
 ## Manage
