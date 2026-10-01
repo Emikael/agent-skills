@@ -2,18 +2,8 @@
 description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
 ---
 
-Invoke the e6-agent-skills:e6-test-driven-development skill.
+Use e6-test-driven-development and e6-caveman. Read requirements, existing source/tests, and the project's actual test commands.
 
-For new features:
-1. Write tests that describe the expected behavior (they should FAIL)
-2. Implement the code to make them pass
-3. Refactor while keeping tests green
+Map acceptance criteria to meaningful behavior assertions. For a bug, reproduce the reported failure with a test; observe it fail for the expected reason before the fix. For a feature, write the missing-behavior test first. Implement only when the user's scope includes the fix; test-only requests remain test-only.
 
-For bug fixes (Prove-It pattern):
-1. Write a test that reproduces the bug (must FAIL)
-2. Confirm the test fails
-3. Implement the fix
-4. Confirm the test passes
-5. Run the full test suite for regressions
-
-For browser-related issues, also invoke e6-agent-skills:e6-browser-testing-with-devtools to verify with Chrome DevTools MCP.
+Run focused checks, relevant regressions, and project-required gates. Refactor with green checks. For affected runtime behavior, exercise the local endpoint/CLI/library; UI verification uses e6-browser-testing-with-devtools with available browser/computer or existing automation. Report precise blockers and unverified criteria. Return evidence to the active coordinator; do not restart the lifecycle.

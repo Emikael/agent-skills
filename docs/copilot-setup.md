@@ -1,5 +1,10 @@
 # Using e6-agent-skills with GitHub Copilot
 
+## Whole workflow
+
+Install the complete pack and select `using-e6-agent-skills` as the coordinator for engineering requests. Add the compact [workflow bootstrap](../references/workflow-bootstrap.md) to this host's project instruction surface, with the installed pack path; keep skill bodies on demand. See [activation](workflow-activation.md). Use `e6-caveman` for concise output. The coordinator continues through context, criteria, tests, local runtime, review, and handoff within existing authorization; single-phase requests remain bounded. Native discovery alone does not prove full-workflow execution.
+
+
 This guide covers Copilot in VS Code. For the standalone `copilot` command-line tool, see [copilot-cli-setup.md](copilot-cli-setup.md).
 
 **What an install actually gives you:** the skills. Each installed skill becomes a slash command named after its frontmatter `name` — `/e6-spec-driven-development`, `/e6-test-driven-development`, and so on. `npx skills add Emikael/e6-agent-skills` and the manual copy below both install skills only. Neither of those two routes copies this repo's short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`) — those are Claude Code commands living in `.claude/commands/`. Use the full skill names, or add your own aliases — see [Lifecycle workflows](#lifecycle-workflows).
@@ -72,7 +77,7 @@ GitHub Copilot supports project-level instructions via `.github/copilot-instruct
 
 ## Implementation
 - Build in small, verifiable increments
-- Each increment: implement → test → verify → commit
+- Each behavior-changing increment: failing test → implement → passing tests → local runtime → review; commit only when authorized or repository-required
 - Never mix formatting changes with behavior changes
 
 ## Boundaries

@@ -65,7 +65,7 @@ node scripts/run-evals.js
 node scripts/run-evals.js --behavioral <skill-name> --dry-run
 
 # Hook regression test, required if you touch hooks/session-start.sh
-# or skills/e6-using-agent-skills/SKILL.md
+# or skills/using-e6-agent-skills/SKILL.md
 bash hooks/session-start-test.sh
 ```
 
@@ -100,7 +100,7 @@ One point worth internalizing rather than looking up: when writing trigger promp
 - [ ] Tier 1 green: `node scripts/validate-skills.js`
 - [ ] Tier 2 green: `node scripts/run-evals.js`
 - [ ] Command parity green if you touched any command directory: `node scripts/validate-commands.js`
-- [ ] Hook test green if you touched `hooks/` or `e6-using-agent-skills`
+- [ ] Hook test green if you touched `hooks/` or `using-e6-agent-skills`
 - [ ] New skill → eval case file present with the minimum trigger/behavioral counts
 - [ ] New skill → gap justified in the PR description; catalog and open PRs checked
 - [ ] No duplicated content; cross-references used instead
@@ -109,7 +109,7 @@ One point worth internalizing rather than looking up: when writing trigger promp
 ## 6. Suggested reading order
 
 1. [README.md](../README.md): the catalog and the lifecycle diagram (10 min)
-2. `skills/e6-using-agent-skills/SKILL.md`: how routing works from the agent's side
+2. `skills/using-e6-agent-skills/SKILL.md`: how routing works from the agent's side
 3. One well-established skill end to end (e.g. `e6-test-driven-development`): internalize the anatomy by example
 4. [skill-anatomy.md](skill-anatomy.md): the format spec, now with context
 5. [evals/README.md](../evals/README.md): the three tiers and the case format

@@ -98,40 +98,12 @@ Create an `AGENTS.md` in **your own project** root. This is the system prompt th
 Below is a template you can paste into your project's `AGENTS.md`:
 
 ```markdown
-# e6-agent-skills (OpenCode)
+# e6 Workflow
 
-This project uses skills installed under `.opencode/skills/` (or a compatible path).
-
-## Core Rules
-
-- If a task matches a skill, invoke it with the `skill` tool before acting.
-- Skills are located in `.opencode/skills/<skill-name>/SKILL.md`.
-- Follow the skill workflow strictly; do not partially apply it.
-- Never skip required steps such as spec, plan, or test when a skill demands them.
-
-## Intent → Skill Mapping
-
-Map the user's intent to the matching skill automatically:
-
-- Feature / new functionality → `e6-spec-driven-development`, then `e6-incremental-implementation` and `e6-test-driven-development`
-- Planning / breakdown → `e6-planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `e6-debugging-and-error-recovery`
-- Code review → `e6-code-review-and-quality`
-- Refactoring / simplification → `e6-code-simplification`
-- API or interface design → `e6-api-and-interface-design`
-- UI work → `e6-frontend-ui-engineering`
-
-## Execution Model
-
-For every request:
-
-1. Determine if any skill applies (even a small chance).
-2. Load the skill with `skill({ name: "<skill-name>" })`.
-3. Follow the skill workflow exactly.
-4. Only proceed to implementation once required steps are complete.
+For engineering tasks, load using-e6-agent-skills through the skill tool from the installed complete pack. Use e6-caveman for concise output. The coordinator loads specialists on demand and continues applicable phases through test/runtime/review evidence and handoff. Respect narrower requests, existing authorization, project rules, and the host's instruction priority. Assigned workers return scoped evidence instead of starting another lifecycle. Keep one coordinator; do not load the whole catalog.
 ```
 
-Save this as `AGENTS.md` in your project root. OpenCode will load it automatically.
+Add this short rule to the project's existing `AGENTS.md`, with the installed pack path. Prefer the [idempotent bootstrap installer](workflow-activation.md#codex-opencode-and-gemini) to preserve existing content.
 
 > **Note:** The root `AGENTS.md` inside the `Emikael/e6-agent-skills` repository is intended for contributors working on this repository and should not be copied into other projects. See [CONTRIBUTING.md](../CONTRIBUTING.md#repo-scoped-files).
 

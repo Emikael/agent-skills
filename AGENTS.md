@@ -1,92 +1,56 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Antigravity, etc.) when working with code in this repository.
+Instructions for contributors working on this repository. Do not copy this file into other projects; use the reusable [workflow bootstrap](references/workflow-bootstrap.md) and [installer](docs/workflow-activation.md).
 
-> **Scope:** This file configures agents working on the [`Emikael/e6-agent-skills`](https://github.com/Emikael/e6-agent-skills) repository itself. It is not meant to be copied into other projects or into a global agent configuration; the reusable assets are the skills in `skills/`, not this file.
+## Workflow
 
-## Repository Overview
+For engineering work use `using-e6-agent-skills` as coordinator and `e6-caveman` for concise communication. Load skills from `skills/<name>/SKILL.md` using the host's skill mechanism or file tools. Follow applicable steps and evidence gates. Existing user authorization persists. Respect plan-only, review-only, and other narrow requests. Read [the workflow contract](references/workflow-contract.md) once; specialists return to the current coordinator instead of stopping the wider task or restarting routing.
 
-A collection of skills for Claude.ai and Claude Code for senior software engineers. Skills are packaged instructions and scripts that extend Claude and your coding agents capabilities.
+The lifecycle is Understand → Plan → Build → Verify → Review → Handoff. Behavior changes use observed failing tests before implementation. Unchanged behavior uses baseline/characterization checks; documentation/configuration uses relevant validators. Run actual local behavior when applicable, record unavailable required checks honestly, resolve Critical/Required findings, and rerun affected evidence.
 
-## OpenCode Integration
+## Structure
 
-OpenCode uses a **skill-driven execution model** powered by the `skill` tool and this repository's `/skills` directory.
+- `skills/`: 24 lifecycle specialists, one coordinator, one concise communication skill.
+- `references/`: shared phase contract, checklists, and bootstrap.
+- `agents/`: specialist perspectives; workers receive bounded task packets.
+- `.claude/commands/`, `.gemini/commands/`, `commands/`: matched user entry points.
+- `hooks/`: Claude SessionStart bootstrap and optional cache/simplification helpers.
+- `scripts/`: dependency-free validators, installer, and eval runner.
+- `evals/`: trigger cases, behavioral fixtures, optional plugin cases; results ignored.
 
-### Core Rules
+## Context and Workers
 
-- If a task matches a skill, you MUST invoke it
-- Skills are located in `skills/<skill-name>/SKILL.md`
-- Never implement directly if a skill applies
-- Always follow the skill instructions exactly (do not partially apply them)
+Follow `e6-context-engineering`: trace relevant source/callers/tests, discover real project commands, reuse accepted requirements and existing decisions. Prefer path pointers and short excerpts. Do not load the catalog or full history into each worker.
 
-### Intent → Skill Mapping
+Delegate independent substantial work only. Target 500-word input and 200-word evidence return; preserve correctness-critical detail and explain necessary overruns. One owner per writable path; coordinator owns shared integration and final checks. Workers use `e6-caveman`, follow their assigned scope, and do not spawn additional workers by default. The host/user authorization still governs delegation.
 
-The agent should automatically map user intent to skills:
+Personas are viewpoints, not workflow routers. A worker may use a relevant skill; it returns findings and evidence to the coordinator. The main agent can perform sequential phases directly and parallelize independent investigations. Claude subagents/teams have host-specific restrictions; do not assume nested teams or private tools exist on every host.
 
-- Feature / new functionality → `e6-spec-driven-development`, then `e6-incremental-implementation`, `e6-test-driven-development`
-- Planning / breakdown → `e6-planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `e6-debugging-and-error-recovery`
-- Code review → `e6-code-review-and-quality`
-- Refactoring / simplification → `e6-code-simplification`
-- API or interface design → `e6-api-and-interface-design`
-- UI work → `e6-frontend-ui-engineering`
+## Contribution Rules
 
-### Lifecycle Mapping (Implicit Commands)
+Before a new skill, follow [CONTRIBUTING.md](CONTRIBUTING.md#before-proposing-a-new-skill): search catalog, PRs, and the rejection ledger; justify the gap. Prefer improving an existing skill. Skills are Markdown-first with valid frontmatter, concrete trigger descriptions, inputs/process, rationalizations, red flags, verification, and workflow handoff. See [skill anatomy](docs/skill-anatomy.md). Shared references stay at root; skill-specific examples load through direct supporting links.
 
-OpenCode does not support slash commands like `/spec` or `/plan`.
+Add/extend realistic trigger and execution cases for behavioral changes. Do not equate lexical routing or dry-run success with actual LLM compliance. Examples and precise tool names must match current host capability; preserve existing published skill identifiers.
 
-Instead, the agent must internally follow this lifecycle:
+## Verification
 
-- DEFINE → `e6-spec-driven-development`
-- PLAN → `e6-planning-and-task-breakdown`
-- BUILD → `e6-incremental-implementation` + `e6-test-driven-development`
-- VERIFY → `e6-debugging-and-error-recovery`
-- REVIEW → `e6-code-review-and-quality`
-- SHIP → `e6-shipping-and-launch`
+From repository root:
 
-### Execution Model
+```bash
+node --test scripts/*test.js scripts/lib/*test.js
+node scripts/validate-skills.js
+node scripts/validate-reference-links.js
+node scripts/validate-commands.js
+node scripts/validate-artifact-paths.js
+node scripts/validate-versions.js
+node scripts/run-evals.js --min-rank1 95
+bash hooks/session-start-test.sh
+bash hooks/sdd-cache-test.sh
+bash hooks/simplify-ignore-test.sh
+```
 
-For every request:
+Run changed application fixtures with their own commands. Optional actual model evals use `node scripts/run-evals.js --behavioral <skill> --engine claude|codex`; capture CLI/model, pack identity, traces, and limitations. Run only appropriate checks; broaden verification to resolve remaining concrete risk.
 
-1. Determine if any skill applies (even 1% chance)
-2. Invoke the appropriate skill using the `skill` tool
-3. Follow the skill workflow strictly
-4. Only proceed to implementation after required steps (spec, plan, etc.) are complete
+## Boundaries
 
-### Anti-Rationalization
-
-The following thoughts are incorrect and must be ignored:
-
-- "This is too small for a skill"
-- "I can just quickly implement this"
-- "I’ll gather context first"
-
-Correct behavior:
-
-- Always check for and use skills first
-
-This ensures OpenCode behaves similarly to Claude Code with full workflow enforcement.
-
-## Orchestration: Personas, Skills, and Commands
-
-This repo has three composable layers. They have different jobs and should not be confused:
-
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
-- **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The *who*.
-- **Slash commands** (`.claude/commands/*.md`) — user-facing entry points. The *when*. The orchestration layer.
-
-Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
-
-The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
-
-See [docs/agents.md](docs/agents.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
-
-**Claude Code interop:** the personas in `agents/` work as Claude Code subagents (auto-discovered from this plugin's `agents/` directory) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
-
-## Creating a New Skill
-
-> **Before you start:** run the pre-flight checks in [CONTRIBUTING.md](CONTRIBUTING.md#before-proposing-a-new-skill), search the catalog, check open PRs (`gh pr list --state open`), confirm the idea fits [docs/skill-anatomy.md](docs/skill-anatomy.md), and justify the gap in your PR description. Most new-skill ideas overlap an existing skill or an open PR; prefer extending an existing skill over adding a near-duplicate. CONTRIBUTING.md is the single source of truth for this workflow.
-
-Skills in this repo are markdown-first: each lives at `skills/<kebab-case-name>/SKILL.md` with YAML frontmatter (`name`, `description`) and follows the section anatomy (Overview, When to Use, Process, Common Rationalizations, Red Flags, Verification). Add a `scripts/` directory only when the skill ships runnable helpers; most skills are markdown only, and there are no per-skill zip packages.
-
-For the full format, naming conventions, frontmatter rules, supporting-file thresholds, and writing principles, see [docs/skill-anatomy.md](docs/skill-anatomy.md), the single source of truth for skill structure. Do not restate that guidance here, link to it.
+Preserve unrelated edits and secrets. Commit, push, merge, or deploy only when authorized or repository-required. Do not silence failures by removing tests, lowering gates, or misreporting missing runtime capabilities. Report the completed local result and blockers concisely.

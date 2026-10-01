@@ -9,7 +9,7 @@ codex plugin marketplace add Emikael/e6-agent-skills
 codex plugin add e6-agent-skills@e6-agent-skills
 ```
 
-> Requires Codex CLI v0.122 or later. On older releases the command was `codex marketplace add`. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
+> Use a Codex CLI version that supports `codex plugin`; inspect `codex plugin --help` for the installed version. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
 
 The first command registers this repository as the `e6-agent-skills` marketplace. The second command installs and enables the `e6-agent-skills` plugin from that marketplace. Start a new Codex session after installation so the skills are discovered.
 
@@ -22,9 +22,9 @@ codex plugin add e6-agent-skills@e6-agent-skills
 
 ## Usage
 
-After install, invoke a skill in Codex chat with `@` (e.g. `@e6-spec-driven-development`) or just describe the task and let Codex pick the right skill. All 25 skills under `skills/` are available.
+After installation, start a new session and select a discovered skill from the host's picker, or describe the task for implicit selection. In the CLI, explicit skill mentions use `$`; plugin skills include the plugin namespace, for example `$e6-agent-skills:using-e6-agent-skills` or `$e6-agent-skills:e6-spec-driven-development`. A standalone skill uses `$<skill-name>`. All 26 skills under `skills/` are available. See the [Codex skills documentation](https://developers.openai.com/codex/skills).
 
-[Codex uses progressive disclosure](https://developers.openai.com/codex/skills): it starts with each skill's `name` and `description`, chooses skills on demand, then loads the full `SKILL.md` only when selected. Do not also paste `e6-using-agent-skills/SKILL.md` into `AGENTS.md`, a system prompt, or other always-on context: that stacks the pack's meta-router on Codex's native router and adds unnecessary routing work. The meta-skill can remain installed with the pack; the warning is specifically against preloading its full instructions.
+[Codex uses progressive disclosure](https://developers.openai.com/codex/skills): descriptions select skills; bodies load on demand. For the whole lifecycle, install a compact project rule with the [workflow bootstrap installer](workflow-activation.md#codex-opencode-and-gemini). It selects one e6 coordinator and loads specialists only as needed. Keep full skill bodies out of always-on rules.
 
 ## How it works
 
@@ -32,4 +32,4 @@ After install, invoke a skill in Codex chat with `@` (e.g. `@e6-spec-driven-deve
 - `.agents/plugins/marketplace.json` — marketplace entry declaring the repo root (`./`) as the plugin source.
 - `skills/<name>/SKILL.md` — unchanged. Codex and Claude Code share the same `name` + `description` frontmatter format, so one file serves both platforms.
 
-Slash commands in `.claude/commands/` and personas in `agents/` stay Claude Code-specific. The `SessionStart` script under `hooks/` is a standalone helper for hosts without native skill routing and is not wired by either plugin. On Codex, invoke the underlying skill directly instead of the slash command (e.g. `@e6-spec-driven-development` instead of `/spec`).
+Slash commands in `.claude/commands/` and personas in `agents/` stay Claude Code-specific. Claude Code loads `hooks/hooks.json`; Codex setup uses the project-rule bootstrap instead of assuming Claude hook compatibility. Invoke an underlying skill or describe the desired outcome; the coordinator handles applicable handoffs.

@@ -48,7 +48,7 @@ The depth behind these items lives in `e6-code-review-and-quality` (the five-axi
 - [ ] Security implications reviewed for any untrusted input, auth, or data handling (see `e6-security-and-hardening`)
 - [ ] Observability in place for new critical paths (logs, metrics, traces) (see `e6-observability-and-instrumentation`)
 - [ ] Rollback path exists for anything risky (see `e6-shipping-and-launch`)
-- [ ] The human has reviewed and approved before merge or deploy
+- [ ] Merge/deploy authorization covers the pending action; existing authorization is reused
 
 ## How to Apply
 
@@ -56,7 +56,7 @@ The depth behind these items lives in `e6-code-review-and-quality` (the five-axi
 - **Per feature**: confirm Integration and Documentation before considering the feature complete.
 - **Per release**: the full checklist is the floor; `e6-shipping-and-launch` adds the deploy-specific gates on top.
 
-Tailor the list to the project once, then reuse it unchanged. A Definition of Done that is renegotiated every sprint is not a Definition of Done.
+Tailor the list to the project once, then reuse it. Mark irrelevant checks with a reason; required checks unavailable in the environment remain blocked. For a library, executed integration tests or examples can verify runtime behavior. For an API/CLI, exercise the changed local path; for UI, interact with the affected flow using available browser/computer tools. See [the workflow contract](workflow-contract.md) for startup, readiness, evidence, cleanup, and authorization rules.
 
 ## Red Flags
 

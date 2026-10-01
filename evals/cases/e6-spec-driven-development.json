@@ -15,7 +15,7 @@
         "top_k": 3
       },
       {
-        "prompt": "This one requirement covers identity, billing, notifications, and reporting — decompose it into independently specifiable modules first",
+        "prompt": "This one requirement covers identity, billing, notifications, and reporting \u2014 decompose it into independently specifiable modules first",
         "top_k": 3
       },
       {
@@ -53,23 +53,41 @@
         "Each requirement has an id and a scenario with an observable outcome",
         "Commands, directory layout, and formatter rules are not restated as the body of the spec",
         "Ambiguities are surfaced as questions rather than silently resolved",
-        "No implementation code is written"
+        "No implementation code is written",
+        "Relevant existing project facts are read before proposing stack or persistence assumptions",
+        "Requirements include meaningful proof methods and relevant failure or edge behavior",
+        "The draft can be saved with blocking questions while unresolved behavior remains unapproved"
       ]
     },
     {
       "id": 2,
       "prompt": "Read portal-brief.md and produce the spec work for the customer portal initiative.",
-      "expected_output": "A capability map with stable module ids and one-way dependency direction, gated on approval before per-module specs; any module spec written is scoped to its module only",
+      "expected_output": "A capability map with stable module ids and one-way dependency direction before per-module specs; material scope questions remain explicit and any written module spec stays within its boundary",
       "files": [
         "spec-driven-development-decomposition"
       ],
       "expectations": [
-        "A capability map with module ids and their dependencies is proposed before any full spec is written",
-        "Dependency direction is one-way (no cycles) and drives the proposed build order",
-        "Approval of the map is requested before per-module specs are drafted",
-        "Any module spec produced is scoped to a single module rather than restating the whole initiative",
-        "Any module spec's requirements carry ids and stay inside that module",
-        "No implementation code is written"
+        "A capability map with module ids and dependencies is produced before any full spec",
+        "Dependency direction is one-way and drives build order",
+        "Only unresolved material boundary or scope choices require a user decision; routine artifact work does not require a literal yes",
+        "Any written module spec stays scoped to one module rather than restating the whole initiative",
+        "Module requirements carry stable ids and observable scenarios with proof methods",
+        "No implementation code is written because the request is specification work"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Read notifications-spec.md. The coordinator already authorized specifying and building this feature; all stated product behavior is settled. Write the missing requirement IDs and observable acceptance/proof methods, preserve opt-in and deduplication semantics, save SPEC.md, and return the DEFINE evidence to the active coordinator so PLAN can proceed. You own only the spec here.",
+      "expected_output": "A saved acceptance-backed spec and concise automatic handoff under existing authority",
+      "files": [
+        "e6-planning-and-task-breakdown"
+      ],
+      "expectations": [
+        "Existing requirements are reused rather than a fresh interview for facts already supplied",
+        "The specification gives stable IDs to observable behavior and meaningful proof methods",
+        "Proof planning includes the local assignment-and-retry flow, not only compilation",
+        "The agent records existing task authority and returns the settled spec for planning without asking for a second approval",
+        "No new pricing, channels or notification-history behavior is invented"
       ]
     }
   ]

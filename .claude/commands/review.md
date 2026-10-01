@@ -2,15 +2,8 @@
 description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
 ---
 
-Invoke the e6-agent-skills:e6-code-review-and-quality skill.
+Use e6-code-review-and-quality with e6-caveman. A review-only request produces findings; do not edit without authorization. In an active implementation workflow return evidence to its coordinator.
 
-Review the current changes (staged or recent commits) across all five axes:
+Read the requested diff (including task-owned untracked files), acceptance criteria, source/callers/tests, and actual check evidence. Review correctness, readability, architecture, security, and performance. Use domain skills only when their triggers apply.
 
-1. **Correctness** — Does it match the spec? Edge cases handled? Tests adequate?
-2. **Readability** — Clear names? Straightforward logic? Well-organized?
-3. **Architecture** — Follows existing patterns? Clean boundaries? Right abstraction level?
-4. **Security** — Input validated? Secrets safe? Auth checked? (Use e6-security-and-hardening skill)
-5. **Performance** — No N+1 queries? No unbounded ops? (Use e6-performance-optimization skill)
-
-Categorize findings as Critical, Important, or Suggestion.
-Output a structured review with specific file:line references and fix recommendations.
+Label findings Critical, Required, Optional, Nit, Consider, or FYI. Critical/Required block completion until resolved. Preserve severity from domain audits: security Critical/High maps to blocking Critical/Required; evidence determines whether lower findings require action. Give precise file:line, violated requirement, and concrete fix. Report which tests/build/runtime checks actually ran and what remains unverified. Do not substitute plausible prose for evidence.

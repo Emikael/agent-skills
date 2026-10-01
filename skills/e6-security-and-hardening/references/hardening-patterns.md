@@ -39,11 +39,13 @@ app.use(session({
   cookie: {
     httpOnly: true,     // Not accessible via JavaScript
     secure: true,       // HTTPS only
-    sameSite: 'lax',    // CSRF protection
+    sameSite: 'lax',    // Defense in depth; protect state-changing routes separately
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
   },
 }));
 ```
+
+Do not mutate state on GET. For cookie-authenticated mutations, enforce the project's anti-CSRF token or trusted Origin policy and test both forged and legitimate requests. SameSite alone is not a complete CSRF boundary. Reuse the production session store and validate required configuration; the snippet does not configure a shared store.
 
 ### Cross-Site Scripting (XSS)
 
@@ -109,8 +111,8 @@ app.use(cors({
 ```typescript
 // Never return sensitive fields in API responses
 function sanitizeUser(user: UserRecord): PublicUser {
-  const { passwordHash, resetToken, ...publicFields } = user;
-  return publicFields;
+  // New private fields cannot silently become response fields.
+  return { id: user.id, displayName: user.displayName };
 }
 
 // Use environment variables for secrets
@@ -126,30 +128,35 @@ Any time the server fetches a URL the user influenced — webhooks, "import from
 // BAD: fetch whatever the user gives you
 await fetch(req.body.webhookUrl);
 
-// GOOD: allowlist scheme + host, reject if ANY resolved IP is private, forbid redirects
+// Candidate validation only. The transport MUST connect to these validated addresses.
 import { lookup } from 'node:dns/promises';
 import ipaddr from 'ipaddr.js';
 
 const ALLOWED_HOSTS = new Set(['hooks.example.com']);
 
-async function assertSafeUrl(raw: string): Promise<URL> {
+async function resolveAllowedTarget(raw: string) {
   const url = new URL(raw);
   if (url.protocol !== 'https:') throw new Error('https only');
   if (!ALLOWED_HOSTS.has(url.hostname)) throw new Error('host not allowed');
+  if (url.username || url.password) throw new Error('URL credentials forbidden');
+  if (url.port && url.port !== '443') throw new Error('port not allowed');
   // Resolve ALL records; a single private/reserved address fails the check.
   const addrs = await lookup(url.hostname, { all: true });
-  if (addrs.some((a) => ipaddr.parse(a.address).range() !== 'unicast')) {
+  if (!addrs.length || addrs.some((a) => ipaddr.parse(a.address).range() !== 'unicast')) {
     throw new Error('private/reserved IP');
   }
-  return url;
+  return { url, addresses: addrs };
 }
 
-await fetch(await assertSafeUrl(req.body.webhookUrl), { redirect: 'error' });
+// Use a vetted transport that consumes addresses without resolving DNS again,
+// preserves the original hostname for TLS verification, rejects redirects,
+// and bounds connection/read time and streamed response bytes.
+// Do NOT pass only target.url to ordinary fetch; that discards the pin.
 ```
 
 The `range() !== 'unicast'` check covers loopback, link-local `169.254.169.254` (cloud metadata, the #1 SSRF target), private, and unique-local ranges across IPv4 and IPv6.
 
-**Caveat — this still has a TOCTOU gap.** `fetch` resolves DNS again after the check, so an attacker using a short-TTL record can rebind to an internal IP between validation and connection. For high-risk surfaces, resolve once and connect to the pinned IP, or put a filtering agent in front (`request-filtering-agent` / `ssrf-req-filter`).
+**Transport is part of the boundary.** Resolving again after validation creates a DNS-rebinding check/use race. Connect to the validated addresses through a vetted pinned transport or enforce a trusted egress filter; otherwise report the protection as incomplete. Test redirect/rebinding refusal and verify that the forbidden connection never occurs. A final string slice after `response.text()` does not bound network download or memory.
 
 ## Input Validation Patterns
 
@@ -186,18 +193,23 @@ app.post('/api/tasks', async (req, res) => {
 ### File Upload Safety
 
 ```typescript
-// Restrict file types and sizes
+// Bound upload bytes in the streaming/body middleware before buffering.
+// Verify content, not the client-supplied MIME header.
+import { fileTypeFromBuffer } from 'file-type';
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-function validateUpload(file: UploadedFile) {
-  if (!ALLOWED_TYPES.includes(file.mimetype)) {
-    throw new ValidationError('File type not allowed');
-  }
-  if (file.size > MAX_SIZE) {
+async function validateUpload(file: UploadedFile) {
+  if (file.size > MAX_SIZE || file.buffer.length > MAX_SIZE) {
     throw new ValidationError('File too large (max 5MB)');
   }
-  // Don't trust the file extension — check magic bytes if critical
+  const detected = await fileTypeFromBuffer(file.buffer);
+  if (!detected || !ALLOWED_TYPES.includes(detected.mime)) {
+    throw new ValidationError('File content type not allowed');
+  }
+  // A signature is not a full decoder: validate images with bounded pixel/
+  // decompression limits before processing. Use generated storage names,
+  // safe serving headers, and a non-executable upload location.
 }
 ```
 
@@ -289,7 +301,8 @@ if (!success) return res.status(429).end();
 **Always check before committing:**
 ```bash
 # Check for accidentally staged secrets
-git diff --cached | grep -i "password\|secret\|api_key\|token"
+# Use a configured secret scanner with redacted output; never print matched values.
+# Inspect the staged diff locally and keep sensitive content out of reports.
 ```
 
 **If a secret is ever committed, rotate it.** Deleting the line or rewriting history is not enough — assume it's compromised the moment it reaches a remote. Revoke and reissue the key first, then purge it from history.

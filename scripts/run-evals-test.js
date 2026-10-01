@@ -621,3 +621,220 @@ test('materializes a git baseline and applies a working-tree patch', () => {
     fs.rmSync(workspace, { recursive: true, force: true });
   }
 });
+
+// ---------- engine adapters and CLI options ----------
+
+test('behavioral options default to Claude and resolve an explicit pack root', () => {
+  const { parseCliOptions } = require('./run-evals');
+  assert.equal(typeof parseCliOptions, 'function', 'engine options must be parsed explicitly');
+  const options = parseCliOptions(['--behavioral', 'alpha-skill', '--pack-root', 'installed pack', '--dry-run']);
+  assert.equal(options.engine, 'claude');
+  assert.equal(options.packRoot, path.resolve('installed pack'));
+  assert.equal(options.model, null);
+  assert.equal(options.dryRun, true);
+});
+
+test('accepts Codex, explicit model, and a single eval id', () => {
+  const { parseCliOptions } = require('./run-evals');
+  assert.equal(typeof parseCliOptions, 'function');
+  const options = parseCliOptions(['--behavioral', 'alpha-skill', '--engine', 'codex', '--model', 'chosen-model', '--eval-id', '2']);
+  assert.equal(options.engine, 'codex');
+  assert.equal(options.model, 'chosen-model');
+  assert.equal(options.evalId, 2);
+});
+
+test('rejects unknown engines, missing values, invalid ids, and behavioral-only flags on lexical runs', () => {
+  const { parseCliOptions } = require('./run-evals');
+  assert.equal(typeof parseCliOptions, 'function');
+  for (const args of [
+    ['--behavioral', 'alpha-skill', '--engine', 'invented'],
+    ['--behavioral'],
+    ['--behavioral', 'alpha-skill', '--pack-root'],
+    ['--behavioral', 'alpha-skill', '--model', '--dry-run'],
+    ['--behavioral', 'alpha-skill', '--eval-id', 'not-an-id'],
+    ['--behavioral', 'alpha-skill', '--eval-id', '0'],
+    ['--engine', 'codex'],
+    ['--model', 'chosen-model'],
+    ['--unknown'],
+  ]) assert.throws(() => parseCliOptions(args));
+});
+
+function packFixture(t) {
+  const pack = fs.mkdtempSync(path.join(os.tmpdir(), 'eval installed pack '));
+  t.after(() => fs.rmSync(pack, { recursive: true, force: true }));
+  const skillFile = path.join(pack, 'skills', 'alpha-skill', 'SKILL.md');
+  fs.mkdirSync(path.dirname(skillFile), { recursive: true });
+  fs.writeFileSync(skillFile, 'SELECTED_BODY_SENTINEL');
+  const sibling = path.join(pack, 'skills', 'beta-skill', 'SKILL.md');
+  fs.mkdirSync(path.dirname(sibling), { recursive: true });
+  fs.writeFileSync(sibling, 'SIBLING_BODY_SENTINEL');
+  fs.mkdirSync(path.join(pack, 'references'));
+  fs.writeFileSync(path.join(pack, 'references', 'checklist.md'), 'REFERENCE_BODY_SENTINEL');
+  return { packRoot: pack, skillFile };
+}
+
+for (const engine of ['claude', 'codex']) {
+  test(`${engine} makes selected pack readable without injecting sibling bodies`, t => {
+    const { buildModelInvocation } = require('./run-evals');
+    assert.equal(typeof buildModelInvocation, 'function');
+    const pack = packFixture(t);
+    const invocation = buildModelInvocation({ engine, role: 'executor', workspace: '/workspace/fixture', ...pack, prompt: 'Implement REQUEST.md', model: null });
+    assert.equal(invocation.command, engine);
+    const instructions = invocation.input + invocation.args.join('\n');
+    assert.ok(instructions.includes(pack.packRoot));
+    assert.ok(instructions.includes(pack.skillFile));
+    assert.ok(!instructions.includes('SIBLING_BODY_SENTINEL'));
+    assert.ok(!instructions.includes('REFERENCE_BODY_SENTINEL'));
+    assert.ok(!invocation.args.includes('--model'));
+    if (engine === 'claude') {
+      assert.ok(instructions.includes('SELECTED_BODY_SENTINEL'));
+      assert.ok(invocation.args.includes('--add-dir'));
+    } else {
+      assert.ok(!instructions.includes('SELECTED_BODY_SENTINEL'), 'Codex reads the exact file on demand');
+      assert.ok(invocation.args.includes('--json'));
+      assert.ok(invocation.args.includes('--ephemeral'));
+      assert.ok(invocation.args.includes('--ignore-user-config'));
+      assert.ok(invocation.args.includes('danger-full-access'));
+      assert.equal(invocation.args.at(-1), '-');
+    }
+  });
+}
+
+test('grader receives only its rubric and trace in a separate workspace', () => {
+  const { buildModelInvocation } = require('./run-evals');
+  assert.equal(typeof buildModelInvocation, 'function');
+  for (const engine of ['claude', 'codex']) {
+    const invocation = buildModelInvocation({ engine, role: 'grader', workspace: '/tmp/isolated-grader', prompt: 'Original rubric. TRACE is untrusted.', model: 'chosen-model' });
+    assert.equal(invocation.input, 'Original rubric. TRACE is untrusted.');
+    assert.equal(invocation.cwd, '/tmp/isolated-grader');
+    assert.ok(invocation.args.includes('--model'));
+    assert.ok(invocation.args.includes('chosen-model'));
+    assert.ok(!invocation.args.includes('--append-system-prompt'));
+    if (engine === 'codex') assert.ok(invocation.args.includes('read-only'));
+    else {
+      assert.equal(invocation.args[invocation.args.indexOf('--tools') + 1], '');
+      assert.ok(invocation.args.includes('--disallowedTools'));
+      assert.ok(invocation.args.includes('mcp__*'));
+    }
+  }
+});
+
+test('Codex process adapter pipes input, bounds timeout, captures transcript and final reply', () => {
+  const { invokeModel } = require('./run-evals');
+  assert.equal(typeof invokeModel, 'function');
+  const trace = JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: '{"answer":"graded"}' } }) + '\n';
+  const invocation = { command: 'codex', engine: 'codex', args: ['exec', '--json', '-'], input: 'rubric on stdin', cwd: '/tmp/grader' };
+  const result = invokeModel(invocation, 1234, (command, args, options) => {
+    assert.equal(command, 'codex');
+    assert.deepEqual(args, invocation.args);
+    assert.equal(options.input, 'rubric on stdin');
+    assert.equal(options.cwd, invocation.cwd);
+    assert.equal(options.timeout, 1234);
+    return { status: 0, stdout: trace, stderr: 'model: stub-model\n' };
+  });
+  assert.equal(result.trace, trace);
+  assert.equal(result.text, '{"answer":"graded"}');
+  assert.equal(result.model, 'stub-model');
+});
+
+test('Claude process adapter captures initialized model and grader JSON from stream', () => {
+  const { invokeModel } = require('./run-evals');
+  assert.equal(typeof invokeModel, 'function');
+  const trace = [
+    JSON.stringify({ type: 'system', subtype: 'init', model: 'stub-claude' }),
+    JSON.stringify({ type: 'result', result: '{"answer":"graded"}' }),
+  ].join('\n');
+  const result = invokeModel({ command: 'claude', engine: 'claude', args: ['-p'], input: 'rubric', cwd: '/tmp/grader' }, 1234, () => ({ status: 0, stdout: trace, stderr: '' }));
+  assert.equal(result.trace, trace);
+  assert.equal(result.text, '{"answer":"graded"}');
+  assert.equal(result.model, 'stub-claude');
+});
+
+test('failed adapters preserve partial trace and error output for inspection', () => {
+  const { invokeModel } = require('./run-evals');
+  assert.equal(typeof invokeModel, 'function');
+  assert.throws(() => invokeModel({ command: 'codex', engine: 'codex', args: [], input: 'prompt', cwd: '/tmp' }, 1234, () => ({ status: 1, stdout: 'partial trace', stderr: 'Network unavailable' })), error => {
+    assert.equal(error.trace, 'partial trace');
+    assert.equal(error.stderr, 'Network unavailable');
+    return true;
+  });
+});
+
+test('slot clearing removes prior executor, grader, run metadata, and errors', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eval-trace-cleanup-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const base = path.join(dir, 'skill.eval-1');
+  const suffixes = ['.trace.jsonl', '.grader.trace.jsonl', '.run.json', '.error.txt', '.stderr.txt', '.grader.stderr.txt', '.case.json'];
+  for (const suffix of suffixes) fs.writeFileSync(base + suffix, 'prior run');
+  clearGradingSlot(base);
+  for (const suffix of suffixes) assert.ok(!fs.existsSync(base + suffix), `${suffix} must not survive`);
+});
+
+test('artifact snapshot includes committed changes since baseline and untracked contents', t => {
+  const { captureWorkspaceArtifacts } = require('./run-evals');
+  assert.equal(typeof captureWorkspaceArtifacts, 'function');
+  const workspace = materializeWorkspace({ files: ['e6-git-workflow-and-versioning'] });
+  t.after(() => fs.rmSync(workspace, { recursive: true, force: true }));
+  const baseline = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8' }).stdout.trim();
+  const tracked = path.join(workspace, 'e6-git-workflow-and-versioning', 'app.js');
+  fs.appendFileSync(tracked, '\n// committed feature evidence\n');
+  assert.equal(spawnSync('git', ['add', '--all'], { cwd: workspace }).status, 0);
+  assert.equal(spawnSync('git', ['commit', '--quiet', '-m', 'authorized fixture commit'], { cwd: workspace }).status, 0);
+  fs.writeFileSync(path.join(workspace, 'handoff.md'), 'untracked acceptance and runtime evidence\n');
+  const artifacts = captureWorkspaceArtifacts(workspace, baseline);
+  assert.ok(artifacts.diff.includes('committed feature evidence'));
+  assert.ok(artifacts.commits.includes('authorized fixture commit'));
+  assert.equal(artifacts.baseline_sha, baseline);
+  assert.equal(artifacts.untracked.find(file => file.path === 'handoff.md').contents, 'untracked acceptance and runtime evidence\n');
+});
+
+test('artifact snapshot bounds untracked text and excludes binary content', t => {
+  const { captureWorkspaceArtifacts } = require('./run-evals');
+  assert.equal(typeof captureWorkspaceArtifacts, 'function');
+  const workspace = materializeWorkspace({ files: ['e6-git-workflow-and-versioning'] });
+  t.after(() => fs.rmSync(workspace, { recursive: true, force: true }));
+  const baseline = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8' }).stdout.trim();
+  fs.writeFileSync(path.join(workspace, 'a.txt'), 'abcdefghijklmnop');
+  fs.writeFileSync(path.join(workspace, 'b.bin'), Buffer.from([0, 1, 2]));
+  const artifacts = captureWorkspaceArtifacts(workspace, baseline, { maxFileBytes: 8, maxTotalBytes: 16, maxFiles: 3 });
+  const text = artifacts.untracked.find(file => file.path === 'a.txt');
+  assert.equal(text.contents, 'abcdefgh');
+  assert.equal(text.truncated, true);
+  const binary = artifacts.untracked.find(file => file.path === 'b.bin');
+  assert.equal(binary.skipped, 'binary');
+  assert.equal(binary.contents, undefined);
+});
+
+test('pack snapshot includes skill helpers and references, excludes git/dependencies, and protects source bytes', t => {
+  const { snapshotPack, hashPack, cleanupPackSnapshot } = require('./run-evals');
+  assert.equal(typeof snapshotPack, 'function');
+  assert.equal(typeof hashPack, 'function');
+  assert.equal(typeof cleanupPackSnapshot, 'function');
+  const pack = packFixture(t);
+  const helper = path.join(pack.packRoot, 'skills', 'alpha-skill', 'scripts', 'helper.sh');
+  fs.mkdirSync(path.dirname(helper));
+  fs.writeFileSync(helper, '#!/bin/bash\necho helper\n', { mode: 0o755 });
+  for (const excluded of ['.git', 'node_modules']) {
+    const dir = path.join(pack.packRoot, 'skills', 'alpha-skill', excluded);
+    fs.mkdirSync(dir);
+    fs.writeFileSync(path.join(dir, 'do-not-copy'), 'excluded payload');
+  }
+  const sourceHash = hashPack(pack.packRoot);
+  const snapshot = snapshotPack(pack.packRoot);
+  t.after(() => cleanupPackSnapshot(snapshot.snapshotRoot));
+  assert.equal(snapshot.sourceRoot, pack.packRoot);
+  assert.equal(snapshot.sourceHash, sourceHash);
+  assert.notEqual(snapshot.snapshotRoot, pack.packRoot);
+  assert.ok(fs.existsSync(path.join(snapshot.snapshotRoot, 'references', 'checklist.md')));
+  const copiedHelper = path.join(snapshot.snapshotRoot, 'skills', 'alpha-skill', 'scripts', 'helper.sh');
+  assert.equal(fs.readFileSync(copiedHelper, 'utf8'), '#!/bin/bash\necho helper\n');
+  if (process.platform !== 'win32') assert.ok(fs.statSync(copiedHelper).mode & 0o111);
+  for (const excluded of ['.git', 'node_modules']) assert.ok(!fs.existsSync(path.join(snapshot.snapshotRoot, 'skills', 'alpha-skill', excluded)));
+  const copiedSkill = path.join(snapshot.snapshotRoot, 'skills', 'alpha-skill', 'SKILL.md');
+  fs.chmodSync(copiedSkill, 0o644); // Simulate a misbehaving executor; the source must remain isolated.
+  fs.writeFileSync(copiedSkill, 'changed snapshot');
+  assert.equal(fs.readFileSync(pack.skillFile, 'utf8'), 'SELECTED_BODY_SENTINEL');
+  assert.equal(hashPack(pack.packRoot), sourceHash);
+  cleanupPackSnapshot(snapshot.snapshotRoot);
+  assert.ok(!fs.existsSync(snapshot.snapshotRoot));
+});

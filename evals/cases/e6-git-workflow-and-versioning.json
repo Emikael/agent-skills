@@ -40,7 +40,25 @@
       "expectations": [
         "Refactor, fix, and feature land as separate commits",
         "Commit messages are imperative and standalone",
-        "Each commit leaves the tree in a working state"
+        "Each commit leaves the tree in a working state",
+        "The staged and unstaged diff is inspected before splitting; existing work is not discarded with reset --hard or clean",
+        "The rounding fix and CSV feature each include acceptance tests in their behavior commit",
+        "Each committed tree is verified with actual focused checks rather than relying on the final combined working tree"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the supplied app.js and app.test.js to rehearse a merge conflict locally. Create two isolated branches whose total changes conflict: one rounds currency, one extracts sumPrices. Merge them preserving both behaviors and original assertions; add a rounding regression test. Do not push or discard unrelated work. Verify the resolved commit tree.",
+      "expected_output": "A real locally resolved conflict preserving helper extraction and rounding, with passing focused tests and preserved baseline coverage",
+      "files": [
+        "e6-git-workflow-and-versioning/app.js",
+        "e6-git-workflow-and-versioning/app.test.js"
+      ],
+      "expectations": [
+        "The executor actually creates and resolves a local conflict using base and both branch versions",
+        "The resolved total extracts or calls the helper and rounds currency; baseline assertions remain",
+        "A rounding regression check runs and passes on the resolved commit tree",
+        "No external push or destructive dirty-tree reset is performed"
       ]
     }
   ]

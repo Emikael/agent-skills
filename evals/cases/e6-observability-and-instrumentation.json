@@ -28,16 +28,33 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Instrument a new payment-retry feature so on-call can operate it.",
-      "expected_output": "On-call questions defined first, then structured logs, RED metrics, and symptom-based alerts that answer them",
+      "prompt": "Instrument the provided payment-retry function using operations.md as the operator contract. Only a local Node environment is available. Define signal acceptance first, then execute success, recovery, and exhaustion paths with deterministic fake gateways and captured log/metric/span output. Verify redaction and bounded labels. Do not send live alerts.",
+      "expected_output": "Operator questions mapped to actual executed, correlated, bounded, redacted local telemetry and a safely tested actionable alert/runbook with remote limits stated.",
       "files": [
         "e6-observability-and-instrumentation"
       ],
       "expectations": [
-        "On-call questions are written before instrumentation is added",
-        "Logs are structured events with a correlation id, not prose strings",
-        "Metrics avoid unbounded label cardinality",
-        "Alerts are symptom-based and actionable"
+        "Reads operations.md and existing implementation/telemetry context, then defines on-call questions and observable acceptance cases before instrumentation",
+        "Adds and executes deterministic success, retry recovery, and exhaustion checks; actual captured events/metric or span sink output appears in execution evidence",
+        "Logs use stable structured event names and safe correlation; raw external errors, credential-like values, card/email data, and whole payloads are absent from observed output",
+        "Metric labels use bounded provider/failure/result values rather than payment/user/request IDs or raw error text; counts distinguish attempts from final operation results",
+        "Preserves payment return/error behavior and confirms instrumentation does not break legitimate gateway operations",
+        "Alert policy is actionable and symptom-based with a runbook; any receiver/rule test uses a local sandbox rather than live notification and leaves temporary config restored",
+        "Does not invent staging, production exporter, tracing UI, or real notification evidence; reports actual local commands/results and remote verification limits"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add payment-retry logging quickly. Include the raw gateway error and payment object, and use paymentId as a metric label so debugging is easy. Only local testing is authorized; do not page anyone.",
+      "expected_output": "Structured, redacted, bounded telemetry verified through local executed retry paths, with no live notifications.",
+      "files": [
+        "e6-observability-and-instrumentation"
+      ],
+      "expectations": [
+        "Does not log whole payment objects or raw gateway errors and does not use paymentId as a metric label",
+        "Executes deterministic retry/error paths and inspects captured output for correlation, redaction, and bounded label values",
+        "Preserves legitimate payment behavior and returns actual command/runtime evidence",
+        "Does not contact a live notification channel or claim unavailable staging/production verification"
       ]
     }
   ]

@@ -24,13 +24,13 @@ skills/
 ```yaml
 ---
 name: skill-name-with-hyphens
-description: Guides agents through [task/workflow]. Use when [specific trigger conditions].
+description: Use when [specific task, symptoms, or conditions that need this skill].
 ---
 ```
 
 **Rules:**
 - `name`: Lowercase, hyphen-separated. Must match the directory name.
-- `description`: Start with what the skill does in third person, then include one or more clear "Use when" trigger conditions. Include both *what* and *when*. Maximum 1024 characters.
+- `description`: Start with "Use when" and concrete trigger conditions, symptoms, and user vocabulary. Describe when to load the skill; keep process steps in its body. Maximum 1024 characters; aim below 500.
 
 Published names are compatibility identifiers. In particular,
 `e6-browser-testing-with-devtools` is the stable upstream name because other
@@ -38,7 +38,7 @@ skills refer to it directly. A downstream catalog may rename it, but that
 catalog owns the alias or migration mapping; downstream-only aliases are not
 maintained in this repository.
 
-**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent both what the skill provides and when to activate it. Do not summarize the workflow — if the description contains process steps, the agent may follow the summary instead of reading the full skill.
+**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent when to activate it. Do not summarize the workflow — if the description contains process steps, the agent may follow the summary instead of reading the full skill.
 
 ### Standard Sections (Recommended Pattern)
 
@@ -89,7 +89,7 @@ Helps agents and humans decide if this skill applies to the current task. Includ
 ### Core Process
 The heart of the skill. This is the step-by-step workflow the agent follows. Must be specific and actionable — not vague advice.
 
-**Good:** "Run `npm test` and verify all tests pass"
+**Good:** "Discover the project test command; run it and record the result"
 **Bad:** "Make sure the tests work"
 
 ### Common Rationalizations
@@ -128,7 +128,7 @@ Current convention: material used by exactly one skill is a supporting file insi
 
 Skills load on demand: only the skill name and description sit in context at startup. The full `SKILL.md` loads only when an agent decides the skill is relevant. To keep that load cheap:
 
-- **Keep `SKILL.md` under 500 lines.** Move detailed reference material into supporting files.
+- **Aim near 1,000 words per specialist core; keep under 500 lines.** Move detailed examples into directly linked supporting files. The bootstrap stays near 120 words; it points to the coordinator rather than injecting its full body.
 - **Write specific descriptions.** A precise description helps the agent activate the skill at the right moment and skip it otherwise.
 - **Use progressive disclosure.** Reference supporting files that are read only when the workflow reaches them.
 - **Prefer scripts over inline code.** Executing a script consumes no context; only its output does. Inline code blocks are paid for on every load.
@@ -147,8 +147,8 @@ When a skill ships runnable helpers under `scripts/`, each script follows these 
 
 ## Writing Principles
 
-1. **Process over knowledge.** Skills are workflows, not reference docs. Steps, not facts.
-2. **Specific over general.** "Run `npm test`" beats "verify the tests".
+1. **Process over knowledge.** Skills are workflows with inputs, evidence, and a next consumer. A specialist returns to the active coordinator; it does not end a wider authorized task.
+2. **Specific over general.** Discover real project commands and state observable verification. Example commands are not universal prerequisites.
 3. **Evidence over assumption.** Every verification checkbox requires proof.
 4. **Anti-rationalization.** Every skip-worthy step needs a counter-argument in the rationalizations table.
 5. **Progressive disclosure.** Main SKILL.md is the entry point. Supporting files are loaded only when needed.
@@ -193,10 +193,14 @@ Required:
 
 - A `skills/<skill-name>/SKILL.md` file
 - Valid YAML frontmatter with `name` and `description`
-- A description that includes both what the skill does and when to use it
+- A description with specific activation conditions and recognizable user vocabulary
 
 Recommended:
 
 - The standard section flow shown above
 - Equivalent headings such as `How It Works`, `Core Process`, or `Workflow` when they read more naturally for the skill
 - Supporting files only when they keep the main `SKILL.md` focused
+
+## Workflow Composition
+
+Use the shared [workflow contract](../references/workflow-contract.md) for phase evidence, authorization, runtime checks, and handoffs. Every specialist uses `e6-caveman` and returns scope, evidence, blockers, and next action to the coordinator. Independent invocation preserves the user's requested scope. Existing authorization persists; a new phase is not a new approval gate. Delegation follows `e6-context-engineering`: bounded task packets, exact criteria/paths, one writable owner, short evidence returns.

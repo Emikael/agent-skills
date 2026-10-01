@@ -1,288 +1,97 @@
 ---
 name: e6-documentation-and-adrs
-description: Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+description: Use when documenting an architecture decision (ADR), recording the reasoning behind a design choice, changing public APIs or setup flows, shipping features that change user-facing behavior, or maintaining README, API documentation, changelog, and agent rules.
 ---
 
 # Documentation and ADRs
 
 ## Overview
 
-Document decisions, not just code. The most valuable documentation captures the *why* — the context, constraints, and trade-offs that led to a decision. Code shows *what* was built; documentation explains *why it was built this way* and *what alternatives were considered*. This context is essential for future humans and agents working in the codebase.
+Document current behavior and the evidence behind decisions. Useful docs explain how to use the code, why the design exists, and which constraints matter.
 
 ## When to Use
 
-- Making a significant architectural decision
-- Choosing between competing approaches
-- Adding or changing a public API
-- Shipping a feature that changes user-facing behavior
-- Onboarding new team members (or agents) to the project
-- When you find yourself explaining the same thing repeatedly
+- Recording significant architectural decisions and expensive-to-reverse choices
+- Updating setup instructions, public API docs, or changed user-facing behavior
+- Capturing recurring explanations and relevant agent conventions
+- Avoid comments repeating obvious code and unnecessary docs for throwaway prototypes
 
-**When NOT to use:** Don't document obvious code. Don't add comments that restate what the code already says. Don't write docs for throwaway prototypes.
+## Workflow Handoff
 
-## Architecture Decision Records (ADRs)
+For a standalone engineering change with no active workflow, load `using-e6-agent-skills` and `../../references/workflow-contract.md`. With an active coordinator, perform this documentation step, record evidence, and return to that coordinator. Do not restart the lifecycle. Use `e6-caveman` for concise prose and bounded delegation; preserve exact commands, identifiers, and uncertainty.
 
-ADRs capture the reasoning behind significant technical decisions. They're the highest-value documentation you can write.
+## Process
 
-### When to Write an ADR
+### 1. Establish Sources and Conventions
 
-- Choosing a framework, library, or major dependency
-- Designing a data model or database schema
-- Selecting an authentication strategy
-- Deciding on an API architecture (REST vs. GraphQL vs. tRPC)
-- Choosing between build tools, hosting platforms, or infrastructure
-- Any decision that would be expensive to reverse
+Identify affected audience/artifacts. Read existing docs/instructions, accepted task/spec, changed code/API types, manifests/scripts, and actual setup/runtime evidence. Distinguish agreed decision facts from assumptions. Do not invent motives, measured benefits, approvals, or rejected alternatives to fill a template.
 
-### Match the existing convention first
+Before creating an ADR, inspect existing ADRs, `.adr-dir`, tooling, and instructions. Match location, extension/markup, filename sequence, status values, and headings. Existing conventions override defaults. Resolve conflicts from repository evidence; ask only if a material choice remains unresolved.
 
-Before creating an ADR, inspect the available repository context for an established convention — existing ADRs, project instructions, and ADR-related configuration or tooling (e.g. an `.adr-dir` file). An established convention overrides the defaults below. Match:
+### 2. Record the Decision
 
-- **Location and format** — e.g. `docs/adr/*.md`, `Documentation/Decisions/*.rst`, a MADR layout, or an `adr-tools` setup. Match the existing directory, file extension, and markup (Markdown vs reStructuredText).
-- **Numbering and naming** — continue the existing sequence and filename pattern (`ADR-004-Title.rst`, `0004-title.md`, …); don't restart at 001 or introduce a second scheme.
-- **Section headings** — reuse the project's heading set rather than imposing this template's.
-
-If the available evidence conflicts, surface the conflict rather than silently introducing another scheme. Only when no convention can be established do you apply the default below.
-
-### ADR Template
-
-Store ADRs in `docs/decisions/` with sequential numbering (unless the project already uses another location — see above):
+Write an ADR for significant framework/dependency, data model, auth, API architecture, tooling, hosting, or other costly-to-reverse choices. With no established convention, use sequential files in `docs/decisions/`:
 
 ```markdown
-# ADR-001: Use PostgreSQL for primary database
-
+# ADR-001: [Decision]
 ## Status
-Accepted | Superseded by ADR-XXX | Deprecated
-
+Proposed | Accepted | Superseded by ADR-XXX | Deprecated
 ## Date
-2025-01-15
-
+[Actual decision or proposal date]
 ## Context
-We need a primary database for the task management application. Key requirements:
-- Relational data model (users, tasks, teams with relationships)
-- ACID transactions for task state changes
-- Support for full-text search on task content
-- Managed hosting available (for small team, limited ops capacity)
-
+[Requirements, constraints, scope, source evidence]
 ## Decision
-Use PostgreSQL with Prisma ORM.
-
+[Chosen approach, or explicit proposal]
 ## Alternatives Considered
-
-### MongoDB
-- Pros: Flexible schema, easy to start with
-- Cons: Our data is inherently relational; would need to manage relationships manually
-- Rejected: Relational data in a document store leads to complex joins or data duplication
-
-### SQLite
-- Pros: Zero configuration, embedded, fast for reads
-- Cons: Limited concurrent write support, no managed hosting for production
-- Rejected: Not suitable for multi-user web application in production
-
-### MySQL
-- Pros: Mature, widely supported
-- Cons: PostgreSQL has better JSON support, full-text search, and ecosystem tooling
-- Rejected: PostgreSQL is the better fit for our feature requirements
-
+[Real options, trade-offs, reasons for rejection]
 ## Consequences
-- Prisma provides type-safe database access and migration management
-- We can use PostgreSQL's full-text search instead of adding Elasticsearch
-- Team needs PostgreSQL knowledge (standard skill, low risk)
-- Hosting on managed service (Supabase, Neon, or RDS)
+[Benefits, costs, risks, operational work, compatibility effects]
 ```
 
-### ADR Lifecycle
+Use Accepted only when decision evidence supports it. A request to record an already adopted decision is sufficient; do not request approval again. An undecided recommendation stays Proposed. Preserve historical ADRs. When a decision changes, create a new record and update supersession links/status according to convention.
 
-```
-PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
-```
+### 3. Update Usage and Reference Docs
 
-- **Don't delete old ADRs.** They capture historical context.
-- When a decision changes, write a new ADR that references and supersedes the old one.
+Keep README quick start, actual commands, environment requirements, architecture overview, and contributing information accurate. Reuse project manager/scripts; do not copy npm commands into a pnpm/Python project. Describe current state in timeless language. Link deeper rationale rather than repeating it.
 
-## Inline Documentation
+Public REST/GraphQL/library docs need inputs, outputs, errors, auth/permissions, limits, and runnable examples at the relevant boundary. Maintain existing OpenAPI/schema or generated-doc source; do not edit output owned by tooling. Confirm examples match actual response shape and compatibility. Follow `e6-api-and-interface-design` for contract changes, `e6-deprecation-and-migration` for breaking transitions, and `e6-git-workflow-and-versioning` for changelog/version policy.
 
-### When to Comment
+Inline comments explain non-obvious reasons/gotchas near affected code: ordering, lifetime, security assumptions, or costly edge cases. Prefer readable code for the what. Remove obsolete comments/commented-out code only in task scope. Keep valid TODOs with ownership/context where the project uses them; do not expand a docs task into unrelated implementation.
 
-Comment the *why*, not the *what*:
+For agents, update relevant rules, specs, and ADR pointers when conventions change. State stable instructions once and link supporting detail. Never copy this skill pack's repository-specific `AGENTS.md` into another project.
 
-```typescript
-// BAD: Restates the code
-// Increment counter by 1
-counter += 1;
+### 4. Execute the Documented Path
 
-// GOOD: Explains non-obvious intent
-// Rate limit uses a sliding window — reset counter at window boundary,
-// not on a fixed schedule, to prevent burst attacks at window edges
-if (now - windowStart > WINDOW_SIZE_MS) {
-  counter = 0;
-  windowStart = now;
-}
-```
+Run changed quick-start commands and executable snippets in a clean suitable environment. Use representative non-sensitive configuration and discovered dependency policy. Verify installation, required migrations/services, and documented run command. A command in a table is not evidence it exists or works.
 
-### When NOT to Comment
+Validate changed links, markup/doc build, and generated API docs with project tooling. Compare API examples against real contract and representative runtime response, including relevant errors. For browser setup/user flows, use `e6-browser-testing-with-devtools` or available browser capability; for desktop flows, use available computer/runtime capability. Exercise the documented journey, not just compilation.
 
-```typescript
-// Don't comment self-explanatory code
-function calculateTotal(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
-// Don't leave TODO comments for things you should just do now
-// TODO: add error handling  ← Just add it
-
-// Don't leave commented-out code
-// const oldImplementation = () => { ... }  ← Delete it, git has history
-```
-
-### Document Known Gotchas
-
-```typescript
-/**
- * IMPORTANT: This function must be called before the first render.
- * If called after hydration, it causes a flash of unstyled content
- * because the theme context isn't available during SSR.
- *
- * See ADR-003 for the full design rationale.
- */
-export function initializeTheme(theme: Theme): void {
-  // ...
-}
-```
-
-## API Documentation
-
-For public APIs (REST, GraphQL, library interfaces):
-
-### Inline with Types (Preferred for TypeScript)
-
-```typescript
-/**
- * Creates a new task.
- *
- * @param input - Task creation data (title required, description optional)
- * @returns The created task with server-generated ID and timestamps
- * @throws {ValidationError} If title is empty or exceeds 200 characters
- * @throws {AuthenticationError} If the user is not authenticated
- *
- * @example
- * const task = await createTask({ title: 'Buy groceries' });
- * console.log(task.id); // "task_abc123"
- */
-export async function createTask(input: CreateTaskInput): Promise<Task> {
-  // ...
-}
-```
-
-### OpenAPI / Swagger for REST APIs
-
-```yaml
-paths:
-  /api/tasks:
-    post:
-      summary: Create a task
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTaskInput'
-      responses:
-        '201':
-          description: Task created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Task'
-        '422':
-          description: Validation error
-```
-
-## README Structure
-
-Every project should have a README that covers:
-
-```markdown
-# Project Name
-
-One-paragraph description of what this project does.
-
-## Quick Start
-1. Clone the repo
-2. Install dependencies: `npm install`
-3. Set up environment: `cp .env.example .env`
-4. Run the dev server: `npm run dev`
-
-## Commands
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm test` | Run tests |
-| `npm run build` | Production build |
-| `npm run lint` | Run linter |
-
-## Architecture
-Brief overview of the project structure and key design decisions.
-Link to ADRs for details.
-
-## Contributing
-How to contribute, coding standards, PR process.
-```
-
-## Changelog Maintenance
-
-For shipped features:
-
-```markdown
-# Changelog
-
-## [1.2.0] - 2025-01-20
-### Added
-- Task sharing: users can share tasks with team members (#123)
-- Email notifications for task assignments (#124)
-
-### Fixed
-- Duplicate tasks appearing when rapidly clicking create button (#125)
-
-### Changed
-- Task list now loads 50 items per page (was 20) for better UX (#126)
-```
-
-## Documentation for Agents
-
-Special consideration for AI agent context:
-
-- **CLAUDE.md / rules files** — Document project conventions so agents follow them
-- **Spec files** — Keep specs updated so agents build the right thing
-- **ADRs** — Help agents understand why past decisions were made (prevents re-deciding)
-- **Inline gotchas** — Prevent agents from falling into known traps
+If access/prerequisites prevent a check, complete independent work and report the exact unverified instruction/prerequisite. Do not mark docs tested from inspection alone. Return changed artifacts and actual results to the coordinator for acceptance/Definition of Done.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The code is self-documenting" | Code shows what. It doesn't show why, what alternatives were rejected, or what constraints apply. |
-| "We'll write docs when the API stabilizes" | APIs stabilize faster when you document them. The doc is the first test of the design. |
-| "Nobody reads docs" | Agents do. Future engineers do. Your 3-months-later self does. |
-| "ADRs are overhead" | A 10-minute ADR prevents a 2-hour debate about the same decision six months later. |
-| "Comments get outdated" | Comments on *why* are stable. Comments on *what* get outdated — that's why you only write the former. |
+| "The template needs a reason" | Unknown reasoning stays unknown. Read decision evidence first. |
+| "Mark it Accepted for completeness" | Status reflects a real decision. |
+| "The command looks right" | Run changed setup/examples; plausible instructions can fail. |
+| "Rewrite all docs while here" | Update affected behavior/decisions; report unrelated debt briefly. |
+| "The code explains everything" | Code omits usage constraints and rejected design choices. |
 
 ## Red Flags
 
-- Architectural decisions with no written rationale
-- Public APIs with no documentation or types
-- README that doesn't explain how to run the project
-- Commented-out code instead of deletion
-- TODO comments that have been there for weeks
-- No ADRs in a project with significant architectural choices
-- Documentation that restates the code instead of explaining intent
+- Invented trade-offs, approvals, dates, or performance claims
+- A second ADR sequence/location despite existing conventions
+- Untested README/API examples inconsistent with scripts/contracts
+- Historical ADR deletion or broad cleanup during a scoped task
+- Docs repeating implementation instead of explaining usage/intent
 
 ## Verification
 
-After documenting:
-
-- [ ] ADRs exist for all significant architectural decisions
-- [ ] README covers quick start, commands, and architecture overview
-- [ ] API functions have parameter and return type documentation
-- [ ] Known gotchas are documented inline where they matter
-- [ ] No commented-out code remains
-- [ ] Rules files (CLAUDE.md etc.) are current and accurate
+- [ ] Affected docs match conventions and current code/spec/decision evidence
+- [ ] New significant decisions record truthful status/date, alternatives, scope, and consequences
+- [ ] Changed commands/examples ran; relevant browser/computer journey was exercised
+- [ ] Changed links, doc build, and generated/contract docs pass applicable checks
+- [ ] Unknown/blocked checks are explicit; no fabricated execution
+- [ ] Relevant public behavior and agent rules are current without unrelated cleanup
+- [ ] Coordinator receives changed artifacts, exact outcomes, and remaining gaps

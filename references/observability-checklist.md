@@ -24,7 +24,7 @@ Telemetry without a question is noise. Before instrumenting anything:
 ## Structured Logging
 
 - [ ] Logs are structured (JSON) with stable event names — not free-form strings
-- [ ] Every log line carries a correlation/request ID, generated or accepted at the system boundary
+- [ ] Correlation/request IDs generated or accepted at the boundary use a bounded validated format; arbitrary inbound text is not echoed into logs
 - [ ] Correlation ID is propagated on every outbound call and async boundary (HTTP headers, queue metadata)
 - [ ] Any log stream written by more than one entry point (scheduler, replay endpoint, manual run) carries an entry-point field, set where the run starts and propagated alongside the correlation ID
 - [ ] Log levels are consistent: `error` = invariant broken, someone may act; `warn` = degraded but handled; `info` = significant business event; `debug` = off in production
@@ -51,7 +51,7 @@ Telemetry without a question is noise. Before instrumenting anything:
 - [ ] Context survives async boundaries — queue messages carry trace metadata
 - [ ] Manual spans only around meaningful internal units of work, with the attributes on-call will filter by
 - [ ] No secrets or PII as span attributes
-- [ ] Head-based sampling at a low default rate; 100% of errors kept if tail sampling is available
+- [ ] Sampling strategy explicit: head sampling drops traces before a collector can inspect them; retaining every error with tail sampling requires all relevant spans reach that collector
 
 ## Alerting
 
@@ -60,7 +60,7 @@ Telemetry without a question is noise. Before instrumenting anything:
 - [ ] Every alert links to a runbook — minimum three lines: what it means, first query to run, escalation path
 - [ ] Thresholds and durations justified by an SLO or historical data, not guesses
 - [ ] Two severities only: **page** (user-facing, act now) and **ticket** (degradation, act this week)
-- [ ] Each new alert test-fired once: it reached the right channel and the runbook link works
+- [ ] Each new alert test-fired to an authorized test receiver; notification and runbook verified; changed thresholds/configuration restored
 - [ ] No alerts that fire daily and get acknowledged without action
 
 ## Dashboards
@@ -74,10 +74,15 @@ Telemetry without a question is noise. Before instrumenting anything:
 
 Instrumentation is code; it can be wrong:
 
-- [ ] Forced an error in staging → found it in the logs by correlation ID
+- [ ] Induced a controlled error in an authorized local/test/staging environment and located its sanitized telemetry; no production fault injection inferred from local-work authorization
 - [ ] Sent test traffic → metric series appear with expected labels and sane values
 - [ ] Followed one request end-to-end in the tracing UI → no broken spans
 - [ ] An induced failure was diagnosed from telemetry alone, without reading the source
+
+For a local fixture without a collector/UI, assert emitted events, metric values,
+and propagated context using its actual runtime or test receiver. Record unavailable
+dashboard/collector verification as blocked when required; never invent a trace-UI
+check. Stop temporary receivers and restore test configuration afterward.
 
 ## Pre-Launch Gate
 

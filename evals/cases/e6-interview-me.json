@@ -35,7 +35,36 @@
       "expectations": [
         "Questions are asked one at a time, not in batches",
         "The agent does not propose solutions before understanding the need",
-        "The interview surfaces the underlying goal behind the stated ask"
+        "The interview surfaces the underlying goal behind the stated ask",
+        "The agent distinguishes project facts from assumptions before asking a material question",
+        "The question includes an honest tentative guess or concrete options when helpful rather than an intentionally false guess"
+      ]
+    },
+    {
+      "id": 2,
+      "kind": "execution",
+      "prompt": "The active coordinator already authorized the notifications work and owns the next phase. Read notifications-spec.md. Its user is the assigned task owner; success is one email per opted-in user and logical event; retries must not duplicate delivery; no SMS, push, or history UI. Save the working intent in docs/intent/notifications.md and return the intent evidence to the coordinator. Do not implement code. Routine reversible choices are delegated.",
+      "expected_output": "A saved intent grounded in the existing spec, with no redundant intake or save-approval pause, returned to the active coordinator",
+      "files": [
+        "e6-planning-and-task-breakdown"
+      ],
+      "expectations": [
+        "The existing notifications spec is read before proposing questions",
+        "The saved intent includes the actor, observable success, binding constraints and non-goals",
+        "Clear delegated authority is accepted without demanding a literal yes or asking permission to save",
+        "The agent returns concise intent evidence to the active coordinator rather than recursively restarting routing",
+        "No implementation code is written because the current delegated task is intent preparation"
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "dialogue",
+      "prompt": "Interview only. I need a personal list of experiments, for myself, by Friday. Success means I can see every running experiment and its current status in one place. No team dashboard, analytics, or automation. Choose reversible details yourself. Restate the intent; stop after that.",
+      "expected_output": "A concise statement of intent with explicit success and non-goals; no invented clarification requirement or downstream build",
+      "expectations": [
+        "The statement captures personal experiment tracking rather than a team dashboard",
+        "Existing answers and delegated choices are accepted without an arbitrary confidence or literal-yes gate",
+        "No spec, plan, or implementation is started because the request is explicitly interview-only"
       ]
     }
   ]

@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "e6-agent-skills",
     "shortDescription": "Senior-engineer workflows for AI coding agents: spec, plan, build, test, review, ship.",
-    "longDescription": "e6-agent-skills bundles 24 production engineering workflows, covering requirements, planning, implementation, testing, review, and shipping.",
+    "longDescription": "e6-agent-skills bundles 24 lifecycle skills, one workflow coordinator, and concise communication: context, requirements, planning, testing, local runtime, review, and release.",
     "developerName": "Addy Osmani",
     "category": "Productivity",
     "capabilities": [

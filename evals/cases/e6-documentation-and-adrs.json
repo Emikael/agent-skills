@@ -37,7 +37,36 @@
       "expectations": [
         "The ADR states context, decision, alternatives, and consequences distinctly",
         "Trade-offs and rejected options are recorded, not just the winning choice",
-        "The ADR records a status from the skill's lifecycle (Proposed, Accepted, Superseded or Deprecated) and a date"
+        "The ADR records a status from the skill's lifecycle (Proposed, Accepted, Superseded or Deprecated) and a date",
+        "The executor reads decision-context.md and records orders-only scope, projection/event-versioning cost and synchronous reporting constraint",
+        "No performance measurement, organizational approval or rejected-option rationale is fabricated"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Event sourcing is still only an option; nobody has approved adoption. Create a proposed ADR using the supplied decision context. Keep the synchronous reporting constraint and orders-only scope explicit. Do not implement or announce adoption.",
+      "expected_output": "An evidence-grounded Proposed ADR with unresolved compatibility implications",
+      "files": [
+        "e6-documentation-and-adrs"
+      ],
+      "expectations": [
+        "Status is Proposed, not Accepted; no approval or adoption is fabricated",
+        "The executor reads source decision context and accurately records alternatives and constraints",
+        "The saved ADR does not assert unsupported measured benefits or broaden scope beyond orders"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write a README quick start and commands table for the supplied minimal Node project. Inspect its real scripts and run the documented lint and test commands locally. There is no build or TypeScript setup; do not add one or document a nonexistent dev server. Keep unrelated code untouched.",
+      "expected_output": "Accurate saved README whose executable commands were actually checked",
+      "files": [
+        "e6-ci-cd-and-automation"
+      ],
+      "expectations": [
+        "The executor reads package.json and derives documentation from its actual lint/test scripts",
+        "The documented lint/test commands run successfully, with exact outcomes reported",
+        "The README does not invent a dev/build/typecheck command or environment prerequisites",
+        "Unrelated implementation files are not changed"
       ]
     }
   ]

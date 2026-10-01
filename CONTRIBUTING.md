@@ -24,7 +24,7 @@ If your idea is a refinement of an existing skill, prefer a focused edit to that
 1. Create a directory under `skills/` with a kebab-case name
 2. Add a `SKILL.md` following the format in [docs/skill-anatomy.md](docs/skill-anatomy.md)
 3. Include YAML frontmatter with `name` and `description` fields
-4. Ensure the `description` starts with what the skill does (third person), then includes one or more `Use when` trigger conditions
+4. Start the `description` with `Use when` and concrete trigger conditions; keep workflow steps in the skill body
 
 ### Skill Quality Bar
 
@@ -80,34 +80,20 @@ If a skill or description change is rejected based on eval results, add one row 
 
 We don't accept translations of the documentation (README, `docs/`) or of skills and their content. Translated copies drift out of sync as skills and docs evolve, and we have no way to maintain them long-term without leaning on agent translations plus community corrections, which adds maintenance cost for limited value. Keep all skills, docs, and contributions in English.
 
-## Testing Hooks
+## Testing Activation and Workflow
 
-The session-start script (`hooks/session-start.sh`) injects the `e6-using-agent-skills` meta-skill when wired into a host's `SessionStart` hook. The Claude Code plugin does not register it — Claude Code routes skills natively, and always-on injection would create two routers for the same task (see [docs/getting-started.md](docs/getting-started.md)); the script remains for hosts without native skill routing. A regression test at `hooks/session-start-test.sh` validates the script's JSON payload — both when `jq` is available and when it isn't.
+The Claude plugin registers `hooks/hooks.json`. Its SessionStart script injects the compact `references/workflow-bootstrap.md` and installed paths on startup/resume/clear/compact/fork. It does not inject the whole catalog and needs no jq. Other hosts can use `scripts/install-workflow-bootstrap.js` to preview/check/write a marked project-rule block. See [workflow activation](docs/workflow-activation.md).
 
-Run it before opening any PR that touches:
-
-- `hooks/session-start.sh`
-- `skills/e6-using-agent-skills/SKILL.md` (the meta-skill content embedded by the hook)
+Run before changing activation, the router, or bootstrap:
 
 ```bash
 bash hooks/session-start-test.sh
+node --test scripts/install-workflow-bootstrap-test.js
+node scripts/validate-skills.js
+node scripts/run-evals.js --min-rank1 95
 ```
 
-Expected output: `session-start JSON payload OK`. The script exits non-zero on any assertion failure.
-
-### Reproducing the no-jq fallback
-
-The hook still emits the same `hookSpecificOutput` envelope when `jq` isn't on `PATH`, with `additionalContext` explaining that `jq` is required. To exercise that branch locally, strip `jq`'s directory from `PATH` for the test invocation:
-
-```bash
-JQ_DIR=$(dirname "$(command -v jq)")
-PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "^${JQ_DIR}$" | tr '\n' ':' | sed 's/:$//') \
-  bash hooks/session-start-test.sh
-```
-
-This works cleanly when `jq` lives in its own directory (e.g. `/opt/homebrew/bin` from Homebrew, `/usr/local/bin` from a manual install). If your `jq` shares a system bin with other tools the test depends on (such as `mktemp` in `/usr/bin`), the simpler approach is to install `jq` via a separate package manager so it has its own bin directory, then re-run.
-
-The hook's `command -v jq` check fails under the stripped `PATH`, the jq-missing fallback runs, and the test asserts the `jq is required` guidance in `additionalContext` instead of the meta-skill body.
+Run meaningful script regressions with `node --test scripts/*test.js scripts/lib/*test.js`, plus reference/command/artifact validators. Skill edits require observable pressure scenarios: acceptance-based tests, authorized continuation, unavailable-runtime evidence, bounded delegation, and correct handoff. Lexical routing and dry-runs do not prove model behavior. Use the opt-in behavioral runner with available supported engines; record model/CLI, pack revision, actual traces and limitations. See [evals](evals/README.md).
 
 ## Reporting Issues
 

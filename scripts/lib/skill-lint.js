@@ -69,10 +69,9 @@ const REQUIRED_SECTIONS = [
 // Exemptions live HERE, not in skill frontmatter, so contributors
 // cannot bypass the validator by editing their own skill file.
 // Every entry must have a documented reason.
-const SECTION_EXEMPT_SKILLS = {
-  'e6-using-agent-skills': 'Meta-skill — orchestrates other skills; When-to-Use and Verification are not applicable to a routing document.',
-  'e6-idea-refine':        'Legacy structure predating skill-anatomy.md — uses How-It-Works/Usage/Anti-patterns instead of standard headings. Tracked for conformance in https://github.com/addyosmani/agent-skills/issues',
-};
+// All shipped skills, including the coordinator, now carry explicit trigger,
+// rationalization, red-flag, and verification sections. No legacy exemptions.
+const SECTION_EXEMPT_SKILLS = {};
 
 // Regex patterns that indicate an explicit cross-skill reference.
 // Only these patterns trigger the dead-reference warning — generic
@@ -306,7 +305,7 @@ function lintSkillContent(dirName, content, knownSkills) {
     if (!hasTrigger || onlyNegated) {
       errors.push(
         `Description has no 'when to use' trigger — add a "Use when …" clause ` +
-        `(skill-anatomy.md: Required — the description must say both what the skill does and when to use it)`
+        `(skill-anatomy.md: Required — the description must identify concrete activation conditions)`
       );
     }
   }

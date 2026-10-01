@@ -38,7 +38,7 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] Hero/LCP images use `fetchpriority="high"` and no lazy loading
 
 ### JavaScript
-- [ ] Bundle size under 200KB gzipped (initial load)
+- [ ] Initial compressed bundle stays within the project's measured budget (200KB is an illustrative starting point, not a universal gate)
 - [ ] Code splitting with dynamic `import()` for routes and heavy features
 - [ ] Tree shaking enabled (verify dependency ships ESM and marks `sideEffects: false`)
 - [ ] No blocking JavaScript in `<head>` (use `defer` or `async`)
@@ -118,7 +118,7 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] Serverless / autoscaling fronted by a multiplexing proxy (pgbouncer, RDS Proxy) rather than a larger pool
 
 ### API
-- [ ] Response times < 200ms (p95)
+- [ ] p95 response time meets the project's workload-specific budget; baseline, input size, environment, and sample count recorded
 - [ ] No synchronous heavy computation in request handlers
 - [ ] Bulk operations instead of loops of individual calls
 - [ ] Response compression (gzip/brotli)
@@ -186,7 +186,7 @@ For a shared cache, the same idea needs a distributed lock, or `stale-while-reva
 
 ### INP field data and DevTools workflow
 
-1. **Field data first** — check [CrUX Vis](https://developer.chrome.com/docs/crux/vis) or your RUM tool for real-user INP before optimising
+1. **Use available evidence** — for deployed web UI check [CrUX Vis](https://developer.chrome.com/docs/crux/vis) or RUM; for local/new UI without field data, record a representative lab baseline and its limits. For backend/CLI/library work profile the relevant workload; web vitals are inapplicable.
 2. **Identify slow interactions** — open DevTools → Performance panel → record while interacting; look for long tasks triggered by clicks/keystrokes
 3. **Test on mid-range Android** — INP issues often only surface on slower hardware; use a real device or DevTools CPU throttling (4×–6× slowdown)
 

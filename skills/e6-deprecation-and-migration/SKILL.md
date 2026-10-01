@@ -1,247 +1,98 @@
 ---
 name: e6-deprecation-and-migration
-description: Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when migrating a database schema in production, such as renaming or dropping a column without downtime (expand/contract). Use when deciding whether to maintain or sunset existing code.
+description: Use when deprecating or sunsetting old systems, APIs, libraries, or features; migrating users and consumers from one implementation to another; deciding whether to maintain or remove legacy code; or changing a production database schema without downtime, including renaming or dropping a column with expand/contract.
 ---
 
 # Deprecation and Migration
 
 ## Overview
 
-Code is a liability, not an asset. Every line of code has ongoing maintenance cost — bugs to fix, dependencies to update, security patches to apply, and new engineers to onboard. Deprecation is the discipline of removing code that no longer earns its keep, and migration is the process of moving users safely from the old to the new.
-
-Most engineering organizations are good at building things. Few are good at removing them. This skill addresses that gap.
+Remove maintenance burden while preserving consumer behavior and data. An announcement is not a completed migration; measured usage and tested recovery decide when removal is safe.
 
 ## When to Use
 
-- Replacing an old system, API, or library with a new one
-- Sunsetting a feature that's no longer needed
-- Consolidating duplicate implementations
-- Removing dead code that nobody owns but everybody depends on
-- Planning the lifecycle of a new system (deprecation planning starts at design time)
-- Deciding whether to maintain a legacy system or invest in migration
+- Replacing/consolidating systems, public APIs, libraries, and features
+- Planning safe shutdown or deciding whether legacy code still earns maintenance
+- Migrating production schemas/data with mixed app versions
+- Plan removability at design time; clean boundaries make future migration cheaper
 
-## Core Principles
+## Workflow Handoff
 
-### Code Is a Liability
+For a standalone engineering change with no active workflow, load `using-e6-agent-skills` and `../../references/workflow-contract.md`. With an active coordinator, perform this migration step, record evidence, and return to that coordinator. Do not restart the lifecycle. Use `e6-caveman` for concise prose and bounded delegation; preserve exact commands, identifiers, and uncertainty.
 
-Every line of code has ongoing cost: it needs tests, documentation, security patches, dependency updates, and mental overhead for anyone working nearby. The value of code is the functionality it provides, not the code itself. When the same functionality can be provided with less code, less complexity, or better abstractions — the old code should go.
+## Process
 
-### Hyrum's Law Makes Removal Hard
+### 1. Discover Consumers and Obligations
 
-With enough users, every observable behavior becomes depended on — including bugs, timing quirks, and undocumented side effects. This is why deprecation requires active migration, not just announcement. Users can't "just switch" when they depend on behaviors the replacement doesn't replicate.
+Read project instructions, interface/schema history, existing migrations/tooling, consumer inventory, telemetry, support/contact ownership, published contracts, notice windows, and retention/export obligations. Include jobs, queues/retries, offline clients, integrations, and versions that may return during rollback. Inspect scoped dependencies; no observed traffic alone proves nobody depends on a system.
 
-### Deprecation Planning Starts at Design Time
+Compare unique value, maintenance/security cost, and migration cost. Maintain systems supplying required unique value. Hyrum's Law applies: consumers can depend on undocumented timing, errors, auth, or side effects. Capture observable behaviors as migration acceptance criteria and characterization/contract tests before changing them.
 
-When building something new, ask: "How would we remove this in 3 years?" Systems designed with clean interfaces, feature flags, and minimal surface area are easier to deprecate than systems that leak implementation details everywhere.
+### 2. Prepare Replacement and Transition
 
-## The Deprecation Decision
+A replacement must cover critical use cases, have migration docs, and demonstrate representative runtime/canary behavior. For an explicitly authorized shutdown without replacement, provide a viable transition such as data export and explain lost functionality; do not invent a replacement or silently block the requested shutdown.
 
-Before deprecating anything, answer these questions:
+Choose advisory deprecation for optional migration; use a compulsory deadline when documented risk/cost requires it. Honor contractual notice periods. Set owner, cohorts, communication channels, support path, compatibility window, measured advancement/removal criteria, and recovery plan. Reach reseller/indirect consumers. The infrastructure owner supplies tooling or backward-compatible updates and helps consumers migrate.
 
-```
-1. Does this system still provide unique value?
-   → If yes, maintain it. If no, proceed.
+Select a pattern:
 
-2. How many users/consumers depend on it?
-   → Quantify the migration scope.
+- **Strangler:** route cohorts from old to new, compare outcomes, retain a working rollback route.
+- **Adapter:** preserve old interface semantics while the backend changes.
+- **Feature flag:** switch stable consumer cohorts; test both paths and assign owner/cleanup gate.
 
-3. Does a replacement exist?
-   → If no, build the replacement first. Don't deprecate without an alternative.
+Move one consumer/cohort at a time. Identify touchpoints, migrate, run acceptance/edge/error checks, compare behavior, and confirm no regressions before advancing. Exercise actual local/staging API, browser, or desktop journeys as relevant. Reuse `e6-test-driven-development` and `e6-debugging-and-error-recovery` for implementation/failures. Local rehearsals do not authorize production mutation.
 
-4. What's the migration cost for each consumer?
-   → If trivially automated, do it. If manual and high-effort, weigh against maintenance cost.
+### 3. Expand/Contract Database Changes
 
-5. What's the ongoing maintenance cost of NOT deprecating?
-   → Security risk, engineer time, opportunity cost of complexity.
-```
+Old/new app and job versions must work during rolling deploys. Do not rename/drop a live column in place. For `name` → `full_name`:
 
-## Compulsory vs Advisory Deprecation
+1. **Expand:** add nullable `full_name`. Check engine-specific locks/resources/runtime behavior; additive does not automatically mean nonblocking.
+2. **Dual-write:** update every live writer to populate both values. Verify inserts/updates and mixed-version behavior; drain/account for writers updating only the old shape.
+3. **Backfill:** run resumable, throttled batches with checkpoints. Make writes idempotent and concurrency-safe with appropriate transactions/version conditions; stale batches must not overwrite newer writes. Test interruption/resume and concurrent updates.
+4. **Switch reads:** verify missing-value counts, source/destination parity, and ongoing writer consistency. Switch reads while preserving dual-write and an established rollback window. Bake using measured criteria.
+5. **Contract:** after old readers/writers, retries/jobs, and permitted rollback versions are gone, stop old writes. Later, separately, remove the old column. This boundary may be irreversible.
 
-| Type | When to Use | Mechanism |
-|------|-------------|-----------|
-| **Advisory** | Migration is optional, old system is stable | Warnings, documentation, nudges. Users migrate on their own timeline. |
-| **Compulsory** | Old system has security issues, blocks progress, or maintenance cost is unsustainable | Hard deadline. Old system will be removed by date X. Provide migration tooling. |
+Rehearse on a disposable representative database. Test old/new readers/writers at compatible phases, parity, locks, and acceptance paths. Use engine-supported nonblocking index creation where needed (for example PostgreSQL `CREATE INDEX CONCURRENTLY`, outside an incompatible transaction wrapper).
 
-**Default to advisory.** Use compulsory only when the maintenance cost or risk justifies forcing migration. Compulsory deprecation requires providing migration tooling, documentation, and support — you can't just announce a deadline.
+### 4. Prove Recovery Before Cutover
 
-## The Migration Process
+Distinguish app rollback, schema rollback, data restoration, and roll-forward. A `down` recreating an empty dropped column does not restore data. Stopping dual-write can make an older app read stale values; document when old-version rollback is no longer allowed.
 
-### Step 1: Build the Replacement
+For reversible phases, run supported rollback locally and prove behavioral/data recovery. For destructive/irreversible phases, record preserved backups/replay source and a tested restore or roll-forward procedure, recovery point/time objectives, owner, and authorized production boundary. Verify actual migration tool commands against current official documentation; never invent rollback commands.
 
-Don't deprecate without a working alternative. The replacement must:
+Hand cohort, artifact/schema compatibility, recovery evidence, and remaining gates to `e6-shipping-and-launch`. Do not apply destructive production steps merely because a plan exists.
 
-- Cover all critical use cases of the old system
-- Have documentation and migration guides
-- Be proven in production (not just "theoretically better")
+### 5. Remove and Preserve History
 
-### Step 2: Announce and Document
+Removal requires completed notice obligations, consumer confirmation, and zero old usage over a representative observation window with known telemetry coverage. Cover infrequent jobs/offline clients or confirm migration directly. Calendar deadlines and brief idle periods are insufficient.
 
-```markdown
-## Deprecation Notice: OldService
-
-**Status:** Deprecated as of 2025-03-01
-**Replacement:** NewService (see migration guide below)
-**Removal date:** Advisory — no hard deadline yet
-**Reason:** OldService requires manual scaling and lacks observability.
-            NewService handles both automatically.
-
-### Migration Guide
-1. Replace `import { client } from 'old-service'` with `import { client } from 'new-service'`
-2. Update configuration (see examples below)
-3. Run the migration verification script: `npx migrate-check`
-```
-
-### Step 3: Migrate Incrementally
-
-Migrate consumers one at a time, not all at once. For each consumer:
-
-```
-1. Identify all touchpoints with the deprecated system
-2. Update to use the replacement
-3. Verify behavior matches (tests, integration checks)
-4. Remove references to the old system
-5. Confirm no regressions
-```
-
-**The Churn Rule:** If you own the infrastructure being deprecated, you are responsible for migrating your users — or providing backward-compatible updates that require no migration. Don't announce deprecation and leave users to figure it out.
-
-### Step 4: Remove the Old System
-
-Only after all consumers have migrated:
-
-```
-1. Verify zero active usage (metrics, logs, dependency analysis)
-2. Remove the code
-3. Remove associated tests, documentation, and configuration
-4. Remove the deprecation notices
-5. Celebrate — removing code is an achievement
-```
-
-## Migration Patterns
-
-### Strangler Pattern
-
-Run old and new systems in parallel. Route traffic incrementally from old to new. When the old system handles 0% of traffic, remove it.
-
-```
-Phase 1: New system handles 0%, old handles 100%
-Phase 2: New system handles 10% (canary)
-Phase 3: New system handles 50%
-Phase 4: New system handles 100%, old system idle
-Phase 5: Remove old system
-```
-
-### Adapter Pattern
-
-Create an adapter that translates calls from the old interface to the new implementation. Consumers keep using the old interface while you migrate the backend.
-
-```typescript
-// Adapter: old interface, new implementation
-class LegacyTaskService implements OldTaskAPI {
-  constructor(private newService: NewTaskService) {}
-
-  // Old method signature, delegates to new implementation
-  getTask(id: number): OldTask {
-    const task = this.newService.findById(String(id));
-    return this.toOldFormat(task);
-  }
-}
-```
-
-### Feature Flag Migration
-
-Use feature flags to switch consumers from old to new system one at a time:
-
-```typescript
-function getTaskService(userId: string): TaskService {
-  if (featureFlags.isEnabled('new-task-service', { userId })) {
-    return new NewTaskService();
-  }
-  return new LegacyTaskService();
-}
-```
-
-### Database Schema Migrations (Expand/Contract)
-
-A schema change is the riskiest migration because the data is the one thing you cannot roll back by reverting a deploy. The failure mode is coupling the schema change to the code change: rename a column in the same release that starts using the new name, and during the rollout window — when old and new code run at once — one of them is querying a column that doesn't exist. The fix is to **never change a column in place**. Migrate in additive phases so old and new code are both valid at every step.
-
-```
-EXPAND ──────────────→ MIGRATE ──────────────→ CONTRACT
-add the new column,    backfill existing rows,  once no code reads the
-nullable, alongside    dual-write old+new from  old column, drop it in
-the old one            the app                  a later, separate deploy
-```
-
-**Worked example — renaming `name` to `full_name`:**
-
-1. **Expand.** Add `full_name` as nullable. Deploy. (Old code ignores it; nothing breaks.)
-2. **Dual-write.** App writes both `name` and `full_name` on every insert/update. Deploy.
-3. **Backfill.** Copy `name → full_name` for existing rows, in batches, so you don't lock the table.
-4. **Switch reads.** Point the app at `full_name`, keep writing both. Deploy and bake.
-5. **Contract.** Stop writing `name`, then — in a *separate, later* deploy — drop the column.
-
-Each step is independently deployable and reversible: if step 4 misbehaves, roll the code back and `full_name` is still being populated. Treat each phase as a thin vertical slice — see the `e6-incremental-implementation` skill.
-
-**Rules:**
-- **Additive first, destructive last and alone.** Adds (new nullable column, new table, new index) are safe in any deploy; drops and renames get their own deploy *after* no code references the old shape.
-- **Every migration has a tested down path.** A migration you can't reverse is a deploy you can't roll back. Write and run the `down` before merging.
-- **Backfill in batches, off the hot path.** A single `UPDATE` over millions of rows locks the table; chunk it and throttle.
-- **Build large indexes without blocking writes** (e.g. Postgres `CREATE INDEX CONCURRENTLY`).
-- **Decouple from code by feature flag** when the cutover is risky, exactly as in the Feature Flag Migration pattern above.
-
-## Zombie Code
-
-Zombie code is code that nobody owns but everybody depends on. It's not actively maintained, has no clear owner, and accumulates security vulnerabilities and compatibility issues. Signs:
-
-- No commits in 6+ months but active consumers exist
-- No assigned maintainer or team
-- Failing tests that nobody fixes
-- Dependencies with known vulnerabilities that nobody updates
-- Documentation that references systems that no longer exist
-
-**Response:** Either assign an owner and maintain it properly, or deprecate it with a concrete migration plan. Zombie code cannot stay in limbo — it either gets investment or removal.
+Remove obsolete live code, tests, configuration, and current usage docs within authorized scope. Preserve historical ADRs/changelogs and useful migration/tombstone notices. Recheck dependencies and representative runtime after cleanup. Assign an owner or deprecation plan for zombie code; inactivity does not prove it is unused.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "It still works, why remove it?" | Working code that nobody maintains accumulates security debt and complexity. Maintenance cost grows silently. |
-| "Someone might need it later" | If it's needed later, it can be rebuilt. Keeping unused code "just in case" costs more than rebuilding. |
-| "The migration is too expensive" | Compare migration cost to ongoing maintenance cost over 2-3 years. Migration is usually cheaper long-term. |
-| "We'll deprecate it after we finish the new system" | Deprecation planning starts at design time. By the time the new system is done, you'll have new priorities. Plan now. |
-| "Users will migrate on their own" | They won't. Provide tooling, documentation, and incentives — or do the migration yourself (the Churn Rule). |
-| "We can maintain both systems indefinitely" | Two systems doing the same thing is double the maintenance, testing, documentation, and onboarding cost. |
-| "Just rename the column, it's one line" | During the rollout, old and new code run together — one will query a column that no longer exists. Expand/contract, never rename in place. |
-| "I'll add the column and drop the old one in the same migration" | That couples a safe add to a destructive drop. Drops get their own deploy, after no code references the old shape. |
-| "We'll write the rollback if we need it" | A migration with no down path is a deploy you can't reverse. Write and run the `down` before merging. |
+| "Nobody called it today" | Cover real consumer cadence and telemetry gaps. |
+| "Consumers will handle it" | Supply tooling, compatibility, support; honor notice contracts. |
+| "The down migration ran" | Execution does not prove data or old-version behavior was restored. |
+| "Backfill is a simple UPDATE" | Concurrency, locks, interruption, and drift need tested controls. |
+| "The deadline passed, delete it" | Removal also needs measured migration and recovery readiness. |
 
 ## Red Flags
 
-- Deprecated systems with no replacement available
-- Deprecation announcements with no migration tooling or documentation
-- "Soft" deprecation that's been advisory for years with no progress
-- Zombie code with no owner and active consumers
-- New features added to a deprecated system (invest in the replacement instead)
-- Deprecation without measuring current usage
-- Removing code without verifying zero active consumers
-- A schema change and the code that depends on it shipped in the same deploy
-- A column renamed or dropped in place rather than via expand/contract
-- A migration merged with no tested down path, or a backfill that locks the table
+- Replacement parity assumed from happy-path tests
+- Unreachable consumers or unfulfilled notice/data obligations
+- In-place live renames/drops, stale backfills, or unbounded transactions
+- App rollback promised beyond schema/data compatibility
+- Destructive down path called recovery without restored data
+- Historical decisions erased during cleanup
 
 ## Verification
 
-After completing a deprecation:
-
-- [ ] Replacement is production-proven and covers all critical use cases
-- [ ] Migration guide exists with concrete steps and examples
-- [ ] All active consumers have been migrated (verified by metrics/logs)
-- [ ] Old code, tests, documentation, and configuration are fully removed
-- [ ] No references to the deprecated system remain in the codebase
-- [ ] Deprecation notices are removed (they served their purpose)
-
-After a database schema migration:
-
-- [ ] The change ships in additive phases (expand → backfill → contract), not a single in-place edit
-- [ ] Old and new code are both valid against the schema at every deploy step
-- [ ] Each migration has a tested down path; backfills run in throttled batches
-- [ ] Destructive steps (drop/rename) ship in their own deploy after no code references the old shape
+- [ ] Consumer scope, behavior criteria, contracts, notice obligations, and ownership are evidenced
+- [ ] Compatibility/acceptance tests and representative runtime journeys pass for migrated cohorts
+- [ ] Schema phases support relevant old/new readers/writers; backfill resumes safely and parity is measured
+- [ ] Recovery or roll-forward is rehearsed; irreversible boundaries/production authorization are explicit
+- [ ] Removal evidence covers consumer cadence, telemetry gaps, queues/jobs, and rollback versions
+- [ ] Obsolete live assets removed within scope; history/useful migration guidance preserved
+- [ ] Coordinator receives measured progress, exact outcomes, recovery evidence, and remaining gates

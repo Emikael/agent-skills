@@ -1,0 +1,29 @@
+{
+  "skill_name": "e6-caveman",
+  "trigger": {
+    "positive": [
+      { "prompt": "Use caveman style for this status update", "top_k": 1 },
+      { "prompt": "Make your findings concise and direct, with terse answers", "top_k": 3 },
+      { "prompt": "Compress this subagent handoff into token-saving output", "top_k": 3 }
+    ],
+    "negative": [
+      { "prompt": "Write unit tests for the date parser", "owner": "e6-test-driven-development" },
+      { "prompt": "Set up rules files and context packing for my repository", "owner": "e6-context-engineering" }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "dialogue",
+      "prompt": "Give a concise handoff using caveman style. Facts: node --test passed 12 of 12 tests. GET /reports returned HTTP 200. No browser or computer tool was available, so keyboard navigation and rendered error states remain unverified. Do not deploy without user authorization. Existing edits in src/billing.ts belong to the user. Exact error from the unavailable preview is ECONNREFUSED at 127.0.0.1:4173. The performance measurement is 210 ms, not 210 seconds. No measured token savings exist.",
+      "expected_output": "A short readable handoff retaining exact evidence, blockers, numbers, units, negation, ownership, and uncertainty",
+      "expectations": [
+        "The handoff is concise and readable with no repeated setup or filler",
+        "The exact node --test command, 12/12 outcome, HTTP 200, 210 ms, path src/billing.ts, and ECONNREFUSED at 127.0.0.1:4173 are retained",
+        "Unavailable browser/computer verification is explicitly unverified rather than passed",
+        "The prohibition on unauthorized deploy and ownership of user edits are preserved",
+        "No measured token savings or certainty about unverified behavior are invented"
+      ]
+    }
+  ]
+}

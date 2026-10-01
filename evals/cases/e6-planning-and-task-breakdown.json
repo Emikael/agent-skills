@@ -30,7 +30,7 @@
     {
       "id": 1,
       "prompt": "Break the attached notifications spec into an executable plan.",
-      "expected_output": "Ordered tasks in tasks/plan.md, each small, verifiable, with acceptance criteria and dependencies",
+      "expected_output": "An ordered plan in tasks/plan.md and tasks in the active target, each linked to acceptance, proof methods and dependencies",
       "files": [
         "e6-planning-and-task-breakdown"
       ],
@@ -39,7 +39,28 @@
         "Every task cites the spec requirement it satisfies",
         "Tasks are ordered by dependency",
         "Tasks are vertical slices rather than horizontal layers",
-        "No implementation code is written during planning"
+        "No implementation code is written during planning",
+        "Every task maps the cited acceptance to meaningful inputs, observable outcomes and proof methods rather than a generic tests-pass claim",
+        "The plan requires actual local assignment and retry behavior as runtime proof in addition to tests or build success",
+        "Commands not discoverable from the fixture are labeled unresolved rather than invented",
+        "The request remains plan-only; a missing second human approval is not used as a reason to withhold the requested plan"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The active coordinator authorized planning the attached notifications-spec.md and owns later implementation. Routine choices are delegated. Save the plan and task checklist and return evidence. Identify any genuinely independent work worth delegation, but do not spawn agents in this worker context. Give bounded worker packets if useful. Do not implement production code.",
+      "expected_output": "A saved executable plan returned without redundant approval, with acceptance-backed proof and bounded non-nested delegation design",
+      "files": [
+        "e6-planning-and-task-breakdown"
+      ],
+      "expectations": [
+        "Existing product decisions are reused and the plan is saved without demanding a literal yes",
+        "Each task preserves the email, opt-in, deduplication and status invariants in the source spec",
+        "Local runtime verification and requirement-linked tests are included",
+        "Any proposed worker input names goal, acceptance, owned paths, commands and context pointers within 500 words",
+        "Any expected worker result is bounded to changed paths, evidence, remaining issues and next step within 200 words",
+        "The worker does not spawn nested agents or dump the entire repository or spec into packets",
+        "The current task remains planning and returns to the active coordinator"
       ]
     }
   ]

@@ -39,7 +39,7 @@ body:
         - e6-source-driven-development
         - e6-spec-driven-development
         - e6-test-driven-development
-        - e6-using-agent-skills
+        - using-e6-agent-skills
         - other / not sure
     validations:
       required: true

@@ -37,7 +37,24 @@
       "expectations": [
         "Findings are grounded in observed runtime data (console, network, DOM), not static code reading alone",
         "The report distinguishes what was observed from what is inferred",
-        "A concrete next step or fix hypothesis is provided"
+        "A concrete next step or fix hypothesis is provided",
+        "The documented server is started or a verified existing server is used and the actual signup interaction is executed, not just static HTML/server source reading",
+        "The observed POST /api/signup 500 HTML response, resulting JSON parse failure and unchanged status DOM are recorded distinctly; database causation is not claimed beyond available server evidence",
+        "If a real browser capability is absent, the exact blocker is stated and runtime findings are not fabricated"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Verify the signup reproduction using available browser/computer tools or existing automation. You may start the documented local server, enter synthetic test data, submit and follow local project navigation. These local reversible actions are authorized. Do not install browser tools. Report observed console/network/DOM behavior; if runtime capability is absent, report the exact blocker.",
+      "expected_output": "Authorized local runtime verification without repeated approval or tool installation, or a precise capability blocker without invented evidence",
+      "files": [
+        "e6-browser-testing-with-devtools"
+      ],
+      "expectations": [
+        "Available runtime capability is used without insisting on a particular MCP server or installing additional browser tools",
+        "The agent does not ask for confirmation before authorized local server startup, synthetic form interaction or project navigation",
+        "If verification runs, observed network and DOM/console evidence supports the diagnosis; if it cannot run, the exact missing capability and unverified acceptance action are stated",
+        "The report distinguishes observed facts, inference and limitations and does not claim an unexecuted flow passed"
       ]
     }
   ]

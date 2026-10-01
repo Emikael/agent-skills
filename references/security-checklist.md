@@ -37,6 +37,7 @@ Before reaching for controls, spend five minutes thinking like an attacker:
 
 - [ ] Passwords hashed with bcrypt (≥12 rounds), scrypt, or argon2
 - [ ] Session cookies: `httpOnly`, `secure`, `sameSite: 'lax'`
+- [ ] Cookie-authenticated state changes have CSRF protection (token and/or validated Origin/Referer); SameSite is defense in depth, not the entire check
 - [ ] Session expiration configured (reasonable max-age)
 - [ ] Rate limiting on login endpoint (≤10 attempts per 15 minutes)
 - [ ] Password reset tokens: time-limited (≤1 hour), single-use
@@ -133,7 +134,7 @@ cors({ origin: '*' })  // Allows any origin
 
 ## Data Protection
 
-- [ ] Sensitive fields excluded from API responses (`passwordHash`, `resetToken`, etc.)
+- [ ] Public response fields explicitly allowlisted; sensitive fields such as `passwordHash` and `resetToken` cannot leak through object spread or a denylist
 - [ ] Sensitive data not logged (passwords, tokens, full CC numbers)
 - [ ] PII encrypted at rest (if required by regulation)
 - [ ] HTTPS for all external communication

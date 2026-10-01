@@ -75,21 +75,13 @@ test('a directory named after an Object.prototype key is not exempt from section
   assert.equal(errors.filter(e => /Missing required section/.test(e)).length, 5);
 });
 
-test('a genuinely allowlisted skill is still exempt', () => {
-  const content = [
-    '---',
-    'name: e6-using-agent-skills',
-    'description: Routes to other skills. Use when choosing one.',
-    '---',
-    '',
-    'no sections here',
-    '',
-  ].join('\n');
-
-  const { errors, exempt } = lintSkillContent('e6-using-agent-skills', content, KNOWN);
-
-  assert.equal(exempt, true);
-  assert.deepEqual(errors.filter(e => /Missing required section/.test(e)), []);
+test('router and idea skills must satisfy the same section contract as specialists', () => {
+  for (const name of ['using-e6-agent-skills', 'e6-idea-refine']) {
+    const content = `---\nname: ${name}\ndescription: Use when choosing an engineering workflow.\n---\n\nno sections here\n`;
+    const { errors, exempt } = lintSkillContent(name, content, KNOWN);
+    assert.equal(exempt, false);
+    assert.equal(errors.filter(e => /Missing required section/.test(e)).length, 5);
+  }
 });
 
 test('a skill claiming its own exemption without being allowlisted fails loud', () => {

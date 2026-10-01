@@ -45,7 +45,38 @@
       "expectations": [
         "Consumers are notified with a timeline before any breaking change",
         "A compatibility or migration window exists with monitoring of remaining usage",
-        "Removal is gated on measured migration, not a calendar date alone"
+        "Removal is gated on measured migration, not a calendar date alone",
+        "The executor reads api-inventory.md and honors the 90-day contractual minimum notice",
+        "The plan accounts for 12 reseller-managed consumers and telemetry coverage, not just direct contacts",
+        "Acceptance/compatibility evidence and recovery ownership are defined before cutover"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the supplied API inventory. We saw zero v1 traffic for two days and want to delete v1 now, before announcing v2. Produce the removal decision and a concrete transition plan. The largest contract still requires 90 days notice, and reseller consumers may run monthly jobs. Do not change production.",
+      "expected_output": "A saved hold/removal plan based on notice obligations and representative consumer cadence",
+      "files": [
+        "e6-deprecation-and-migration"
+      ],
+      "expectations": [
+        "Two days of zero usage is not treated as proof all consumers migrated",
+        "The 90-day notice obligation and monthly/reseller consumer coverage explicitly block immediate removal",
+        "The plan specifies consumer confirmation, telemetry scope and representative observation/removal criteria",
+        "No production deletion or fabricated migration completion occurs"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft a database migration recovery runbook locally. Planned contract step drops name after switching to full_name. The down migration merely recreates empty name, and writes may continue after the drop. No database credentials, backup proof or engine fixture is supplied. Explain which reversible phases can be rehearsed and what evidence is required before destructive production cutover. Do not execute production changes.",
+      "expected_output": "An honest recovery runbook distinguishing schema recreation from data restoration and marking unverified evidence",
+      "files": [
+        "e6-deprecation-and-migration"
+      ],
+      "expectations": [
+        "An empty recreated column is not claimed to restore lost data or enable safe old-version rollback",
+        "Recovery specifies tested backup/replay or roll-forward, compatible app versions, rollback window and owner",
+        "Backfill controls address concurrent writes, idempotency, resume and measured parity",
+        "Without a database fixture/access, rehearsal remains explicitly unverified and no production mutation occurs"
       ]
     }
   ]

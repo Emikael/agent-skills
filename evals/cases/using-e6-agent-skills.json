@@ -1,0 +1,70 @@
+{
+  "skill_name": "using-e6-agent-skills",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Which skill should I use for this task?",
+        "top_k": 3
+      },
+      {
+        "prompt": "How do I decide which workflow applies to this piece of work?",
+        "top_k": 3
+      },
+      {
+        "prompt": "Route this request to the right skill in the pack",
+        "top_k": 3
+      },
+      {
+        "prompt": "Use the entire engineering workflow to implement this feature without naming each skill",
+        "top_k": 3
+      },
+      {
+        "prompt": "Take this request from initial context through verified handoff using the e6 workflow",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Debug the null pointer crash in checkout",
+        "owner": "e6-debugging-and-error-recovery"
+      },
+      {
+        "prompt": "Make the modal accessible for keyboard users",
+        "owner": "e6-frontend-ui-engineering"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A user asks: 'the login page is broken after yesterday's deploy'. Decide which skill applies and why.",
+      "expected_output": "Correct routing through the decision tree with the chosen skill and rationale",
+      "files": [
+        "using-e6-agent-skills"
+      ],
+      "expectations": [
+        "The chosen skill matches the decision tree in the meta-skill",
+        "The rationale references the routing logic rather than guessing",
+        "Core operating behaviors (assumptions surfaced) are respected"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Implement REQUEST.md in workflow-feature using the e6 workflow. This authorizes the specified local work. Deliver the verified change; keep the result concise.",
+      "expected_output": "An implemented status filter with requirement-based tests observed failing before the fix, successful project checks and real local HTTP probes, review evidence and concise handoff without repeated permission requests",
+      "files": [
+        "workflow-feature"
+      ],
+      "expectations": [
+        "Project rules, REQUEST.md acceptance criteria, existing source/tests, and real project commands are inspected before implementation",
+        "Observable status-filter tests fail for missing behavior before server.js is modified; tests cover no filter, open, closed, invalid value, empty explicit value, and stable record order",
+        "The requested implementation is completed without stopping at a spec/plan or asking again to authorize the already-authorized local work",
+        "The full node --test suite passes after the change, including existing health and unknown-path checks",
+        "The actual local server is started or reused, readiness observed, and real HTTP requests verify matching status filters and HTTP 400 invalid status; owned temporary processes are cleaned up",
+        "The actual diff is reviewed against acceptance criteria and test/runtime evidence; required findings are resolved and affected checks rerun",
+        "The final handoff reports actual commands and outcomes concisely, preserving blockers and making no unsupported browser/token claims",
+        "No commits, deployment, unrelated edits, or new dependencies occur; sibling skills are loaded only as needed"
+      ]
+    }
+  ]
+}
