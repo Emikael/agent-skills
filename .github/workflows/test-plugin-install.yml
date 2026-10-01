@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-skills:
     name: Validate skill content
@@ -136,7 +139,7 @@ jobs:
 
   validate:
     name: Validate plugin structure
-    needs: [validate-skills, validate-commands, validate-platforms]
+    needs: [validate-skills, validate-commands, validate-platforms, test-hooks]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
