@@ -37,7 +37,26 @@
       "expectations": [
         "Claims about framework behavior cite official documentation",
         "Unverified assumptions are flagged rather than presented as fact",
-        "Deprecated patterns are avoided in favor of documented current ones"
+        "Deprecated patterns are avoided in favor of documented current ones",
+        "Lockfiles and installed metadata are checked before asking the user to resolve an exact version",
+        "Implementation is verified by meaningful acceptance tests and the actual local session flow rather than only source citations or type checks",
+        "Existing compatible patterns are preserved unless a documented incompatibility within requested scope requires change",
+        "The evidence distinguishes verified runtime behavior from unresolved deployment assumptions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "This is source verification only. The task brief is framework-task.md. package.json declares Express ^5.0.0, and the verified lockfile record resolves Express 5.1.0. The installed code uses a supported Express 5 session pattern; latest upstream docs show another optional pattern. Resolve the relevant target, cite the needed official behavior, and assess compatibility. Do not upgrade dependencies or implement code.",
+      "expected_output": "A version-specific source assessment that honors locked metadata and existing compatible code without routine permission questions",
+      "files": [
+        "e6-source-driven-development"
+      ],
+      "expectations": [
+        "The resolved lockfile version 5.1.0 is distinguished from the manifest range ^5.0.0",
+        "The agent does not ask the user for a version already resolved by the supplied project evidence",
+        "A newer optional documented pattern is not treated as an automatic reason to upgrade or rewrite supported existing code",
+        "Relevant official docs or release notes are cited only for claims they support",
+        "No implementation or runtime success is invented in a verification-only task"
       ]
     }
   ]

@@ -47,7 +47,7 @@ test('passes when a skill reaches the shared checklist two levels up', () => {
   writeFile(root, 'references/definition-of-done.md', '# Definition of Done\n');
   writeFile(
     root,
-    'skills/e6-using-agent-skills/SKILL.md',
+    'skills/using-e6-agent-skills/SKILL.md',
     'See `../../references/definition-of-done.md`.\n'
   );
 
@@ -64,7 +64,7 @@ test('fails when a skill links the shared checklist as if it were colocated', ()
   writeFile(root, 'references/definition-of-done.md', '# Definition of Done\n');
   writeFile(
     root,
-    'skills/e6-using-agent-skills/SKILL.md',
+    'skills/using-e6-agent-skills/SKILL.md',
     'See `references/definition-of-done.md`.\n'
   );
 
@@ -74,7 +74,7 @@ test('fails when a skill links the shared checklist as if it were colocated', ()
   assert.match(result.stdout, /1 skills checked — 1 error\(s\) — FAILED/);
   assert.match(
     result.stdout,
-    /L1: references\/definition-of-done\.md — resolves to skills\/e6-using-agent-skills\/references\/definition-of-done\.md/
+    /L1: references\/definition-of-done\.md — resolves to skills\/using-e6-agent-skills\/references\/definition-of-done\.md/
   );
   assert.match(result.stdout, /use `\.\.\/\.\.\/references\/<file>\.md`/);
 });
@@ -82,7 +82,7 @@ test('fails when a skill links the shared checklist as if it were colocated', ()
 test('checks markdown link syntax, not just backtick mentions', () => {
   const root = makeSandbox();
   writeFile(root, 'references/definition-of-done.md', '# Definition of Done\n');
-  writeFile(root, 'skills/e6-using-agent-skills/SKILL.md', 'See [DoD](references/definition-of-done.md).\n');
+  writeFile(root, 'skills/using-e6-agent-skills/SKILL.md', 'See [DoD](references/definition-of-done.md).\n');
 
   const result = run(root);
 
@@ -246,7 +246,7 @@ test('a link inside a fenced block is an example, not a link to resolve', () => 
   writeFile(root, 'references/definition-of-done.md', '# DoD\n');
   writeFile(
     root,
-    'skills/e6-using-agent-skills/SKILL.md',
+    'skills/using-e6-agent-skills/SKILL.md',
     [
       'Shared checklists live two levels up:',
       '',
@@ -271,7 +271,7 @@ test('fence exemption follows CommonMark rather than a bare ``` match', () => {
   const root = makeSandbox();
   writeFile(
     root,
-    'skills/e6-using-agent-skills/SKILL.md',
+    'skills/using-e6-agent-skills/SKILL.md',
     [
       '~~~markdown',
       '[a](references/missing-a.md)',
@@ -296,7 +296,7 @@ test('a real broken link outside any fence is still reported', () => {
   const root = makeSandbox();
   writeFile(
     root,
-    'skills/e6-using-agent-skills/SKILL.md',
+    'skills/using-e6-agent-skills/SKILL.md',
     [
       '```markdown',
       '[shown as an example](references/example-only.md)',

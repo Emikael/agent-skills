@@ -38,7 +38,24 @@
         "The workflow triggers on pull requests",
         "Failure of any quality gate fails the pipeline run",
         "Steps are ordered logically and cache or setup steps are sane",
-        "No secrets are hardcoded in the workflow"
+        "No secrets are hardcoded in the workflow",
+        "The executor reads supplied package scripts and discovers absence of TypeScript, build script, dependencies and lockfile before choosing commands",
+        "Actual lint and test commands run locally; missing npm ci prerequisites do not get hidden",
+        "Required check names and branch protection are evidenced or explicitly left unverified with concrete configuration; remote merge blocking is not invented"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a manual rollback workflow to this repository without deploying anything. Input version may contain shell metacharacters. Use a clearly marked project deploy placeholder if no actual provider is configured; do not invent credentials or claim operational readiness. Keep normal fork PR lint/tests secretless. Validate the workflow and explain exactly which remote checks still need access.",
+      "expected_output": "A reviewable protected rollback definition with validated quoted environment input and honest unverified provider/remote gates",
+      "files": [
+        "e6-ci-cd-and-automation"
+      ],
+      "expectations": [
+        "Untrusted version input is not interpolated directly into run shell text; it is passed through environment, validated and quoted",
+        "Fork PR checks do not receive production or deployment secrets and pull_request_target does not execute PR-controlled code",
+        "Deployment placeholder and unavailable credentials/provider evidence are explicit; no real deployment is attempted",
+        "The executor validates available local commands and does not claim required remote protection was configured without evidence"
       ]
     }
   ]

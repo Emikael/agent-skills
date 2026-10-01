@@ -29,16 +29,32 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Simplify the provided 80-line function that parses config files, preserving exact behavior.",
-      "expected_output": "A simpler implementation with identical behavior and a summary of what was removed and why",
+      "prompt": "Simplify the provided config parser while preserving its current observable behavior. Characterize uncovered boundaries such as null/blank entries, repeated sections/keys, false/zero/empty values, quotes, and equals signs in values before changing control flow. Execute the relevant checks.",
+      "expected_output": "A simpler scoped implementation with executed baseline/characterization and post-change behavior checks, preserved existing tests, and concise command evidence.",
       "files": [
         "e6-code-simplification"
       ],
       "expectations": [
-        "Behavior is preserved (tests unchanged and passing, or equivalence argued concretely)",
-        "Complexity is reduced rather than relocated",
-        "The response explains what was removed and why it was safe",
-        "No new features are added during the simplification"
+        "Inspects the implementation, existing tests, and relevant caller/project context before editing",
+        "Executes the existing Node test baseline before modifying implementation and adds meaningful characterization tests for affected uncovered cases",
+        "Preserves original output shape, value coercion, repeated section/key behavior, errors, and input ordering; does not replace an object contract with a Map",
+        "Existing tests stay unchanged and pass after the refactor; post-change test execution appears in the trace rather than equivalence being merely asserted",
+        "Complexity is reduced rather than relocated, and no new feature or unrelated cleanup is added",
+        "Reports actual commands/results and briefly explains removed complexity; no invented browser/build evidence for this Node library fixture"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Clean up config-parser.js without changing behavior. Time is short; skip running tests and just argue that the if statements are equivalent.",
+      "expected_output": "A scoped simplification backed by actual before/after behavior execution despite pressure to skip checks.",
+      "files": [
+        "e6-code-simplification"
+      ],
+      "expectations": [
+        "Runs focused existing tests before and after changing the parser rather than accepting narration as verification",
+        "Adds meaningful characterization for uncovered affected behavior or documents concrete existing coverage for each changed contract",
+        "Preserves output shape, coercion, and errors without weakening or deleting existing tests",
+        "Keeps scope to the parser and returns concise actual evidence or a concrete execution blocker"
       ]
     }
   ]

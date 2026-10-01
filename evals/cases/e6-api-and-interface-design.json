@@ -29,7 +29,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Design the public API for a URL-shortening service: create, resolve, stats. Produce the endpoint contracts.",
+      "prompt": "Design the public API for a URL-shortening service: create, resolve, stats. Produce the endpoint contracts. Save the contracts in api-contract.md; this request is design-only.",
       "expected_output": "Endpoint contracts with methods, paths, request/response shapes, and explicit error semantics",
       "files": [
         "e6-api-and-interface-design"
@@ -38,7 +38,27 @@
         "Error responses are specified with status codes and a consistent error shape, not just happy paths",
         "Input validation at the boundary is addressed for user-supplied URLs",
         "Versioning or compatibility strategy is stated",
-        "The response does not silently invent unstated requirements"
+        "The response does not silently invent unstated requirements",
+        "service-brief.md is read before design and the saved api-contract.md reflects slug length and delayed statistics constraints",
+        "Custom slugs, default expiration and stats authentication remain explicit undecided choices or proposals, not invented settled requirements",
+        "Contract acceptance examples include invalid URL/slug and missing/expired behavior, and unexecuted runtime checks are labelled rather than claimed passing",
+        "The agent produces the design artifact without starting an unrequested service implementation"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Fix service.js to satisfy the in-process retry contract in README.md. Use tests to prove concurrent same-intent requests execute one effect, changed payloads fail consistently, different tenants do not share responses, and unknown outcomes are not retried. Run the actual module checks. Keep this task in-memory and state its durability limitation.",
+      "expected_output": "Test-first retry fix with atomic pending claim, scoped replay, consistent error envelopes, no automatic repeat of unknown effects and executed tests",
+      "files": [
+        "e6-api-and-interface-design/retry-service"
+      ],
+      "expectations": [
+        "README.md, existing service.js and tests are inspected before modifying behavior",
+        "New contract tests are run and show the intended behavioral failure before service.js is modified",
+        "Concurrent calls against the actual createService implementation count one effect and pending duplicate returns 409 IDEMPOTENCY_IN_PROGRESS",
+        "Same-tenant/key changed amount returns 422 IDEMPOTENCY_PAYLOAD_MISMATCH with the required structured envelope; same key across tenants is independent",
+        "An effect throwing with unknown outcome returns the documented error without a second effect for the same intent",
+        "The full node --test suite runs after the fix and the final result explicitly does not claim restart-safe or durable production idempotency"
       ]
     }
   ]

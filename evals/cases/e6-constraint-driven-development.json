@@ -3,7 +3,7 @@
   "trigger": {
     "positive": [
       {
-        "prompt": "Set up quality constraints for this project — I want to define our bar before the agent writes more code",
+        "prompt": "Set up quality constraints for this project \u2014 I want to define our bar before the agent writes more code",
         "top_k": 3
       },
       {
@@ -19,7 +19,7 @@
         "top_k": 3
       },
       {
-        "prompt": "I care about accessibility and web performance — set those up as enforced constraints",
+        "prompt": "I care about accessibility and web performance \u2014 set those up as enforced constraints",
         "top_k": 3
       }
     ],
@@ -49,7 +49,9 @@
         "No more than four questions are asked, and each one carries a usable default",
         "When the user has no target number, the agent proposes recording today's value and holding it rather than inventing a threshold",
         "The resulting constraints say where each check runs, keeping fast checks in the edit loop and slow checks later",
-        "Every number written down is accompanied by a reason"
+        "Every number written down is accompanied by a reason",
+        "Report generation is distinguished from blocking enforcement and pending tooling is labeled honestly",
+        "A claimed gate is required to demonstrate a deliberate failing breach and a restored passing state"
       ]
     },
     {
@@ -69,10 +71,38 @@
       "prompt": "Accessibility matters to us. Add it as a constraint.",
       "expected_output": "A working accessibility check, not just a threshold written down",
       "expectations": [
-        "The agent names axe-core and gives the install and run commands rather than only stating a violation threshold",
-        "It notes that axe needs a running URL and asks for one, or drops the dimension if the project has no URL to hit",
-        "The command that produces the verdict is recorded alongside the rule in CONSTRAINTS.md",
-        "The check is placed at the preview-deploy stage rather than in the per-edit loop"
+        "The agent names an appropriate accessibility tool and distinguishes report generation from an impact-filtered failing verdict",
+        "It discovers and starts the local app when launch instructions exist rather than asking the user to provide a URL already obtainable from the project",
+        "When no web URL applies, relevant native or other runtime accessibility evidence is retained rather than dropping the user-selected dimension",
+        "The verdict command and failure policy are recorded alongside the rule in CONSTRAINTS.md",
+        "The check is placed at local runtime verification or preview verification rather than the per-edit loop"
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "dialogue",
+      "prompt": "Review these proposed gate definitions before we install them: changed-line coverage at least 80% checked by vitest run --coverage; LCP at most 2500ms checked by lighthouse http://localhost:3000 --output=json; no high code-security findings checked by semgrep scan --config p/default. Are these already enforcement? Explain the concrete missing verdicts and how to prove them.",
+      "expected_output": "Precise distinction between measurements and threshold-aware failure gates, with deliberate-breach validation",
+      "expectations": [
+        "The agent does not claim vitest coverage reporting computes or enforces changed-line coverage without intersection and threshold configuration",
+        "The agent identifies that Lighthouse JSON requires a metric comparison and failing exit on excess LCP",
+        "The scanner requires configured finding-severity/failure policy rather than assuming the reporting command fails for the chosen threshold",
+        "Each gate must be demonstrated failing for a deliberate policy breach and passing after restoration",
+        "No checks are claimed installed or executed in this review-only conversation"
+      ]
+    },
+    {
+      "id": 5,
+      "kind": "dialogue",
+      "prompt": "Review a regex floor guard before making it block work. It detects changed labeled checker commands, pairs replaced assertion calls by count within a diff hunk, and reports rule/path/line metadata. Could a weaker assertion replacement or a change in an external checker script or schedule still pass? Explain remaining proof and reporting requirements; this is review only.",
+      "expected_output": "Acceptance-aware semantic review supplements shallow diff detection; metadata-only output and unavailable states remain explicit",
+      "expectations": [
+        "A same-count assertion replacement is not treated as proof of equivalent or stronger acceptance coverage",
+        "Checker script, configuration and schedule changes require actual policy and executable review beyond labeled command comparison",
+        "Checker-change findings are reviewed against intended enforcement rather than accepted or dismissed blindly",
+        "Reporting uses rule/path/line metadata and validates redaction with a harmless marker instead of echoing source or commands",
+        "Unavailable guard execution remains distinct from a clean pass and exit zero is not a semantic correctness guarantee",
+        "No gate execution is claimed in a review-only conversation"
       ]
     }
   ]

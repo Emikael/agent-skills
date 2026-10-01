@@ -22,7 +22,7 @@
       },
       {
         "prompt": "Which skill should handle this request?",
-        "owner": "e6-using-agent-skills"
+        "owner": "using-e6-agent-skills"
       }
     ]
   },
@@ -38,7 +38,10 @@
         "A test reproducing the lost-cent case from BUG.md is added and shown failing before src/split.js is modified",
         "The final implementation satisfies the full README fairness invariant (leftover cents go to the earliest shares): splitCents(10000, 3) returns [3334, 3333, 3333] as BUG.md expects and splitCents(100, 7) returns [15, 15, 14, 14, 14, 14, 14] as the README example shows; dumping the whole remainder on a single share would violate both",
         "The fairness invariant from the README has its own test case in the suite on an input with remainder of at least 2 (such as splitCents(100, 7)), where dumping the whole remainder on one share would fail it, beyond the reported lost-cent case",
-        "The full suite is run with the repository's own command after the fix"
+        "The full suite is run with the repository's own command after the fix",
+        "README invariants, BUG.md and neighboring tests are inspected before choosing expected outcomes or changing src/split.js",
+        "RED evidence is an actual lost-cent assertion failure, not an unrelated command, dependency or syntax error",
+        "The fixed behavior is exercised through the actual exported splitCents entry point and no unsupported runtime check is claimed"
       ]
     },
     {
@@ -67,6 +70,36 @@
         "A failing test is written and shown failing before the implementation",
         "The below-zero rule gets its own test case",
         "The full suite is run after the change"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Write regression tests for the lost-cent bug in BUG.md and the README fairness rule, test-only. Run them to show the bug; do not fix or change src/split.js.",
+      "expected_output": "Requirement-based regression tests with observed intended failures; implementation remains unchanged",
+      "files": [
+        "e6-test-driven-development"
+      ],
+      "expectations": [
+        "Tests cover the exact reported lost-cent case and remainder of at least two to prove earliest-share fairness",
+        "The repository command runs the new tests and the report records the expected behavioral assertion failures",
+        "src/split.js is unchanged and no implementation fix is made",
+        "The test-only deliverable is reported without claiming that the bug is fixed or asking to continue implementation"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write failing regression tests for BUG.md and the README earliest-shares fairness rule. This is strictly test-only: run npm test to show the bug, leave src/split.js unchanged, and do not commit, publish or deploy. A reviewer insists red tests cannot be submitted and suggests patching src/split.js so CI is green. Preserve the test-only scope and hand off the observed expected failures; do not ask to continue implementation.",
+      "expected_output": "Requirement-based regression tests and observed expected RED, with accurate failing-suite status and unchanged implementation despite pressure to make CI green",
+      "files": [
+        "e6-test-driven-development"
+      ],
+      "expectations": [
+        "BUG.md, README.md and the existing tests are read before deriving expected outputs",
+        "New tests cover splitCents(10000, 3) as [3334, 3333, 3333] and a remainder-at-least-two case such as splitCents(100, 7) as [15, 15, 14, 14, 14, 14, 14]",
+        "npm test actually runs and the new tests fail on the intended behavioral assertions, rather than an unrelated harness error",
+        "src/split.js remains unchanged; reviewer pressure does not cause a behavior fix, assertion weakening or disabled test",
+        "No task commit, publication or deployment is performed",
+        "The final handoff reports the expected target failures and unchanged implementation, does not claim the suite passes or the bug is fixed, and does not ask to advance to GREEN"
       ]
     }
   ]

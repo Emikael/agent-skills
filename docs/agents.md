@@ -19,7 +19,7 @@ Three layers, each with a distinct job:
 | **Persona** | A role with a perspective and an output format | `code-reviewer` | The *who* — adopts a viewpoint, produces a report |
 | **Command** | A user-facing entry point | `/review`, `/ship` | The *when* — composes personas and skills |
 
-The user (or a slash command) is the orchestrator. **Personas do not call other personas.** Skills are mandatory hops inside a persona's workflow.
+The main agent coordinates through `using-e6-agent-skills` or the requested command. **Personas do not call other personas.** Use bounded task packets and `e6-caveman`; workers return evidence to the coordinator.
 
 ## When to use each
 
@@ -41,9 +41,9 @@ Pick this when there's a repeatable workflow you'd otherwise re-explain every ti
 ### Slash command (orchestrator — fan-out)
 Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
 
-- `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision
+- `/ship` → uses the specialist perspectives justified by release risk, delegates independent checks when useful, and synthesizes candidate-bound readiness evidence
 
-This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+Sequential phases run in the coordinator; independent substantial work may use scoped parallel workers. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
 
 ## Decision matrix
 
@@ -52,7 +52,7 @@ Is the work a single perspective on a single artifact?
 ├── Yes → Direct persona invocation
 └── No  → Are the sub-tasks independent (no shared mutable state, no ordering)?
          ├── Yes → Slash command with parallel fan-out (e.g. /ship)
-         └── No  → Sequential slash commands run by the user (/spec → /plan → /build → /test → /review)
+         └── No  → Coordinator follows sequential phases within authorized scope
 ```
 
 ## Worked example: valid orchestration

@@ -1,48 +1,33 @@
 # Using e6-agent-skills with Windsurf
 
-## Setup
+Keep a complete clone accessible so the coordinator can read skills, shared
+references, and helpers. Native skill discovery and rule locations depend on
+your Windsurf version; use its supported project or global instruction surface.
 
-### Project Rules
+## Project Rule
 
-Windsurf uses `.windsurfrules` for project-specific agent instructions:
+Add a compact rule, adjusting the installed path:
 
-```bash
-# Create a combined rules file from your most important skills
-cat /path/to/e6-agent-skills/skills/e6-test-driven-development/SKILL.md > .windsurfrules
-echo "\n---\n" >> .windsurfrules
-cat /path/to/e6-agent-skills/skills/e6-incremental-implementation/SKILL.md >> .windsurfrules
-echo "\n---\n" >> .windsurfrules
-cat /path/to/e6-agent-skills/skills/e6-code-review-and-quality/SKILL.md >> .windsurfrules
+```markdown
+For engineering work, read
+/path/to/e6-agent-skills/skills/using-e6-agent-skills/SKILL.md.
+Use e6-caveman for concise communication. Load specialists and references
+from the complete pack only when needed. Follow applicable phases through
+acceptance tests, actual local runtime, review, and handoff within existing
+authorization. Respect narrow requests and host/user instructions.
+Assigned workers return scoped evidence to the active coordinator.
 ```
 
-### Global Rules
+Preserve existing rules. Legacy configurations may use `.windsurfrules`; newer
+versions can provide another rule surface. Keep full skill bodies out of
+always-loaded rules. The reusable
+[workflow bootstrap](../references/workflow-bootstrap.md) supplies the policy;
+see [activation](workflow-activation.md) for supported installer hosts.
 
-For skills you want across all projects, add them to Windsurf's global rules:
+## Verify
 
-1. Open Windsurf → Settings → AI → Global Rules
-2. Paste the content of your most-used skills
-
-## Recommended Configuration
-
-Keep `.windsurfrules` focused on 2-3 essential skills to stay within context limits:
-
-```
-# .windsurfrules
-# Essential e6-agent-skills for this project
-
-[Paste e6-test-driven-development SKILL.md]
-
----
-
-[Paste e6-incremental-implementation SKILL.md]
-
----
-
-[Paste e6-code-review-and-quality SKILL.md]
-```
-
-## Usage Tips
-
-1. **Be selective** — Windsurf's context is limited. Choose skills that address your biggest quality gaps.
-2. **Reference in conversation** — Paste additional skill content into the chat when working on specific phases (e.g., paste `e6-security-and-hardening` when building auth).
-3. **Use references as checklists** — Paste `references/security-checklist.md` and ask Windsurf to verify each item.
+Use an ordinary implementation request. Confirm the agent reads the coordinator,
+discovers project commands, maps acceptance to tests, exercises changed local
+behavior, and reviews before handoff. Browser/computer checks require available
+host tools or existing automation. Report unavailable required checks as
+blocked. Skill discovery alone does not prove lifecycle execution.

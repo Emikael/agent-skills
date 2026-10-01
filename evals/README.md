@@ -17,9 +17,9 @@ What neither provides is a **deterministic, CI-safe** check for a multi-skill *c
 |---|---|---|---|
 | 1. Structural | Frontmatter, naming, required sections, command parity | CI (`validate-skills.js`, `validate-commands.js`) | Free |
 | 2. Trigger & routing | Positive prompts rank their skill top-k; negative prompts don't; no two descriptions near-collide | CI (`run-evals.js`) | Free |
-| 3. Behavioral | An agent following the skill satisfies its `expectations[]` | On demand (`run-evals.js --behavioral`) | Tokens |
+| 3. Behavioral | An agent following the skill satisfies its `expectations[]` | On demand (`run-evals.js --behavioral`, Claude or Codex) | Tokens |
 
-Tier 2 is a **lexical approximation** of routing (stemmed TF-IDF over descriptions). It cannot judge semantics — that's Tier 3's job — but it catches the two failure modes that dominate real trigger bugs: a description missing the vocabulary users say (false negative), and an over-broad description that outranks the right skill (false positive). A Tier-2 failure usually means *fix the description*, not the eval.
+Tier 2 is a **lexical approximation** of routing (stemmed TF-IDF over descriptions). It cannot judge semantics or installed competing plugins. It checks lexical symptoms: a description missing the vocabulary users say (false negative), and an over-broad description that outranks the right skill (false positive). A Tier-2 failure usually means *fix the description*, not the eval.
 
 ## Running
 
@@ -28,14 +28,29 @@ Tier 2 is a **lexical approximation** of routing (stemmed TF-IDF over descriptio
 node scripts/run-evals.js
 node scripts/run-evals.js --min-rank1 95  # enforce the current routing floor
 
-# Tier 3 — behavioral, runs each eval through headless claude, then grades it
-node scripts/run-evals.js --behavioral e6-test-driven-development            # spends tokens
-node scripts/run-evals.js --behavioral e6-test-driven-development --dry-run  # prints the plan only
+# Tier 3 — selected-skill compliance; opt-in, spends model tokens
+node scripts/run-evals.js --behavioral e6-test-driven-development --engine claude
+node scripts/run-evals.js --behavioral using-e6-agent-skills --engine codex --eval-id 2
+node scripts/run-evals.js --behavioral using-e6-agent-skills --engine codex --eval-id 2 --dry-run
+
+# Paired old/new bodies with the same current prompt/fixtures/rubric
+node scripts/run-evals.js --behavioral using-e6-agent-skills --engine codex \
+  --eval-id 2 --pack-root /path/to/immutable-old-pack
+node scripts/run-evals.js --behavioral using-e6-agent-skills --engine codex \
+  --eval-id 2 --pack-root /path/to/immutable-new-pack
 ```
 
-Tier 3 supports two behavioral artifact kinds. `execution` is the default: each eval runs in a throwaway git repository, real project inputs from `files[]` are materialized out of `evals/fixtures/` and committed as the baseline, and the grader judges the full `--output-format stream-json --verbose` execution trace, including tool calls. `dialogue` is reserved for skills whose deliverable is the conversation itself; it needs no fixture, and the grader judges the assistant's conversational turns without requiring file edits or commands. Claiming `dialogue` is a human-reviewed exemption, not a general escape hatch for execution skills.
+Tier 3 supports `execution` and `dialogue`. Execution runs real `files[]` fixtures in a throwaway Git repository and judges tool actions plus final artifacts. Dialogue is for conversational deliverables such as interviewing or concise communication; it does not pretend to verify application edits. New dialogue exemptions need review.
 
-The executor runs with an explicit permission mode (`--permission-mode acceptEdits` plus a pre-approved tool list) so execution evals can genuinely edit files, run commands, inspect diffs, and make commits rather than being denied and narrating instead. Traces are fenced as untrusted data in the grader prompt and piped to the grader over stdin (they can be megabytes; argv would hit the OS argument-size limit), executor and grader calls carry timeouts, and grader output is validated as JSON before being written to `evals/results/` (gitignored) in skill-creator's `grading.json` shape. Discipline skills also include pressure cases for time pressure, sunk cost, and authority pressure; these verify that the workflow still holds when the prompt argues for skipping it.
+Claude uses its headless stream-json mode and pre-approved fixture tools. Codex uses `exec --json --ephemeral --ignore-user-config` in the throwaway workspace. The selected skill and its sibling/reference paths are available on demand; the whole catalog is not injected. `--engine` defaults to Claude for compatibility. `--eval-id` selects one case; `--pack-root` chooses the evaluated pack; `--model` is optional. Record the requested and observed model. A CLI that omits model identity is recorded as unknown, not guessed. Ambient host instruction differences remain a limitation.
+
+The runner copies the evaluated skills and references into a temporary read-only reference snapshot, excludes dependency/Git directories, and records source-pack hashes before and after execution. File permissions and instructions are reproducibility aids, not a security sandbox. Execution artifacts include the fixture baseline SHA, baseline-to-final tracked diff (including committed work), commits, and bounded untracked text: at most 50 files, 32 KiB per file, and 256 KiB total. Binary/symlink skips, truncation, and omissions are explicit. Runner-captured artifacts show final state; only executor evidence proves the agent ran checks.
+
+Every invocation gets a distinct ignored results directory with case, CLI/model/pack metadata, executor trace, grader trace, artifact evidence, and validated grading JSON. Failed model calls retain partial trace/error evidence and receive no successful score. Timeouts bound execution; a network or tool denial is an environment failure, not evidence that the skill passed or failed its behavioral rubric. Graders receive traces as untrusted data, separately from their rubric; they judge actual actions rather than claims. Grader tools are disabled for Claude, and Codex grading uses read-only mode.
+
+These runs deliberately select a skill. They measure compliance after selection, not natural installed-plugin discovery. Plugin evals below test native routing. Lexical checks, dry-runs, and passing fixture tests do not substitute for either. Use paired identical prompts/fixtures, repeated runs, manual evidence review, and an explicit model/CLI when making comparative claims. Equal results show no measured behavioral improvement; one pair does not establish market superiority or token savings.
+
+The catalog includes full-workflow continuation, exact acceptance-to-test/runtime evidence, unavailable browser/computer capabilities, preserved user authorization, test-only RED delivery, bounded delegation, semantic contract preservation, and irreversible recovery cases. The Caveman dialogue case verifies concise output while retaining negation, units, errors, ownership, and uncertainty.
 
 ## Plugin evals (Claude Code)
 

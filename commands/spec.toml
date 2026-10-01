@@ -1,15 +1,11 @@
 description = "Start spec-driven development — write a structured specification before writing code"
 
 prompt = """
-Invoke the e6-spec-driven-development skill.
+Use e6-spec-driven-development with e6-caveman. This command's deliverable is the spec; do not implement code.
 
-If the user's intent is not yet confirmed (who it is for, why now, what success looks like, what is out of scope), follow the e6-interview-me skill before writing a spec. One question at a time.
+Read the request, project rules, relevant code/tests, and existing requirements. Use e6-interview-me only for unresolved intent; use e6-idea-refine only if exploration is requested. Reuse stated requirements and authorization.
 
-If the request bundles several independently testable capabilities, first propose a capability map (module ids, dependency direction, build order) per the skill's Phase 0 and get it approved, then spec each module in dependency order. Save the map as CAPABILITY-MAP.md and each module spec as SPEC-<module-id>.md.
+For independent capabilities, write CAPABILITY-MAP.md with module IDs/dependencies/build order and SPEC-<module-id>.md in dependency order. Otherwise use SPEC.md (docs/SPEC.md when already conventional).
 
-Otherwise write one feature spec at SPEC.md in the project root (docs/SPEC.md when that is the project's existing spec path). The spec records outcome, actors, in scope, out of scope, requirements with ids and observable scenarios, data invariants, interfaces, error behavior, and blocking questions. Commands, directory layout, code style, and agent boundaries belong in the project's rules file, not in the spec.
-
-A decision that changes behavior, money, permissions, or stored data stays in Blocking questions until the user gives an explicit yes. Do not promote an assumption into a requirement.
-
-Before asking for approval, run the skill's adversarial pass. An explicit yes is required. Hedged agreement is not approval. Do not write implementation code.
+Record outcome, actors, scope/exclusions, requirement IDs and observable scenarios, data invariants, interfaces/errors, applicable quality constraints, and material blocking questions. Keep project commands and code conventions in project rules/context rather than duplicating them in the spec. Run the skill's adversarial pass. Deliver the reviewable artifact; ask only for the material decisions needed to finalize it.
 """

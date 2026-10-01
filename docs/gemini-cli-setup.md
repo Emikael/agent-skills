@@ -1,5 +1,10 @@
 # Using e6-agent-skills with Gemini CLI
 
+## Whole workflow
+
+Install the complete pack and select `using-e6-agent-skills` as the coordinator for engineering requests. Add the compact [workflow bootstrap](../references/workflow-bootstrap.md) to this host's project instruction surface, with the installed pack path; keep skill bodies on demand. See [activation](workflow-activation.md). Use `e6-caveman` for concise output. The coordinator continues through context, criteria, tests, local runtime, review, and handoff within existing authorization; single-phase requests remain bounded. Native discovery alone does not prove full-workflow execution.
+
+
 ## Setup
 
 ### Option 1: Install as Skills (Recommended)
@@ -93,7 +98,7 @@ To enable these, ensure you have the relevant MCP extensions installed in your G
 
 Gemini CLI supports session lifecycle hooks. You can use these to automatically inject context or run validation scripts at the start of a session.
 
-To replicate the `e6-agent-skills` experience from other tools, you can configure a `SessionStart` hook that reminds you of the available skills or loads a meta-skill. `hooks/session-start.sh` in this repo is a ready-made script for that: it prints the `e6-using-agent-skills` meta-skill as a standard `SessionStart` JSON envelope on stdout.
+To replicate the `e6-agent-skills` experience from other tools, you can configure a `SessionStart` hook that reminds you of the available skills or loads a meta-skill. `hooks/session-start.sh` in this repo is a ready-made script for that: it prints the `using-e6-agent-skills` meta-skill as a standard `SessionStart` JSON envelope on stdout.
 
 ### Explicit Context Loading
 

@@ -21,30 +21,17 @@ Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering
 git clone https://github.com/Emikael/e6-agent-skills.git
 ```
 
-### 2. Choose a skill
+### 2. Activate the workflow
 
-Browse the `skills/` directory. Each subdirectory contains a `SKILL.md` with:
-- **When to use** — triggers that indicate this skill applies
-- **Process** — step-by-step workflow
-- **Verification** — how to confirm the work is done
-- **Common rationalizations** — excuses the agent might use to skip steps
-- **Red flags** — signs the skill is being violated
+Use the complete pack for an end-to-end development request. The Claude plugin includes a compact startup bootstrap; other hosts can install a project rule with the [workflow bootstrap installer](workflow-activation.md). It loads `using-e6-agent-skills` and `e6-caveman`, then specialists on demand. Do not paste all skill bodies into rules.
 
-### 3. Load the skill into your agent
+### 3. Describe the outcome
 
-Copy the relevant `SKILL.md` content into your agent's system prompt, rules file, or conversation. The most common approaches:
+For example: “Implement status filtering for reports and verify it locally.” The coordinator continues through context, acceptance criteria, planning, test-first implementation, local runtime checks, review, and handoff within authorized scope. It asks only for material missing decisions.
 
-**System prompt:** Paste the skill content at the start of the session.
+### 4. Use a single phase when needed
 
-**Rules file:** Add skill content to your project's rules file (CLAUDE.md, .cursorrules, etc.).
-
-**Conversation:** Reference the skill when giving instructions: "Follow the e6-test-driven-development process for this change."
-
-### 4. Use the meta-skill for discovery when needed
-
-If your agent does not route skills natively, start with the `e6-using-agent-skills` skill loaded. It contains a flowchart that maps task types to the appropriate skill.
-
-If your host already discovers and activates skills from their descriptions, do not also paste `e6-using-agent-skills` into an always-on system prompt or rules file. That creates two routers for the same task. Install the individual skills and let the host activate them on demand instead.
+A request for a spec, plan, review, or specific skill remains bounded to that deliverable. `/build` completes the next task; `/build auto` completes the requested plan. Existing authorization persists. Commit/deploy only when the user's scope or repository workflow authorizes it.
 
 ### Existing projects need no migration
 
@@ -64,7 +51,7 @@ Rolling out to a real project? The **[Adoption Guide](adoption-guide.md)** cover
 
 ### Minimal (Start here)
 
-Load three essential skills into your rules file:
+For a gradual rollout, install these three skills and reference them on demand:
 
 1. **e6-spec-driven-development** — For defining what to build
 2. **e6-test-driven-development** — For proving it works
@@ -131,7 +118,7 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 | `/constraints` | e6-constraint-driven-development |
 | `/plan` | e6-planning-and-task-breakdown |
 | `/build` | e6-incremental-implementation + e6-test-driven-development |
-| `/build auto` | e6-planning-and-task-breakdown → e6-incremental-implementation + e6-test-driven-development (whole plan, one approval) |
+| `/build auto` | e6-planning-and-task-breakdown → e6-incremental-implementation + e6-test-driven-development (whole requested plan, existing authorization) |
 | `/test` | e6-test-driven-development |
 | `/review` | e6-code-review-and-quality |
 | `/code-simplify` | e6-code-simplification |
@@ -178,7 +165,7 @@ The `/spec` and `/plan` commands create working artifacts (`SPEC.md`, `tasks/pla
 
 ### Working across sessions
 
-The same artifacts are the handoff between sessions. For a small task, run the whole lifecycle in one session. For anything non-trivial, a fresh session per phase (spec → plan → build → review) keeps context focused — what carries the work forward is the approved files, not the conversation:
+The same artifacts are the handoff between sessions. For a small task, run the whole lifecycle in one session. For anything non-trivial, persist concise state at phase boundaries; a fresh session is optional when context becomes stale. Artifacts carry the accepted scope and evidence:
 
 - the spec — `SPEC.md`, or wherever your spec actually lives
 - `tasks/plan.md` and `tasks/todo.md` — or the external tracker the plan identifies, if you use one
@@ -189,9 +176,9 @@ The same artifacts are the handoff between sessions. For a small task, run the w
 
 #### Task-boundary restarts and Ralph loops
 
-`/build auto` can run the whole approved plan in one session. It does not require or perform a fresh process per task. Its per-task status updates, verification results, and commits make each completed task a restartable boundary, so a capable external harness may exit and resume there without depending on chat history.
+`/build auto` runs the whole requested plan in one session. Task status, actual verification results, and `tasks/workflow-state.md` provide restartable boundaries; commits are conditional on authorization and repository rules.
 
-A shell-level "Ralph loop" is harness behavior, not a separate skill workflow. If you use one, restart only after the current task has reached a recorded boundary; on re-entry, read the durable artifacts and repository state before selecting the next pending task. A process exit is not evidence that a task passed, and a restart must not bypass an approval gate. See the `e6-context-engineering` skill's **Restartable Session Boundaries** section for the handoff checklist.
+A shell-level "Ralph loop" is harness behavior, not a separate skill workflow. If you use one, restart only after the current task has reached a recorded boundary; on re-entry, read the durable artifacts and repository state before selecting the next pending task. A process exit is not evidence that a task passed, and a restart must not bypass an approval gate. See the `e6-context-engineering` skill's **Budget and Resume** section for the handoff checklist.
 
 This doesn't need the `/spec` and `/plan` wrappers — plain requests work in any agent, including a `npx skills add` install that only has the skills:
 

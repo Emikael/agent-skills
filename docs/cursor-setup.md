@@ -1,5 +1,10 @@
 # Using e6-agent-skills with Cursor
 
+## Whole workflow
+
+Install the complete pack and select `using-e6-agent-skills` as the coordinator for engineering requests. Add the compact [workflow bootstrap](../references/workflow-bootstrap.md) to this host's project instruction surface, with the installed pack path; keep skill bodies on demand. See [activation](workflow-activation.md). Use `e6-caveman` for concise output. The coordinator continues through context, criteria, tests, local runtime, review, and handoff within existing authorization; single-phase requests remain bounded. Native discovery alone does not prove full-workflow execution.
+
+
 How to wire [e6-agent-skills](../README.md) into **Cursor** using current, supported project context — not legacy monolith files or Kaizen-specific layouts.
 
 ---
@@ -40,7 +45,7 @@ your-project/
 │   ├── rules/                    # Short .mdc policies (yours)
 │   │   └── e6-agent-skills.mdc      # Optional: “use project skills” pointer
 │   └── skills/                   # What Cursor Agent loads
-│       ├── e6-using-agent-skills/
+│       ├── using-e6-agent-skills/
 │       ├── e6-test-driven-development/
 │       ├── e6-code-review-and-quality/
 │       └── …                     # Synced from e6-agent-skills + your own skills
@@ -99,7 +104,7 @@ alwaysApply: true
 
 Before non-trivial technical work:
 
-1. Route via `.cursor/skills/e6-using-agent-skills/SKILL.md`.
+1. Route via `.cursor/skills/using-e6-agent-skills/SKILL.md`.
 2. Read and follow the matching skill under `.cursor/skills/<name>/SKILL.md`.
 3. Open `reference.md` in that folder when the skill links to it.
 4. Prefer project skills over guessing; user does not need to say "read skill" each time.
@@ -141,7 +146,7 @@ Project skills in `.cursor/skills/` take precedence for **this** repo’s workfl
 
 ## How agents should use skills
 
-1. **Discover** — `e6-using-agent-skills` maps task phase → skill name.
+1. **Discover** — `using-e6-agent-skills` maps task phase → skill name.
 2. **Read** — full process in `.cursor/skills/<name>/SKILL.md`.
 3. **Deep dive** — `reference.md`, `references/*.md`, or linked checklists when the skill says so.
 4. **Combine** — e.g. `e6-incremental-implementation` + `e6-api-and-interface-design` for an API slice.
@@ -161,7 +166,7 @@ Explicit user phrases (“follow TDD”, “use e6-code-review-and-quality”) s
 | Security / performance | `e6-security-and-hardening`, `e6-performance-optimization` |
 | Git / CI / ship | `e6-git-workflow-and-versioning`, `e6-ci-cd-and-automation`, `e6-shipping-and-launch` |
 
-Full tree: `skills/e6-using-agent-skills/SKILL.md` in the repo.
+Full tree: `skills/using-e6-agent-skills/SKILL.md` in the repo.
 
 ---
 

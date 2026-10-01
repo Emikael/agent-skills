@@ -2,49 +2,63 @@
 
 **Production-grade engineering skills for AI coding agents.**
 
-Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. These ones are packaged so AI agents follow them consistently across every phase of development.
+26 skills guide AI agents from feature context and acceptance criteria through implementation, tests, local runtime checks, review, and handoff. One coordinator loads specialists as needed; `e6-caveman` keeps communication concise.
 
-![e6-agent-skills](docs/images/e6-agent-skills.png)
+![e6-agent-skills: one coordinator connects Understand, Plan, Build, Verify, Review, and Handoff, supported by context on demand and concise communication](docs/images/e6-agent-skills.png)
 
-```
-  DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
- ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐
- │ Idea │ ───▶ │ Spec │ ───▶ │ Code │ ───▶ │ Test │ ───▶ │  QA  │ ───▶ │  Go  │
- │Refine│      │  PRD │      │ Impl │      │Debug │      │ Gate │      │ Live │
- └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
-  /spec          /plan          /build        /test         /review       /ship
-```
+**Workflow:** Understand → Plan → Build → Verify → Review → Handoff.
+
+Implementation requests continue through the applicable phases within existing authorization. Plan-only, review-only, and test-only requests keep their scope. Commits and releases follow user authorization and project rules. See the [workflow contract](references/workflow-contract.md).
 
 ---
 
 ## Commands
 
-9 slash commands that map to the development lifecycle. Each one activates the right skills automatically.
+Nine lifecycle command wrappers are provided for Claude Code and Gemini CLI. Other hosts expose the underlying skills or need their own aliases; Antigravity wrapper availability depends on its version. The table shows short names; Claude plugin commands use a namespace such as `/e6-agent-skills:build`. Gemini names its planning wrapper `/planning`. See the setup guides below.
 
 | What you're doing | Command | Key principle |
 |-------------------|---------|---------------|
 | Define what to build | `/spec` | Spec before code |
-| Plan how to build it | `/plan` | Small, atomic tasks |
-| Build incrementally | `/build` | One slice at a time |
-| Prove it works | `/test` | Tests are proof |
-| Set the quality bar | `/constraints` | Decide it once, enforce it everywhere |
+| Plan how to build it | `/plan` | Small, verifiable vertical slices |
+| Build incrementally | `/build` or `/build auto` | Next task or whole requested plan |
+| Prove it works | `/test` | Meaningful tests and runtime evidence |
+| Set the quality bar | `/constraints` | Prove that exceeded thresholds fail |
 | Review before merge | `/review` | Improve code health |
 | Audit web performance | `/webperf` | Measure before you optimize |
 | Simplify the code | `/code-simplify` | Clarity over cleverness |
-| Ship to production | `/ship` | Faster is safer |
+| Prepare or perform a release | `/ship` | Verified candidate, recovery, and authorization |
 
-Want fewer manual steps once the spec exists? **`/build auto`** generates the plan and implements every task in a single approved pass — you approve the plan once, then it runs autonomously. It removes the human stepping *between* tasks, not the verification: every task is still test-driven and committed individually, and it pauses on failures or risky steps.
+Want the whole workflow from one request? Install the complete pack and [activate the coordinator](docs/workflow-activation.md). `using-e6-agent-skills` gathers context, defines criteria, plans, builds with tests, runs locally, reviews, and hands off. `/build auto` completes the whole requested plan using existing authorization; commits and releases follow project rules and user scope.
 
-Skills also activate automatically based on what you're doing — designing an API triggers `e6-api-and-interface-design`, building UI triggers `e6-frontend-ui-engineering`, and so on.
+See the [SDLC workflow change report](docs/sdlc-workflow-report.md) for the audit, implemented improvements, and verification limits.
+
+The Claude plugin registers a compact startup bootstrap. Other hosts can use the idempotent project-rule installer. Native skill selection remains available; activation and model compliance need behavioral verification.
 
 ---
 
 ## Quick Start
 
-**Fastest path — any agent, one command.** The open [skills CLI](https://github.com/vercel-labs/skills) installs into 70+ agents (Claude Code, Cursor, Codex, Copilot, Cline, and more):
+**Complete workflow:** use a native whole-repository plugin below, or keep a complete clone and add a compact project bootstrap. This preserves the coordinator, specialists, shared references, and helper scripts.
 
 ```bash
-npx skills add Emikael/e6-agent-skills            # install all 25 skills
+git clone https://github.com/Emikael/e6-agent-skills.git e6-agent-skills
+
+# Preview project wiring; use codex, opencode, gemini, or claude for --host.
+node e6-agent-skills/scripts/install-workflow-bootstrap.js \
+  --project /path/to/project --pack ./e6-agent-skills --host codex
+
+# Write the bootstrap while preserving existing project instructions.
+node e6-agent-skills/scripts/install-workflow-bootstrap.js \
+  --project /path/to/project --pack ./e6-agent-skills --host codex --write
+```
+
+Node.js is required for the installer and repository checks. The Claude startup hook uses Bash. See the [activation guide](docs/workflow-activation.md) for host-specific wiring and upgrade checks.
+
+**Skill-only installation:** the open [skills CLI](https://github.com/vercel-labs/skills) supports Claude Code, Cursor, Codex, Copilot, and other agents:
+
+```bash
+npx skills add Emikael/e6-agent-skills            # choose skills to install
+npx skills add Emikael/e6-agent-skills --skill '*' # select all 26 skills
 npx skills add Emikael/e6-agent-skills --list     # browse before installing
 ```
 
@@ -53,15 +67,16 @@ Or grab individual skills:
 ```bash
 npx skills add Emikael/e6-agent-skills --skill e6-code-review-and-quality   # five-axis review before merge
 npx skills add Emikael/e6-agent-skills --skill e6-interview-me              # requirements interrogation, one question at a time
-npx skills add Emikael/e6-agent-skills --skill e6-test-driven-development   # red-green-refactor, enforced
+npx skills add Emikael/e6-agent-skills --skill e6-test-driven-development   # behavioral red-green-refactor
 ```
 
-> **Installing one skill?** A per-skill `npx` install copies only
-> `skills/<name>/`, not the repo-level `references/` directory. The skill still
-> works, but paths to supplementary shared checklists are unavailable. Use a
-> whole-repo integration, clone the repository, or copy the needed checklist into
-> a `references/` directory inside the installed skill. This portability gap is
-> tracked in [#361](https://github.com/addyosmani/agent-skills/issues/361).
+> **Skill discovery and workflow activation are separate.** A skill-only install
+> may omit repository-level references, scripts, hooks, and command wrappers,
+> even when every skill is selected. For the complete workflow, retain the full
+> pack and point the bootstrap at its root. Relative links need the original
+> directory layout; copying a shared checklist into an individual skill does
+> not repair those links. See [activation](docs/workflow-activation.md) and the
+> [portability notes](docs/skill-anatomy.md).
 
 Prefer a native integration? Pick your tool below.
 
@@ -74,6 +89,8 @@ Prefer a native integration? Pick your tool below.
 /plugin marketplace add Emikael/e6-agent-skills
 /plugin install e6-agent-skills@e6-agent-skills
 ```
+
+Enable the plugin and start a new session to load its compact SessionStart bootstrap.
 
 > **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force HTTPS cloning during the marketplace-add step:
 > ```bash
@@ -98,7 +115,7 @@ claude --plugin-dir ./e6-agent-skills
 <details>
 <summary><b>Cursor</b></summary>
 
-Put workflow skills under `.cursor/skills/` (sync from `e6-agent-skills/skills/`) and short policies in `.cursor/rules/*.mdc` — do not paste full skills into rules. See [docs/cursor-setup.md](docs/cursor-setup.md).
+Put discovered skills under `.cursor/skills/` and a compact coordinator policy in `.cursor/rules/*.mdc`. Keep the complete pack accessible for shared references and helpers. See [docs/cursor-setup.md](docs/cursor-setup.md).
 
 </details>
 
@@ -125,7 +142,7 @@ agy plugin install ./e6-agent-skills
 <details>
 <summary><b>Gemini CLI</b></summary>
 
-Install as native skills for auto-discovery, or add to `GEMINI.md` for persistent context. See [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
+Install native skills for discovery and add a compact workflow bootstrap to `GEMINI.md`. Keep full skill bodies on demand. See [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
 
 **Install from the repo:**
 
@@ -144,7 +161,7 @@ gemini skills install ./e6-agent-skills/skills/
 <details>
 <summary><b>Windsurf</b></summary>
 
-Add skill contents to your Windsurf rules configuration. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
+Add a compact coordinator rule pointing to the complete pack. Load skill bodies only as needed. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
 
 </details>
 
@@ -160,7 +177,7 @@ See [docs/opencode-setup.md](docs/opencode-setup.md).
 <details>
 <summary><b>GitHub Copilot</b></summary>
 
-Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`. See [docs/copilot-setup.md](docs/copilot-setup.md).
+Install skills under `.github/skills/` and keep compact project policies in `.github/copilot-instructions.md`. Adapt persona filenames to `*.agent.md` under `.github/agents/`. See [docs/copilot-setup.md](docs/copilot-setup.md).
 
 Using the standalone `copilot` CLI? Install it as a plugin — see [docs/copilot-cli-setup.md](docs/copilot-cli-setup.md).
 
@@ -168,20 +185,20 @@ Using the standalone `copilot` CLI? Install it as a plugin — see [docs/copilot
 
 <details>
   <summary><b>Kiro IDE & CLI </b></summary>
-  Skills for Kiro reside under ".kiro/skills/" and can be stored under Project or Global level. Kiro also supports Agents.md. See Kiro docs at https://kiro.dev/docs/skills/
+  Skills for Kiro reside under `.kiro/skills/` at project or global scope. Use the host's supported project rules for the compact bootstrap. See the [Kiro skills documentation](https://kiro.dev/docs/skills/).
 </details>
 
 <details>
 <summary><b>Codex</b></summary>
 
-Install as a native Codex plugin (Codex CLI v0.122+):
+Install with a Codex CLI that supports `codex plugin`:
 
 ```bash
 codex plugin marketplace add Emikael/e6-agent-skills
 codex plugin add e6-agent-skills@e6-agent-skills
 ```
 
-The first command registers the marketplace; the second installs the plugin. Codex reads the root `skills/` directory directly through `.codex-plugin/plugin.json`. Once installed, invoke skills in chat using `@` (e.g., `@e6-spec-driven-development`). See [docs/codex-setup.md](docs/codex-setup.md) for local installation and troubleshooting.
+The first command registers the marketplace; the second installs the plugin. Codex reads the root `skills/` directory through `.codex-plugin/plugin.json`. Start a new session and select a skill from the host's picker. In the CLI, explicit skill mentions use `$`; plugin skills are namespaced, for example `$e6-agent-skills:using-e6-agent-skills`. Add the compact project bootstrap for whole-workflow requests. See [docs/codex-setup.md](docs/codex-setup.md).
 
 </details>
 
@@ -217,24 +234,25 @@ Already installed? How you roll the pack out depends on your codebase. The **[Ad
 
 ---
 
-## All 25 Skills
+## All 26 Skills
 
-The commands above are entry points. The pack includes 25 skills total — 24 lifecycle skills plus the `e6-using-agent-skills` meta-skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
+The commands above are entry points. The pack includes 26 skills total — 24 lifecycle skills, the `using-e6-agent-skills` coordinator, and `e6-caveman` for concise communication. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
 
-### Meta - Discover which skill applies
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [e6-using-agent-skills](skills/e6-using-agent-skills/SKILL.md) | Maps incoming work to the right skill workflow and defines shared operating rules | Starting a session or deciding which skill applies |
-
-### Define - Clarify what to build
+### Coordination and Communication
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [e6-interview-me](skills/e6-interview-me/SKILL.md) | One-question-at-a-time interview that extracts what the user actually wants instead of what they think they should want, until ~95% confidence | The ask is underspecified, or the user invokes "interview me" / "grill me" |
+| [using-e6-agent-skills](skills/using-e6-agent-skills/SKILL.md) | Coordinates the applicable lifecycle through verified handoff | Starting engineering work or choosing the workflow |
+| [e6-caveman](skills/e6-caveman/SKILL.md) | Concise prose and bounded delegation while preserving exact evidence | Progress, findings, task packets, and handoffs |
+
+### Understand - Clarify what to build
+
+| Skill | What It Does | Use When |
+|-------|-------------|----------|
+| [e6-interview-me](skills/e6-interview-me/SKILL.md) | Read settled context, then ask about material gaps in outcome, actors, success, and scope | The ask is underspecified, or the user invokes "interview me" / "grill me" |
 | [e6-idea-refine](skills/e6-idea-refine/SKILL.md) | Structured divergent/convergent thinking to turn vague ideas into concrete proposals | You have a rough concept that needs exploration |
-| [e6-spec-driven-development](skills/e6-spec-driven-development/SKILL.md) | Write a feature spec of testable requirements, with ids and observable scenarios, before any code | Starting a new project, feature, or significant change |
-| [e6-constraint-driven-development](skills/e6-constraint-driven-development/SKILL.md) | Interviews you for a quality bar with sane default thresholds, writes CONSTRAINTS.md, places each check by cost, and catches agents silencing checks or skipping tests to get green | No standards are written down, or an agent is producing more than anyone reads |
+| [e6-spec-driven-development](skills/e6-spec-driven-development/SKILL.md) | Record observable requirements, scope, and proof methods before changing behavior | Starting a new project, feature, or significant change |
+| [e6-constraint-driven-development](skills/e6-constraint-driven-development/SKILL.md) | Reuse or define CONSTRAINTS.md, prove gate failures, and detect weakened checks | Quality standards or enforcement are missing or disputed |
 
 ### Plan - Break it down
 
@@ -246,40 +264,40 @@ The commands above are entry points. The pack includes 25 skills total — 24 li
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [e6-incremental-implementation](skills/e6-incremental-implementation/SKILL.md) | Thin vertical slices - implement, test, verify, commit. Feature flags, safe defaults, rollback-friendly changes | Any change touching more than one file |
-| [e6-test-driven-development](skills/e6-test-driven-development/SKILL.md) | Red-Green-Refactor, test pyramid (80/15/5), test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
-| [e6-context-engineering](skills/e6-context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
-| [e6-source-driven-development](skills/e6-source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
-| [e6-doubt-driven-development](skills/e6-doubt-driven-development/SKILL.md) | Adversarial fresh-context review of every non-trivial decision in-flight - CLAIM → EXTRACT → DOUBT → RECONCILE → STOP, with optional user-authorized cross-model escalation | Stakes are high (production, security, irreversible), working in unfamiliar code, or a confident output is cheaper to verify now than to debug later |
-| [e6-frontend-ui-engineering](skills/e6-frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |
+| [e6-incremental-implementation](skills/e6-incremental-implementation/SKILL.md) | Build verifiable vertical slices with behavior tests or characterization, local runtime, and review | Implementing a feature in multiple increments |
+| [e6-test-driven-development](skills/e6-test-driven-development/SKILL.md) | Red-Green-Refactor, risk-based test levels, test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
+| [e6-context-engineering](skills/e6-context-engineering/SKILL.md) | Trace relevant code, tests, commands, and decisions; bound worker context and preserve resume state | Starting a session, switching tasks, delegating, or recovering stale context |
+| [e6-source-driven-development](skills/e6-source-driven-development/SKILL.md) | Verify version-sensitive decisions against authoritative sources, tests, and local runtime | You want authoritative, source-cited code for a framework or library |
+| [e6-doubt-driven-development](skills/e6-doubt-driven-development/SKILL.md) | Scoped fresh-context review of material uncertainty, with optional authorized cross-model escalation | Stakes are high, code is unfamiliar, or a decision needs independent evidence |
+| [e6-frontend-ui-engineering](skills/e6-frontend-ui-engineering/SKILL.md) | Build coherent components and states; verify responsive, keyboard, focus, and accessible behavior in the app | Building or modifying user-facing interfaces |
 | [e6-api-and-interface-design](skills/e6-api-and-interface-design/SKILL.md) | Contract-first design, Hyrum's Law, One-Version Rule, error semantics, boundary validation | Designing APIs, module boundaries, or public interfaces |
 
 ### Verify - Prove it works
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [e6-browser-testing-with-devtools](skills/e6-browser-testing-with-devtools/SKILL.md) | Chrome DevTools MCP for live runtime data - DOM inspection, console logs, network traces, performance profiling | Building or debugging anything that runs in a browser |
-| [e6-debugging-and-error-recovery](skills/e6-debugging-and-error-recovery/SKILL.md) | Five-step triage: reproduce, localize, reduce, fix, guard. Stop-the-line rule, safe fallbacks | Tests fail, builds break, or behavior is unexpected |
+| [e6-browser-testing-with-devtools](skills/e6-browser-testing-with-devtools/SKILL.md) | Available browser/computer or existing automation for real local interaction, DOM, console/network, and runtime evidence | Building or debugging anything that runs in a browser |
+| [e6-debugging-and-error-recovery](skills/e6-debugging-and-error-recovery/SKILL.md) | Reproduce, diagnose, observe a failing regression test, fix, and recheck the original runtime path | Tests fail, builds break, or behavior is unexpected |
 
 ### Review - Quality gates before merge
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [e6-code-review-and-quality](skills/e6-code-review-and-quality/SKILL.md) | Five-axis review, change sizing (~100 lines), severity labels (Nit/Optional/FYI), review speed norms, splitting strategies | Before merging any change |
-| [e6-code-simplification](skills/e6-code-simplification/SKILL.md) | Chesterton's Fence, Rule of 500, reduce complexity while preserving exact behavior | Code works but is harder to read or maintain than it should be |
-| [e6-security-and-hardening](skills/e6-security-and-hardening/SKILL.md) | OWASP Top 10 prevention, auth patterns, secrets management, dependency auditing, three-tier boundary system | Handling user input, auth, data storage, or external integrations |
-| [e6-performance-optimization](skills/e6-performance-optimization/SKILL.md) | Measure-first approach - Core Web Vitals targets, profiling workflows, bundle analysis, anti-pattern detection | Performance requirements exist or you suspect regressions |
+| [e6-code-review-and-quality](skills/e6-code-review-and-quality/SKILL.md) | Review contracts, callers, diff, and evidence; report located findings as Critical/Required/Optional/Nit/Consider/FYI | Reviewing a change or checking implementation before handoff |
+| [e6-code-simplification](skills/e6-code-simplification/SKILL.md) | Establish a baseline and reduce complexity while preserving outputs, errors, ordering, and side effects | Code works but is harder to read or maintain than it should be |
+| [e6-security-and-hardening](skills/e6-security-and-hardening/SKILL.md) | Threat-model boundaries, test allowed and denied cases, and verify auth, data, secrets, and dependency controls | Handling user input, auth, data storage, or external integrations |
+| [e6-performance-optimization](skills/e6-performance-optimization/SKILL.md) | Measure representative baselines against project budgets and preserve semantic correctness | Performance requirements exist or you suspect regressions |
 
-### Ship - Deploy with confidence
+### Handoff and Release - Finish and prepare delivery
 
 | Skill | What It Does | Use When |
 |-------|-------------|----------|
-| [e6-git-workflow-and-versioning](skills/e6-git-workflow-and-versioning/SKILL.md) | Trunk-based development, atomic commits, change sizing (~100 lines), the commit-as-save-point pattern | Making any code change (always) |
-| [e6-ci-cd-and-automation](skills/e6-ci-cd-and-automation/SKILL.md) | Shift Left, Faster is Safer, feature flags, quality gate pipelines, failure feedback loops | Setting up or modifying build and deploy pipelines |
-| [e6-deprecation-and-migration](skills/e6-deprecation-and-migration/SKILL.md) | Code-as-liability mindset, compulsory vs advisory deprecation, migration patterns, zombie code removal | Removing old systems, migrating users, or sunsetting features |
+| [e6-git-workflow-and-versioning](skills/e6-git-workflow-and-versioning/SKILL.md) | Preserve dirty work, prepare verified atomic commits, resolve conflicts, and bind releases to tested revisions | Authorized commits, PRs, history changes, or versioned releases |
+| [e6-ci-cd-and-automation](skills/e6-ci-cd-and-automation/SKILL.md) | Verify required gates, secretless PR checks, trusted deploys, and artifact identity | Setting up or modifying build and deploy pipelines |
+| [e6-deprecation-and-migration](skills/e6-deprecation-and-migration/SKILL.md) | Migrate consumers safely with compatibility tests, resumable backfills, and proven recovery | Removing old systems, migrating users, or sunsetting features |
 | [e6-documentation-and-adrs](skills/e6-documentation-and-adrs/SKILL.md) | Architecture Decision Records, API docs, inline documentation standards - document the *why* | Making architectural decisions, changing APIs, or shipping features |
-| [e6-observability-and-instrumentation](skills/e6-observability-and-instrumentation/SKILL.md) | Structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting - instrument as you build | Adding telemetry, or shipping anything that runs in production |
-| [e6-shipping-and-launch](skills/e6-shipping-and-launch/SKILL.md) | Pre-launch checklists, feature flag lifecycle, staged rollouts, rollback procedures, monitoring setup | Preparing to deploy to production |
+| [e6-observability-and-instrumentation](skills/e6-observability-and-instrumentation/SKILL.md) | Reuse the telemetry stack; verify bounded logs, metrics, traces, redaction, and alert delivery | Adding telemetry or changing a critical production path |
+| [e6-shipping-and-launch](skills/e6-shipping-and-launch/SKILL.md) | Assess GO/NO-GO/HOLD using candidate evidence, recovery, rollout thresholds, and authorization | Preparing or performing a production release |
 
 ---
 
@@ -298,19 +316,21 @@ See [docs/agents.md](docs/agents.md) for the decision matrix, orchestration rule
 
 ---
 
-## Reference Checklists
+## Shared Workflow References
 
 Quick-reference material that skills pull in when needed:
 
 | Reference | Covers |
 |-----------|--------|
-| [definition-of-done.md](references/definition-of-done.md) | Project-wide standing bar every change clears, contrasted with per-task acceptance criteria |
+| [workflow-bootstrap.md](references/workflow-bootstrap.md) | Compact host/project policy selecting the coordinator and concise communication |
+| [workflow-contract.md](references/workflow-contract.md) | Phase gates, scope, acceptance tests, runtime/computer checks, delegation, and learning |
+| [definition-of-done.md](references/definition-of-done.md) | Standing project bar applied alongside each task's acceptance criteria |
 | [testing-patterns.md](references/testing-patterns.md) | Test structure, naming, mocking, React/API/E2E examples, anti-patterns (JavaScript/TypeScript) |
 | [security-checklist.md](references/security-checklist.md) | Pre-commit checks, auth, input validation, headers, CORS, OWASP Top 10 |
 | [performance-checklist.md](references/performance-checklist.md) | Core Web Vitals targets, frontend/backend checklists, measurement commands |
 | [accessibility-checklist.md](references/accessibility-checklist.md) | Keyboard nav, screen readers, visual design, ARIA, testing tools |
 | [observability-checklist.md](references/observability-checklist.md) | On-call questions, structured logging, RED/USE metrics, tracing, symptom-based alerting, pre-launch gate |
-| [orchestration-patterns.md](references/orchestration-patterns.md) | Endorsed multi-persona orchestration patterns, anti-patterns, and the "personas don't invoke personas" rule |
+| [orchestration-patterns.md](references/orchestration-patterns.md) | One coordinator, independent bounded workers, sequential fallback, and ownership |
 
 ---
 
@@ -324,9 +344,9 @@ Every skill follows a consistent anatomy:
 │                                                 │
 │  ┌─ Frontmatter ─────────────────────────────┐  │
 │  │ name: lowercase-hyphen-name               │  │
-│  │ description: Guides agents through [task].│  │
-│  │              Use when…                    │  │
-│  └───────────────────────────────────────────┘  │                                                                                                
+│  │ description: Use when [trigger].          │  │
+│  │              [Concrete task vocabulary.]  │  │
+│  └───────────────────────────────────────────┘  │
 │  Overview         → What this skill does        │
 │  When to Use      → Triggering conditions       │
 │  Process          → Step-by-step workflow       │
@@ -338,10 +358,26 @@ Every skill follows a consistent anatomy:
 
 **Key design choices:**
 
-- **Process, not prose.** Skills are workflows agents follow, not reference docs they read. Each has steps, checkpoints, and exit criteria.
+- **Explicit handoffs.** Specialists return evidence to one coordinator, which continues the requested workflow.
 - **Anti-rationalization.** Every skill includes a table of common excuses agents use to skip steps (e.g., "I'll add tests later") with documented counter-arguments.
-- **Verification is non-negotiable.** Every skill ends with evidence requirements - tests passing, build output, runtime data. "Seems right" is never sufficient.
-- **Progressive disclosure.** The `SKILL.md` is the entry point. Supporting references load only when needed, keeping token usage minimal.
+- **Evidence before completion.** Changed behavior needs observed RED/GREEN; refactors use characterization; prose/configuration uses relevant validators. Required unavailable checks remain blocked.
+- **Actual local behavior.** Run the affected endpoint, CLI, integration, or UI flow; use available browser/computer capabilities when needed.
+- **Progressive disclosure.** Load the current skill and needed references. Workers get bounded criteria and source pointers, with a 500-word input and 200-word return target.
+
+---
+
+## Validation and Evals
+
+The repository checks structure, command parity, links, and lexical routing without model calls:
+
+```bash
+node scripts/validate-skills.js
+node scripts/validate-reference-links.js
+node scripts/validate-commands.js
+node scripts/run-evals.js --min-rank1 95
+```
+
+There are 65 behavioral scenarios across 26 skill case files, with runnable fixtures and optional Claude/Codex execution. Lexical ranking tests vocabulary within this catalog; it does not prove natural model activation or priority against another plugin. Behavioral dry-runs validate inputs without running a model. Actual model traces, tests, and runtime artifacts establish compliance. See the [eval guide](evals/README.md) and [change report](docs/sdlc-workflow-report.md).
 
 ---
 
@@ -351,14 +387,14 @@ The portable core stays in shared directories. Host-specific paths are native di
 
 | Layer / consumer | Repository paths | Purpose |
 |---|---|---|
-| Shared workflow core | `skills/` (25 skills) | Portable `SKILL.md` workflows used by every integration |
-| Shared review material | `agents/` (4 personas), `references/` (7 checklists) | Specialist reviewers and pack-level checklists carried by whole-repo installs |
+| Shared workflow core | `skills/` (26 skills) | Portable `SKILL.md` workflows used by every integration |
+| Shared review material | `agents/` (4 personas), `references/` (9 documents) | Specialist reviewers, workflow contracts, and pack-level checklists |
 | Claude Code adapter | `.claude/commands/` (9 commands), `.claude-plugin/`, `hooks/` | Slash-command wrappers, marketplace metadata, and lifecycle hooks |
 | Gemini CLI adapter | `.gemini/commands/` (9 commands) | Gemini-native TOML command wrappers |
 | Antigravity CLI adapter | `commands/` (9 commands), `plugin.json` | Legacy TOML wrappers and the root plugin manifest; see the [known wrapper limitation](docs/antigravity-setup.md#lifecycle-workflows-and-command-compatibility) |
 | Codex adapter | `.codex-plugin/`, `.agents/plugins/` | Codex plugin metadata and marketplace registration; Codex consumes `skills/` directly |
 | GitHub Copilot CLI adapter | `plugin.json` | Root plugin metadata; Copilot CLI discovers `skills/` by convention and does not register the lifecycle wrappers |
-| Contributor tooling | `scripts/` (13 scripts), `evals/` (25 case files), `.github/workflows/` | Validation, routing evals, and CI |
+| Contributor tooling | `scripts/`, `evals/` (26 case files), `.github/workflows/` | Validation, installation, routing evals, and CI |
 | Documentation | `docs/` | Universal guidance and per-tool setup guides |
 
 Tools without a checked-in adapter directory install or copy the shared `skills/` core into their own native location. The [Quick Start](#quick-start) links the setup guide for each supported host.
@@ -367,7 +403,7 @@ Tools without a checked-in adapter directory install or copy the shared `skills/
 
 ## Why e6-agent-skills?
 
-AI coding agents default to the shortest path - which often means skipping specs, tests, security reviews, and the practices that make software reliable. e6-agent-skills gives agents structured workflows that enforce the same discipline senior engineers bring to production code.
+AI coding agents can skip specs, tests, security reviews, and the practices that make software reliable. e6-agent-skills gives agents explicit workflow steps and evidence gates drawn from production engineering practice. Host wiring improves activation; actual model compliance still needs evaluation.
 
 Each skill encodes hard-won engineering judgment: *when* to write a spec, *what* to test, *how* to review, and *when* to ship. These aren't generic prompts - they're the kind of opinionated, process-driven workflows that separate production-quality work from prototype-quality work.
 
@@ -377,7 +413,7 @@ Skills bake in best practices from Google's engineering culture — including co
 
 ## How it compares
 
-Wondering how this stacks up against [Superpowers](https://github.com/obra/superpowers) or [Matt Pocock's skills](https://github.com/mattpocock/skills)? See **[docs/comparison.md](docs/comparison.md)** for an honest, side-by-side look at how the three are shaped differently and when to reach for each — including a link to a controlled [head-to-head experiment](https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/).
+See the [workflow design sources](docs/workflow-design-sources.md) for patterns adapted from Compound Engineering, Superpowers, ADHD, and Caveman, with inspected revisions and licenses. The [comparison guide](docs/comparison.md) provides background on other skill packs; its external single-task experiment does not measure these latest changes.
 
 ---
 

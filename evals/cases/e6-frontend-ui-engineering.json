@@ -37,7 +37,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Build a dropdown menu component for the design system.",
+      "prompt": "Build a dropdown menu component for the design system. Integrate it into the playground and verify accepted states in the running app.",
       "expected_output": "An accessible, keyboard-navigable component following project conventions",
       "files": [
         "e6-frontend-ui-engineering"
@@ -45,7 +45,12 @@
       "expectations": [
         "Keyboard interaction and focus management are implemented, not just mouse clicks",
         "ARIA roles or semantic elements are used correctly",
-        "Component state is managed deliberately rather than ad hoc"
+        "Component state is managed deliberately rather than ad hoc",
+        "design-system.md, Button.tsx and repository startup/test commands are read before implementation; the new component preserves menu classes and public className/ref conventions",
+        "Behavioral tests for keyboard navigation, disabled action handling, Escape and return focus are observed failing before the new behavior is implemented",
+        "The real playground integrates at least two enabled and one disabled action with visible action result; project tests and build are run",
+        "The actual browser flow is exercised with pointer and keyboard at mobile and desktop widths when capability is available; otherwise the exact capability blocker and unverified criteria are recorded without claiming full completion",
+        "No screen-reader execution is claimed solely from DOM/axe assertions, and no extra styling dependency or unrelated source refactor is introduced"
       ]
     }
   ]

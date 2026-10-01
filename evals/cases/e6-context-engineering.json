@@ -39,6 +39,21 @@
         "A specific context-loading plan is produced (what to load, when, and why)",
         "Context is scoped to the task instead of loading everything"
       ]
+    },
+    {
+      "id": 2,
+      "files": [
+        "workflow-feature"
+      ],
+      "prompt": "Prepare context for implementing REQUEST.md in workflow-feature. Return a bounded worker task packet for only the endpoint and tests; do not implement. User requires concise caveman style and no full conversation history.",
+      "expected_output": "A scoped packet grounded in actual paths, criteria, commands, existing patterns, and ownership, with bounded return instructions",
+      "expectations": [
+        "Inspects project instructions, REQUEST.md, server.js, and server.test.js rather than inventing context",
+        "Packet names REPORT-1 through REPORT-4, endpoint and test ownership, real commands and working directory, invariants and runtime HTTP check",
+        "Packet keeps only relevant context and path pointers, avoids the entire catalog or conversation, and targets at most 500 words",
+        "Worker return is bounded to status, exact evidence, blockers, and artifact pointer with a 200-word target",
+        "The plan-only context request does not edit application files, commit, deploy, or start redundant coordinators"
+      ]
     }
   ]
 }

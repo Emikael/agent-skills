@@ -1,330 +1,102 @@
 ---
 name: e6-shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production, or when asking what needs to be in place before shipping. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: Use when preparing a production deployment or launch, running a pre-launch checklist, deciding what must be in place before shipping, producing a go/no-go assessment, setting up monitoring and alert readiness, planning staged rollout, opening a beta, or preparing and verifying a rollback strategy.
 ---
 
 # Shipping and Launch
 
 ## Overview
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+Bind release decisions to current acceptance and operational evidence. Prepare recovery before deploying, observe actual user outcomes, and advance only when release gates pass.
 
 ## When to Use
 
-- Deploying a feature to production for the first time
-- Releasing a significant change to users
-- Migrating data or infrastructure
-- Opening a beta or early access program
-- Any deployment that carries risk (all of them)
+- Preparing production features, significant releases, betas, data/infrastructure changes
+- Assessing readiness or rehearsing rollout/recovery without a deployment request
+- Explicit release-planning requests stay within that deliverable; they do not authorize production mutation
 
-## The Pre-Launch Checklist
+## Workflow Handoff
 
-### Code Quality
+For a standalone engineering change with no active workflow, load `using-e6-agent-skills` and `../../references/workflow-contract.md`. With an active coordinator, perform this release step, record evidence, and return to that coordinator. Do not restart the lifecycle. Use `e6-caveman` for concise prose and bounded delegation; preserve exact commands, identifiers, and uncertainty.
 
-- [ ] All tests pass (unit, integration, e2e)
-- [ ] Build succeeds with no warnings
-- [ ] Lint and type checking pass
-- [ ] Code reviewed and approved
-- [ ] No TODO comments that should be resolved before launch
-- [ ] No `console.log` debugging statements in production code
-- [ ] Error handling covers expected failure modes
+## Process
 
-### Security
+### 1. Identify Candidate and Authority
 
-- [ ] No secrets in code or version control
-- [ ] The ecosystem's dependency audit (`npm audit`, `pip-audit`, `cargo audit`, ...) shows no critical or high vulnerabilities
-- [ ] Input validation on all user-facing endpoints
-- [ ] Authentication and authorization checks in place
-- [ ] Security headers configured (CSP, HSTS, etc.)
-- [ ] Rate limiting on authentication endpoints
-- [ ] CORS configured to specific origins (not wildcard)
+Read project instructions, accepted criteria, current diff/commit/artifact, CI/local runtime evidence, environment/runbook, migrations, flags, SLO/rollout policy, and support/on-call ownership. Tie gates to candidate revision and target environment; stale green checks do not validate a changed candidate.
 
-### Performance
+Honor existing session/repository authorization for publication/deployment. Complete local fixes, rehearsal, and reviewable readiness without repeated approval. Readiness work alone does not authorize merge, deploy, external notification, or destructive data changes.
 
-- [ ] Core Web Vitals within "Good" thresholds
-- [ ] No N+1 queries in critical paths
-- [ ] Images optimized (compression, responsive sizes, lazy loading)
-- [ ] Bundle size within budget
-- [ ] Database queries have appropriate indexes
-- [ ] Caching configured for static assets and repeated queries
+Use `../../references/definition-of-done.md` as the standing floor. Record applicable gates as PASS, FAIL, UNVERIFIED, or reasoned N/A. Missing tools/access cannot become PASS. Resolve available failures and rerun affected checks before the decision.
 
-### Accessibility
+### 2. Verify Relevant Launch Gates
 
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] Screen reader can convey page content and structure
-- [ ] Color contrast meets WCAG 2.1 AA (4.5:1 for text)
-- [ ] Focus management correct for modals and dynamic content
-- [ ] Error messages are descriptive and associated with form fields
-- [ ] No accessibility warnings in axe-core or Lighthouse
+| Area | Required evidence when applicable |
+|---|---|
+| Correctness | Candidate's acceptance tests, unit/integration/critical E2E, error paths, flag states, build/lint/types, reviewed final diff |
+| Security | Boundary/auth review, redacted secrets check, dependency findings triaged under policy, headers/rate limits/CORS, data handling |
+| Performance | Measured critical-path budgets, query/index behavior, bundle/assets and Core Web Vitals for web UI |
+| Accessibility | Actual keyboard/focus, labels/errors, contrast, assistive-tech checks for UI; automated audit supplements behavior |
+| Infrastructure | Target config, DNS/TLS/CDN when needed, healthy dependencies, schema/artifact compatibility, functioning health/logging |
+| Documentation | Setup/API/user docs, relevant ADRs, changelog, runbook and recovery steps |
 
-### Infrastructure
+Use `e6-code-review-and-quality`, `e6-security-and-hardening`, `e6-performance-optimization`, and `e6-documentation-and-adrs` for substantive gaps. Load relevant checklists directly: `../../references/security-checklist.md`, `../../references/performance-checklist.md`, `../../references/accessibility-checklist.md`. Do not apply browser-only gates to workers or manufacture measurements.
 
-- [ ] Environment variables set in production
-- [ ] Database migrations applied (or ready to apply)
-- [ ] DNS and SSL configured
-- [ ] CDN configured for static assets
-- [ ] Logging and error reporting configured
-- [ ] Health check endpoint exists and responds
+Run app/service locally and in staging where available. Exercise accepted critical flows with representative data/failures. For web journeys, use `e6-browser-testing-with-devtools` or available browser capability; for desktop journeys, use available computer/runtime capability. Inspect console/network/server signals and observed outcomes. Build success or HTTP 200 does not prove checkout, auth, or a job works.
 
-### Documentation
+Specialist review depends on risk and missing coverage. Coordinator owns independent bounded assignments and deduplicates findings; no nested workers. Send candidate, criteria, scoped owned paths, and evidence pointers: a 500-word input target and a 200-word result target. Request decisive file:line findings/checks, not repeated full reports.
 
-- [ ] README updated with any new setup requirements
-- [ ] API documentation current
-- [ ] ADRs written for any architectural decisions
-- [ ] Changelog updated
-- [ ] User-facing documentation updated (if applicable)
+### 3. Prepare Controls and Recovery
 
-## Feature Flag Strategy
+Assign deploy monitor/rollback owner. Use `e6-observability-and-instrumentation` for critical metrics/alerts. Verify dashboards, log flow, and alert delivery for relevant failures (such as payment timeout/duplicate charge), not just configuration existence. Prepare support/on-call handoff; send notifications only when authorized.
 
-Ship behind feature flags to decouple deployment from release:
+Use flags to decouple deploy/enablement when appropriate. Give each flag an owner, stable cohort policy, cleanup gate/date, and tested on/off behavior. Avoid nested flags. Flag off does not reverse writes, messages, charges, or other side effects.
 
-```typescript
-// Feature flag check
-const flags = await getFeatureFlags(userId);
+Before GO, document and rehearse exact recovery with verified project tooling: compatible prior immutable artifact/deployment ID, sufficient flag changes, health/user-flow checks, owner, and recovery time. Git revert does not itself redeploy the prior artifact. Use `e6-deprecation-and-migration` for schema/data recovery; never invent database rollback commands or assume down migrations restore deleted data.
 
-if (flags.taskSharing) {
-  // New feature: task sharing
-  return <TaskSharingPanel task={task} />;
-}
+### 4. Set Rollout Decisions Before Deploying
 
-// Default: existing behavior
-return null;
-```
+Use project SLOs/error-budget policy, baseline/control cohort, minimum sample/traffic, observation window, and absolute limits. Relative comparisons need meaningful nonzero baselines. Insufficient traffic/evidence means HOLD; a quiet dashboard is not success. Define advance, investigate/hold, and rollback signals.
 
-**Feature flag lifecycle:**
+Without established thresholds, propose limits before enablement. Typical starting comparisons are errors within 10% of baseline and p95 within 20%; >2× errors or >50% latency regression may trigger rollback. Add absolute service/business/data-integrity limits. Data corruption or exploitable security failure requires immediate containment/recovery.
 
-```
-1. DEPLOY with flag OFF     → Code is in production but inactive
-2. ENABLE for team/beta     → Internal testing in production environment
-3. GRADUAL ROLLOUT          → 5% → 25% → 50% → 100% of users
-4. MONITOR at each stage    → Watch error rates, performance, user feedback
-5. CLEAN UP                 → Remove flag and dead code path after full rollout
-```
+Budget constrains risk under actual service policy. Low budget slows rollout; exhausted budget normally freezes risky features for reliability. High burn can require HOLD despite acceptable current errors. Policy exceptions need explicit documented authority/mitigation; deadline pressure cannot turn failed evidence green.
 
-**Rules:**
-- Every feature flag has an owner and an expiration date
-- Clean up flags within 2 weeks of full rollout
-- Don't nest feature flags (creates exponential combinations)
-- Test both flag states (on and off) in CI
+### 5. Decide, Deploy When Authorized, Observe
 
-## Staged Rollout
+Issue **GO**, **NO-GO**, or **HOLD**. GO needs current applicable acceptance/operational gates, proven recovery, and required review/authorization. Failed required gates mean NO-GO; missing decisive evidence means HOLD. List blockers and concrete actions to clear them. Accepted risk records an exception without falsifying checks.
 
-### The Rollout Sequence
+For authorized rollout, promote verified artifact to staging, test, deploy with appropriate initial cohort/flag state, verify health/critical flow, then advance only when thresholds pass. Internal → 5% → 25% → 50% → 100% is illustrative; choose stages/windows from actual traffic/policy.
 
-```
-1. DEPLOY to staging
-   └── Full test suite in staging environment
-   └── Manual smoke test of critical flows
+Observe errors/latency, client failures, business outcomes, integrity, and resource/queue signals. On red signals, follow rehearsed recovery and verify outcomes. Record artifact/environment/cohort/timestamps. Pending observation remains pending; arrange monitoring under authorization instead of silently waiting or claiming completion.
 
-2. DEPLOY to production (feature flag OFF)
-   └── Verify deployment succeeded (health check)
-   └── Check error monitoring (no new errors)
-
-3. ENABLE for team (flag ON for internal users)
-   └── Team uses the feature in production
-   └── 24-hour monitoring window
-
-4. CANARY rollout (flag ON for 5% of users)
-   └── Monitor error rates, latency, user behavior
-   └── Compare metrics: canary vs. baseline
-   └── 24-48 hour monitoring window
-   └── Advance only if all thresholds pass (see table below)
-
-5. GRADUAL increase (25% -> 50% -> 100%)
-   └── Same monitoring at each step
-   └── Ability to roll back to previous percentage at any point
-
-6. FULL rollout (flag ON for all users)
-   └── Monitor for 1 week
-   └── Clean up feature flag
-```
-
-### Rollout Decision Thresholds
-
-Use these thresholds to decide whether to advance, hold, or roll back at each stage:
-
-| Metric | Advance (green) | Hold and investigate (yellow) | Roll back (red) |
-|--------|-----------------|-------------------------------|-----------------|
-| Error rate | Within 10% of baseline | 10-100% above baseline | >2x baseline |
-| P95 latency | Within 20% of baseline | 20-50% above baseline | >50% above baseline |
-| Client JS errors | No new error types | New errors at <0.1% of sessions | New errors at >0.1% of sessions |
-| Business metrics | Neutral or positive | Decline <5% (may be noise) | Decline >5% |
-
-### When to Roll Back
-
-Roll back immediately if:
-- Error rate increases by more than 2x baseline
-- P95 latency increases by more than 50%
-- User-reported issues spike
-- Data integrity issues detected
-- Security vulnerability discovered
-
-## Monitoring and Observability
-
-### What to Monitor
-
-```
-Application metrics:
-├── Error rate (total and by endpoint)
-├── Response time (p50, p95, p99)
-├── Request volume
-├── Active users
-└── Key business metrics (conversion, engagement)
-
-Infrastructure metrics:
-├── CPU and memory utilization
-├── Database connection pool usage
-├── Disk space
-├── Network latency
-└── Queue depth (if applicable)
-
-Client metrics:
-├── Core Web Vitals (LCP, INP, CLS)
-├── JavaScript errors
-├── API error rates from client perspective
-└── Page load time
-```
-
-### Error Reporting
-
-```typescript
-// Set up error boundary with reporting
-class ErrorBoundary extends React.Component {
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Report to error tracking service
-    reportError(error, {
-      componentStack: info.componentStack,
-      userId: getCurrentUser()?.id,
-      page: window.location.pathname,
-    });
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback onRetry={() => this.setState({ hasError: false })} />;
-    }
-    return this.props.children;
-  }
-}
-
-// Server-side error reporting
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  reportError(err, {
-    method: req.method,
-    url: req.url,
-    userId: req.user?.id,
-  });
-
-  // Don't expose internals to users
-  res.status(500).json({
-    error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' },
-  });
-});
-```
-
-### Post-Launch Verification
-
-In the first hour after launch:
-
-```
-1. Check health endpoint returns 200
-2. Check error monitoring dashboard (no new error types)
-3. Check latency dashboard (no regression)
-4. Test the critical user flow manually
-5. Verify logs are flowing and readable
-6. Confirm rollback mechanism works (dry run if possible)
-```
-
-## Error Budget Release Gate
-
-Your service's error budget — the fraction of requests or time your SLO allows to fail — determines whether it's safe to ship. Use it as an objective gate — not a negotiation:
-
-```
-Budget remaining > 20%  →  Ship normally; monitor closely
-Budget remaining 0–20%  →  Slow rollouts only; no high-risk changes
-Budget exhausted        →  Freeze feature work; focus entirely on reliability
-Budget resets           →  Resume normal pace; bake in the fix that recovered it
-```
-
-A high burn rate during a canary (consuming budget faster than the baseline pace) is a **hold** signal in the rollout thresholds table above — treat it the same as an elevated error rate.
-
-## Rollback Strategy
-
-Every deployment needs a rollback plan before it happens:
-
-```markdown
-## Rollback Plan for [Feature/Release]
-
-### Trigger Conditions
-- Error rate > 2x baseline
-- P95 latency > [X]ms
-- User reports of [specific issue]
-
-### Rollback Steps
-1. Disable feature flag (if applicable)
-   OR
-1. Deploy previous version: `git revert <commit> && git push`
-2. Verify rollback: health check, error monitoring
-3. Communicate: notify team of rollback
-
-### Database Considerations
-- Migration [X] has a rollback: `npx prisma migrate rollback`
-- Data inserted by new feature: [preserved / cleaned up]
-
-### Time to Rollback
-- Feature flag: < 1 minute
-- Redeploy previous version: < 5 minutes
-- Database rollback: < 15 minutes
-```
-## See Also
-
-- For the project-wide Definition of Done that every change must clear before this checklist, see `../../references/definition-of-done.md`
-- For security pre-launch checks, see `../../references/security-checklist.md`
-- For performance pre-launch checklist, see `../../references/performance-checklist.md`
-- For accessibility verification before launch, see `../../references/accessibility-checklist.md`
-- For the alerting rules and SLO-tied thresholds, see `e6-observability-and-instrumentation`
+After a stable full rollout, remove expired flags/dead paths under cleanup plan, update operational docs, and return outcome/lessons to coordinator.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
-| "The error rate looks fine, let's keep shipping" | Check the burn rate, not just the current error rate. Consuming budget faster than baseline is a hold signal even when individual thresholds are green. |
+| "Old green checks are enough" | Evidence must match candidate and changed acceptance behavior. |
+| "The date cannot move" | Failed required tests or missing recovery remain blockers. |
+| "Add alerts/rollback later" | Prove operational controls before GO. |
+| "Canary has no errors" | Check traffic, sample, absolute limits, and burn rate. |
+| "Flag off restores everything" | Side effects and data need recovery proof. |
 
 ## Red Flags
 
-- Deploying without a rollback plan
-- No monitoring or error reporting in production
-- Big-bang releases (everything at once, no staging)
-- Feature flags with no expiration or owner
-- No one monitoring the deploy for the first hour
-- Production environment configuration done by memory, not code
-- "It's Friday afternoon, let's ship it"
-- Error budget exhausted but feature work continues unchanged
+- GO from checklist prose, stale results, or unavailable runtime
+- Health check as the only critical-flow evidence
+- Missing alert delivery, recovery owner, or compatible rehearsal
+- Advancing on zero traffic or ignoring budget/contractual gates
+- Actions outside authorization or repeated permission despite existing authorization
 
 ## Verification
 
-Before deploying:
-
-- [ ] Pre-launch checklist completed (all sections green)
-- [ ] Feature flag configured (if applicable)
-- [ ] Rollback plan documented
-- [ ] Monitoring dashboards set up
-- [ ] Team notified of deployment
-
-After deploying:
-
-- [ ] Health check returns 200
-- [ ] Error rate is normal
-- [ ] Latency is normal
-- [ ] Critical user flow works
-- [ ] Logs are flowing
-- [ ] Rollback tested or verified ready
-
-For every shipped service:
-
-- [ ] Error budget policy in place: know what action to take when budget drops below 20% and when it's exhausted
+- [ ] Candidate/artifact, environment, criteria, authorization, and current evidence are explicit
+- [ ] Local/staging and relevant browser/computer flows exercised; blocked checks stay UNVERIFIED
+- [ ] Required tests/review and critical controls pass; N/A gates have reasons
+- [ ] Compatible recovery rehearsed before GO, including data effects/ownership
+- [ ] Thresholds, samples, windows, SLO/budget policy, and monitoring ownership recorded
+- [ ] Verdict names blockers/path to clear them; pressure did not fabricate passes
+- [ ] Authorized rollout/recovery has observed outcomes; pending observation stays pending
+- [ ] Coordinator receives concise verdict/evidence, artifact/run IDs, and remaining actions

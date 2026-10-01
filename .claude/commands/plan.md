@@ -2,17 +2,8 @@
 description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
 ---
 
-Invoke the e6-agent-skills:e6-planning-and-task-breakdown skill.
+Use e6-planning-and-task-breakdown with e6-caveman. This command creates a plan; source code stays unchanged.
 
-Read the existing spec (SPEC.md, docs/SPEC.md, SPEC-<module-id>.md, or the project's equivalent) and the relevant codebase sections. Then:
+Read the existing spec (SPEC.md, docs/SPEC.md, SPEC-<module-id>.md, or the project's equivalent), project rules, relevant code/tests, and real verification commands. Identify dependencies and create vertical slices inside each capability.
 
-1. Enter plan mode — read only, no code changes
-2. Identify the dependency graph between components
-3. Slice work vertically inside one module (one complete path per task, not horizontal layers, and not across capability-map modules)
-4. Write tasks that name the requirements they satisfy, with acceptance criteria and verification steps
-5. Add checkpoints between phases
-6. Present the plan for human review
-
-Save the plan to tasks/plan.md and task list to tasks/todo.md.
-
-If tasks/plan.md or tasks/todo.md already exists with unchecked tasks for different work, stop and ask before writing — never silently overwrite an incomplete plan.
+Map each task's requirement IDs to observable criteria, meaningful test cases, owned implementation paths, prerequisites, and actual local runtime checks. Include triggered domain specialists and review gates. Save tasks/plan.md and tasks/todo.md. Preserve unrelated unfinished plans; use scoped sections or ask if ownership conflicts. Present the concrete plan and unresolved material decisions. Do not require a fresh approval when a surrounding implementation workflow already authorizes execution.

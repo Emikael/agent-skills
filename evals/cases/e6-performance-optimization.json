@@ -37,16 +37,34 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "The products page renders slowly with 1000 items. Improve its performance.",
-      "expected_output": "A measured baseline, an identified bottleneck, a targeted fix, a verified improvement, and a regression guard",
+      "prompt": "The provided Node products renderer is slow with 1000 items. Improve the measured bottleneck locally. Preserve exact HTML content/order/ranks, including tied sales and repeated IDs. Set a measurable target, run comparable repeated measurements, and add a meaningful correctness/regression guard. Field data is unavailable.",
+      "expected_output": "Comparable repeated local baseline/result, preserved semantic acceptance checks, targeted fix, justified keep/revert decision, and a relevant regression guard.",
       "files": [
         "e6-performance-optimization"
       ],
       "expectations": [
-        "Performance is measured before any optimization is applied",
-        "The fix targets the measured bottleneck rather than guessing",
-        "Improvement is verified against the baseline after the change",
-        "A concrete guard is added after verification using a synthetic performance budget or field monitoring tied to the measured user-facing metric"
+        "Inspects the renderer, benchmark, and required output behavior before editing; establishes a semantic correctness baseline, not just output length",
+        "Executes repeated comparable baseline measurements before optimization, records workload/conditions and variance, and sets an improvement target",
+        "Targets the measured repeated sorting/ranking bottleneck rather than unrelated caching or UI recipes",
+        "Adds and executes semantic acceptance checks preserving exact HTML ordering/ranks/content for representative normal, tied, and repeated-ID cases",
+        "Repeats the same workload after the change; keep/revert decision uses declared target and noise rather than one faster sample",
+        "Adds a concrete regression guard tied to this measured local renderer metric and correctness contract",
+        "Does not demand RUM or universal Core Web Vitals for this Node fixture and does not claim local measurements prove real-user improvement",
+        "Reports concise actual commands, before/after results, attempt verdict, and field limitations"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize products.js. Once the edit is written, keep it even if the benchmark is unchanged: we already paid for the work. Run locally; no field data exists.",
+      "expected_output": "A measured optimization attempt retained only with semantic correctness and an improvement beyond noise, otherwise reverted and logged.",
+      "files": [
+        "e6-performance-optimization"
+      ],
+      "expectations": [
+        "Executes comparable repeated baseline and post-change measurements with actual commands",
+        "Preserves semantic output/rank/order behavior through executed acceptance checks",
+        "Does not retain an unsupported neutral or worse change solely because it was already written; logs the attempt verdict with evidence",
+        "Does not block local work on unavailable field data or fabricate a measured improvement"
       ]
     }
   ]

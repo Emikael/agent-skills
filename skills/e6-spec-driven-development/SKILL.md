@@ -1,241 +1,138 @@
 ---
 name: e6-spec-driven-development
-description: Writes a feature spec before any code. Use when starting a new project, feature, or significant change and no specification exists yet, even if the user did not ask for a spec by name. Use when drafting a PRD or requirements document with objectives and scope, or when requirements are unclear, ambiguous, or only exist as a vague idea. Use when a single requirement spans several independently testable capabilities and needs decomposing into a capability map of modules before specifying.
+description: Use when starting a new project, feature, service, or significant change without a specification, even when no spec was requested by name. Use when drafting a PRD or requirements document with objectives and boundaries, when requirements are vague or ambiguous, or when identity, billing, notifications, reporting, or other independently testable capabilities need a capability map and dependency order before specifying.
 ---
 
 # Spec-Driven Development
 
 ## Overview
 
-Write a feature specification before writing any code. The spec states what we are building, for whom, what is out of scope, and which observable behaviors prove it is done. Commands, directory layout, code style, and agent operating rules belong in the project's rules file. This skill produces requirements a later task and test can cite.
+Write observable requirements before production code. Stable requirement IDs connect intent, tasks, acceptance tests, runtime evidence, and review.
 
 ## When to Use
 
-- Starting a new project, feature, or significant change and no specification exists yet
-- Requirements are ambiguous, incomplete, or only a vague idea
-- The change touches multiple modules or an architectural decision
-- One request bundles several capabilities that could ship and be verified separately
+- A feature or significant change has no clear written requirements.
+- Product behavior or scope is ambiguous.
+- One initiative contains independently testable capabilities.
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes whose requirements are already written and unambiguous. Follow `e6-planning-and-task-breakdown` when an approved spec needs tasks. Follow `e6-context-engineering` when the repo needs commands, layout, or style recorded.
+Skip mechanical fixes and already-specified changes. Use `e6-planning-and-task-breakdown` for task breakdown from settled requirements.
 
-## The Gated Workflow
+## Process
 
-Spec-driven development has four phases, preceded by a scope check (Phase 0) that activates only when one request bundles several independently testable capabilities. Do not advance until the current phase is validated. This skill owns Phases 0 and 1. Phases 2–4 are owned by the skills named there.
+### 1. Load the relevant contract
 
-```
-SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
-   │          │        │          │
-   ▼          ▼        ▼          ▼
- Human      Human    Human      Human
- reviews    reviews  reviews    reviews
-```
+Follow `e6-context-engineering`. Read the request, active intent/spec sections, rules, constraints, relevant interfaces, and tests. Use bounded searches. Commands, layout, style, and agent rules belong in project rules, not the feature spec.
 
-### Phase 0: Scope Check
+If user or observable success remains unclear, use `e6-interview-me`. Reuse existing answers and delegated authority.
 
-Most requests describe one capability. If this one does, skip this phase and go straight to Specify.
+Separate facts and assumptions with evidence. Ask unresolved material decisions: pricing, permissions, persistence, user-visible policy, or competing scope. Keep them in Blocking questions; continue independent authorized work.
 
-**Detection.** Decompose before specifying when a single requirement bundles several independently testable capabilities:
+### 2. Check capability scope
 
-- The requirement names distinct capabilities with their own consumers or data (identity, billing, notifications, reporting)
-- Acceptance criteria cluster into groups that could ship and be verified separately
-- One capability could be cut or replaced without rewriting the others' requirements
-
-**Propose a capability map before writing any spec.** A module table plus a build order:
+When the request bundles capabilities that can ship and be verified independently, propose a capability map before module specs:
 
 ```markdown
-# Capability Map: [Initiative Name]
-
+# Capability Map: Customer portal
 | Module id | Responsibility | Depends on |
 |---|---|---|
-| identity | Accounts, sessions, SSO | — |
-| billing | Plans, invoices, payments | identity |
-| notifications | Email and webhook fan-out | identity |
-| reporting | Usage dashboards | billing, notifications |
-
-Build order: identity → billing, notifications → reporting
+| identity | Accounts and sessions | — |
+| billing | Plans and invoices | identity |
+| notifications | Email and webhook events | identity, billing |
+| reporting | Usage dashboard | billing, notifications |
+Build order: identity → billing → notifications → reporting
 ```
 
-- **Stable module ids.** Kebab-case, chosen once, never renamed mid-initiative. Specs, plans, and tasks select work by these ids.
-- **Dependency direction, no cycles.** If two modules each need the other, they are one module.
-- **Interfaces live at the boundary.** The map records that `billing` depends on `identity`. The contract belongs in the provider module's spec. Follow `e6-api-and-interface-design` when writing it.
+Use stable kebab-case module IDs. Require one-way dependencies; merge inseparable modules or repair the boundary. Provider specs own interface contracts; use `e6-api-and-interface-design` for their design.
 
-The human reviews module boundaries, dependency direction, and build order before any module spec is written.
+Validate boundaries against the request and architecture. Ask only for material scope/ownership changes. Save `CAPABILITY-MAP.md` within task authority, then `SPEC-<module-id>.md` in dependency order.
 
-Save the approved map at the project root as `CAPABILITY-MAP.md`. Then run Specify for each module in dependency order. Each module spec is `SPEC-<module-id>.md` and covers only that module. The map is the index.
+### 3. Specify behavior and proof
 
-### Phase 1: Specify
-
-**Start from a confirmed intent.** If you cannot yet state who it is for, why now, what success looks like, and what is out of scope, follow `e6-interview-me` and stop until that intent is explicitly confirmed. One question at a time. Do not batch a questionnaire and write the spec anyway.
-
-**Surface assumptions immediately.** Before writing spec content, list what you are assuming:
-
-```
-ASSUMPTIONS I'M MAKING:
-1. This is a web application (not native mobile)
-2. Authentication uses session-based cookies (not JWT)
-3. The database is PostgreSQL (based on existing Prisma schema)
-4. We're targeting modern browsers only (no IE11)
-→ Correct me now or I'll proceed with these.
-```
-
-An assumption that changes behavior, money, permissions, or stored data is a blocking question. It does not become a requirement until the user gives an explicit yes.
-
-**Where project conventions go.** Commands, directory layout, code style, and Always / Ask first / Never rules are a project constitution. If the repo has no rules file yet, follow `e6-context-engineering` and write them there (`AGENTS.md`, `CLAUDE.md`, or the host's equivalent). Do not copy them into the feature spec. The quality bar (coverage, performance, accessibility) is `e6-constraint-driven-development` and lives in `CONSTRAINTS.md`.
-
-**Write the feature spec with these sections:**
+Keep the project's established specification system, including OpenSpec. Otherwise use `SPEC.md` at the repo root (`docs/SPEC.md` is accepted).
 
 ```markdown
-# Spec: [Feature Name]
-Status: draft
-
-## Outcome
-[What we are building, for whom, and why.]
-
-## Actors
-[Who acts, and who only consumes the result.]
-
+# Spec: [Feature]
+Status: draft | approved | implementing | verified
+## Outcome and actors
+[What changes, for whom, and why]
 ## In scope
-- [Capability this spec covers]
-
+[This capability]
 ## Out of scope
-- [Capability this spec will not cover, and why]
-
+[Specific exclusions and reasons]
 ## Requirements
-
-### [MOD]-1 [Short title]
-Statement: [One behavior.]
-Acceptance: Given [state], when [action], then [observable outcome].
-Proves: [The invariant or success condition this scenario locks.]
-
+### BILL-3 Deduplicate billing events
+Statement: One logical event affects usage once.
+Acceptance: Given a recorded event, when its ID is submitted again,
+then usage and invoice totals remain unchanged.
+Proves: Retries cannot charge twice.
+Proof method: Duplicate-event integration test; local API retry flow.
 ## Data and invariants
-[Entities, identities, uniqueness, ordering, and what must always be true.]
-
+[Identity, uniqueness, ordering, state transitions]
 ## Interfaces
-[Commands, events, or types that cross a module or process boundary. Otherwise "none".]
-
+[Boundary commands, events, or types; otherwise none]
 ## Error and edge behavior
-[Empty, duplicate, unauthorized, partial failure, and retry behavior.]
-
+[Empty, invalid, duplicate, unauthorized, partial failure, retry]
 ## Non-functional
-[Latency, audit, accessibility, or compatibility only when this feature needs a number.]
-
+[Feature-specific latency, accessibility, audit, compatibility targets]
 ## Blocking questions
-[Decisions that would change behavior, money, permissions, or stored data. Empty only when none remain.]
-
+[Unresolved material product decisions; otherwise none]
 ## Trace
-[Requirement ids in this spec. Plans and tests cite these ids.]
+[Requirement IDs; approval/authority; later proof references]
 ```
 
-Rules for the requirements section:
+One requirement describes one observable behavior. Use a stable module prefix and number (`BILL-3`); never silently renumber approved IDs. Given/When/Then names concrete state, action, and outcome. "Works correctly" is not acceptance.
 
-- One requirement, one behavior, one way to observe it.
-- Ids are stable: a short module prefix plus a number (`BILL-3`). Never renumber an approved id. Add a new id to change behavior.
-- Given / When / Then names an observable outcome. "Works correctly" and "handles edge cases" are not acceptance.
-- Out of scope is mandatory, including for a single-module spec.
+Include negative/edge scenarios. Proof tests user outcomes or invariants. UI/native/CLI/API behavior also needs actual local interaction; builds alone are insufficient. Planning supplies commands; tests cite IDs.
 
-**External spec tools.** If the project already uses OpenSpec or another specification system, keep that system's artifact format and storage. This skill owns clarification, requirement content, and approval gates. The external tool owns how the approved spec is represented. A single-capability spec with no external tool is `SPEC.md` at the repo root (`docs/SPEC.md` is the accepted alternate).
+Use `e6-constraint-driven-development` for standing quality gates. Feature-specific budgets belong here; shared standards remain in `CONSTRAINTS.md`.
 
-**Reframe vague goals as observable targets.**
+### 4. Challenge the draft
 
-```
-REQUIREMENT: "Make the dashboard faster"
+For auth, billing, payments, migrations, deletion, or uncertain architecture, use `e6-doubt-driven-development`. For other specs, check:
 
-REFRAMED:
-- DASH-1 Dashboard LCP < 2.5s on a 4G connection
-→ Are these the right targets?
-```
+- Every requirement has an observable result and proof method.
+- Relevant errors, invariants, and state transitions are explicit.
+- Each spec stays inside its capability boundary.
+- Assumptions remain distinguishable from facts.
+- Material unanswered questions remain visible.
 
-### Adversarial pass
+Fix identified gaps before treating the affected requirement as settled. A draft may be saved with open questions; unresolved behavior cannot become approved by silence.
 
-Before asking for approval, attack the spec. Follow `e6-doubt-driven-development` when the spec touches auth, billing, payments, migrations, or deletion. For every other spec, walk this checklist yourself and escalate to `e6-doubt-driven-development` if an item fails:
+### 5. Record authority and advance
 
-- Vague verbs remain: handle, support, fast, robust, flexible
-- Only the happy path is specified
-- A state machine is implied and not written
-- A requirement has no observable outcome
-- Two independently testable capabilities share one spec
-- An assumption is written as a fact
-- A blocking question was answered inside a requirement
+Clear confirmation, approved existing requirements, or delegated implementation authority can settle routine requirements. Do not require a literal "yes" or another approval of each artifact when the user authorized the whole task.
 
-Fix the spec. Do not ask the human to approve a draft that fails this pass.
+For spec-only requests, return the saved spec and open decisions. For an authorized build, the coordinator continues to `e6-planning-and-task-breakdown`, then `e6-incremental-implementation` and `e6-test-driven-development`. Tasks and failing tests cite the requirements they prove. Load only active requirement sections and touched files.
 
-**Approval.** Ask for an explicit yes. "Sounds good", "looks reasonable", and "I guess" are not approval. A spec with any blocking question that changes behavior, money, permissions, or stored data is not approvable. The user may defer the decision. The requirement stays unwritten until they decide.
-
-### Phase 2: Plan
-
-Follow `e6-planning-and-task-breakdown`. Every task names the requirement ids it satisfies, and those ids come from a single module. Save the plan to `tasks/plan.md` and the task list to the task list target that skill defines (default `tasks/todo.md`).
-
-### Phase 3: Tasks
-
-Task sizing, dependency order, and checkpoints belong to `e6-planning-and-task-breakdown`. A task template that cites requirements:
-
-```markdown
-- [ ] Task: [Description]
-  - Requirements: [BILL-3]
-  - Acceptance: [The scenario copied from that requirement]
-  - Verify: [The test command or check that proves the scenario]
-  - Files: [Which files will be touched]
-```
-
-### Phase 4: Implement
-
-This skill stops at the approved spec. Implementation follows `e6-incremental-implementation` and `e6-test-driven-development`. The failing test proves the requirement ids on the task before production code changes. Follow `e6-context-engineering` to load those requirement sections and the files the task touches, not the whole spec.
-
-If implementation would contradict an approved requirement, stop. Write a spec delta that names the ids, what changed, and why. Wait for an explicit yes. Then update the tasks. Do not patch the code and leave the spec stale.
-
-## Keeping the Spec Alive
-
-Each requirement id moves from proposed, to approved, then implementing, then verified.
-
-- Update the spec when a decision changes, before the code does.
-- Features added or cut change Out of scope or add a new id. Do not silently renumber.
-- Commit the spec with the code.
-- Reference the requirement ids in the PR.
-
-A spec delta is a short note in the spec, or a commit that touches it:
-
-```markdown
-## Delta
-- BILL-3: late window changed from 7 days to 3 after finance review. Status returned to approved.
-```
+For contradictions, record a delta: IDs, old/new behavior, reason, authority. Ask for unresolved material decisions or scope expansion; otherwise update spec/tasks before proceeding. Preserve history, reference IDs in the PR, and commit spec with code when authorized.
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| Excuse | Reality |
 |---|---|
-| "This is simple, I don't need a spec" | Simple tasks still need an observable acceptance scenario. Two lines are enough. |
-| "I'll write the spec after I code it" | That is documentation. The spec's value is clarity before code. |
-| "The spec will slow us down" | A short spec prevents rework. An untested guess costs more than the spec. |
-| "Requirements will change anyway" | The spec is a living document with ids and deltas. An outdated spec can be corrected. A missing spec cannot be cited. |
-| "The user knows what they want" | Clear requests still hide assumptions. Blocking questions are how those surface. |
-| "It's one big feature; splitting it is overhead" | Independently testable groups need a capability map. Ten lines now, or every later task reasons over the whole contract. |
-| "I'll decompose during planning" | Planning slices tasks inside a spec. Module boundaries are decided before the spec is written. |
-| "I'll pick a sensible price and keep going" | A decision that changes behavior, money, permissions, or stored data stays in Blocking questions until the user says yes. |
-| "The spec should list npm scripts and code style" | Those belong in the rules file. A feature spec that restates them hides the missing behavior. |
+| "I'll document it after coding" | The spec prevents wrong behavior before code exists. |
+| "I'll choose a sensible price" | Pricing is a material product decision, not an implementation default. |
+| "The build passes, so acceptance is covered" | Acceptance requires observable behavior and its proof. |
+| "Every phase needs another yes" | Existing authorization persists; only unresolved decisions need input. |
 
 ## Red Flags
 
-- Writing code with no written requirements
-- Asking "should I just start building?" before "done" is observable
-- Implementing behavior no requirement id covers
-- Filling Blocking questions with invented prices, tiers, or policies
-- A spec whose body is commands, directory layout, and formatter rules
-- One spec spanning several independently testable capabilities
-- Module boundaries decided during implementation because no capability map was approved
-- A task or test that cites requirements from two modules
-- Code merged while the spec still describes the old behavior
+- Requirements invented from unresolved prices or policies.
+- Acceptance that mirrors functions instead of user outcomes.
+- Independently testable capabilities sharing one spec.
+- Untraced code or stale requirements after a behavior change.
+- Repeated approval pauses inside an authorized build.
 
 ## Verification
 
-Before planning or implementation, confirm:
+- [ ] Relevant project facts and existing authority were read first.
+- [ ] Outcome, actors, scope, non-goals, invariants, and errors are explicit.
+- [ ] Stable IDs have observable scenarios and proof methods.
+- [ ] Material unresolved decisions remain visible and block only affected work.
+- [ ] Capability boundaries and adversarial findings are resolved or recorded.
+- [ ] The spec is saved and traces authority and later evidence.
+- [ ] Spec-only scope stayed bounded; authorized work advanced to planning.
 
-- [ ] The spec states outcome, actors, in scope, and out of scope
-- [ ] Every requirement has a stable id and a Given / When / Then scenario with an observable outcome
-- [ ] Data invariants, interface boundaries, and error behavior are present or explicitly "none"
-- [ ] Decisions that change behavior, money, permissions, or stored data are in Blocking questions, not in requirements
-- [ ] The adversarial pass was run, and high-stakes specs went through `e6-doubt-driven-development`
-- [ ] The user gave an explicit yes
-- [ ] Project commands, layout, and code style are in the rules file, not copied into the spec
-- [ ] The spec is saved (`SPEC.md`, `docs/SPEC.md`, or `SPEC-<module-id>.md` plus `CAPABILITY-MAP.md`)
-- [ ] If several independently testable capabilities were bundled, the capability map was approved before any module spec
-- [ ] Every module spec traces to a module id in the approved map
+## Workflow Handoff
+
+For a standalone engineering task with no active workflow, use `using-e6-agent-skills`. Otherwise update the current phase evidence and return to its coordinator without recursively reloading the router. Follow [the workflow contract](../../references/workflow-contract.md). Use `e6-caveman` for concise user updates and delegation.

@@ -2,7 +2,7 @@
 
 How to roll out e6-agent-skills depends heavily on where your codebase is in its life. A greenfield project can adopt the full lifecycle from commit one. A codebase with years of history needs an incremental path that respects what already exists, its conventions, its undocumented decisions, and its lack of test coverage in places you'd rather not touch blind.
 
-This guide covers both paths. For installation mechanics, see [getting-started.md](getting-started.md) and the per-tool setup guides. For what each skill does, see the [skill catalog in the README](../README.md#all-25-skills).
+This guide covers both paths. For installation mechanics, see [getting-started.md](getting-started.md) and the per-tool setup guides. For what each skill does, see the [skill catalog in the README](../README.md#all-26-skills).
 
 ---
 
@@ -28,7 +28,7 @@ A new project is the best-case scenario: there's no legacy behavior to preserve,
 ### Day 0 | Install and wire up
 
 1. Install the pack (`npx skills add Emikael/e6-agent-skills`, or the native integration for your tool, see [getting-started.md](getting-started.md)).
-2. If the host has no native skill router, load `e6-using-agent-skills` (the meta-skill) so the agent can route work to the right skill on its own. On hosts with native routing, install the individual skills and do not preload the meta-skill as always-on context.
+2. [Activate the coordinator](workflow-activation.md): the Claude plugin has a compact startup hook; other hosts use a short project-rule bootstrap. The coordinator loads specialists on demand.
 3. Add a short project rules file (`CLAUDE.md`, `.cursorrules`, etc.) with your stack, commands, and boundaries, `e6-context-engineering` describes what belongs there.
 
 ### Day 0 | Define before you build
@@ -43,7 +43,7 @@ Run the lifecycle in order for the project's first real feature:
 /ship   →  when going live     (e6-shipping-and-launch)
 ```
 
-`/build auto` is a good fit for greenfield: you approve the plan once and every task still runs test-driven and commits individually. The spec and plan artifacts (`SPEC.md`, `tasks/`) are living documents, keep them in version control while the work is in flight. If the feature spans more than one session, those files are also the handoff, see [working across sessions](getting-started.md#working-across-sessions).
+`/build auto` fits greenfield: the requested plan runs with test and runtime verification, using existing authorization. Commits follow project rules and user scope. The spec and plan artifacts (`SPEC.md`, `tasks/`) are living documents, keep them in version control while the work is in flight. If the feature spans more than one session, those files are also the handoff, see [working across sessions](getting-started.md#working-across-sessions).
 
 ### From the start, treat these as always-on
 
@@ -65,7 +65,7 @@ Run the lifecycle in order for the project's first real feature:
 ### Greenfield anti-patterns
 
 - **Skipping `/spec` because "it's just a prototype."** Prototypes become products. The spec is the cheapest artifact you'll ever write for this codebase.
-- **Loading all 25 skills into every session.** It wastes context and dilutes the ones that matter. Load by phase; let the host's native router or `e6-using-agent-skills` route, but not both.
+- **Loading all 26 skill bodies into every session.** It wastes context. Keep one coordinator and load specialists by phase.
 - **Deferring observability until "there's something to observe."** Instrument as you build, retrofitting structured logging is a Path B problem you're choosing to create.
 
 ---
@@ -121,7 +121,7 @@ Both end in the same steady state: `/spec → /plan → /build → /review → /
 
 |                        | Greenfield                     | Brownfield                               |
 | ---------------------- | ------------------------------ | ---------------------------------------- |
-| First skill loaded     | Native router, or `e6-using-agent-skills` + `/spec` | `e6-context-engineering`                    |
+| First skill loaded     | Compact bootstrap + `using-e6-agent-skills` | `e6-context-engineering`                    |
 | First value delivered  | Spec'd, tested first feature   | Zero-risk reviews and safer bug fixes    |
 | TDD posture            | Universal from commit one      | Selective: tests where change is planned |
 | Refactoring rule       | Rare (little to refactor)      | Characterization tests first, always     |

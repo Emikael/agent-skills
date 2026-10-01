@@ -9,7 +9,7 @@
  * the skill's own directory, which is two levels below the root. All 18 links
  * across 11 skills resolved to files that do not exist, in the repo and in
  * every plugin-install layout (~/.claude/plugins/cache/..., ~/.codex/...).
- * Agents that followed the guidance — for example e6-using-agent-skills pointing
+ * Agents that followed the guidance — for example using-e6-agent-skills pointing
  * at the Definition of Done — hit a file-not-found and stalled.
  *
  * Nothing else in CI catches this: validate-artifact-paths.js is scoped to

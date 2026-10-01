@@ -3,10 +3,11 @@
 'use strict';
 
 // Contract test for skills/e6-constraint-driven-development/references/floor-guard.md.
-// The fenced `js` block is extracted unchanged and run, with real git, against fourteen
+// The fenced `js` block is extracted unchanged and run, with real git, against
 // small fixtures: each is a fresh repository with one source file, one test file and a
 // CONSTRAINTS.md carrying a floor bullet, a coverage minimum, a bundle maximum and an
-// Exceptions table. Loosening moves must exit 1, tightening and no-op moves must exit 0.
+// Exceptions table. Suspected loosening/checker changes exit 1 for review;
+// tightening, equivalent/stronger assertion replacements and no-op moves exit 0.
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -207,4 +208,117 @@ test('floor guard: a threshold that loses its direction words is reported as rem
   assert.equal(result.status, 1, result.stderr);
   assert.match(result.stderr, /\[threshold-removed\]/);
   assert.match(result.stderr, /direction words/);
+});
+
+function setCheckerBaseline(root, rule) {
+  editConstraints(root, '| Coverage | >= 80% |', rule);
+  git(root, 'add', 'CONSTRAINTS.md');
+  git(root, 'commit', '-qm', 'checker baseline');
+}
+
+test('floor guard: replacing a checker with echo at the same threshold requires review', () => {
+  const root = makeRepo();
+  setCheckerBaseline(root, '| Coverage | >= 80% | `vitest run --coverage` |');
+  editConstraints(root, '`vitest run --coverage`', '`echo ok`');
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[checker-changed\] CONSTRAINTS\.md:11\b/);
+});
+
+test('floor guard: removing a checker while preserving its threshold requires review', () => {
+  const root = makeRepo();
+  setCheckerBaseline(root, '| Coverage | >= 80% | `vitest run --coverage` |');
+  editConstraints(root, ' | `vitest run --coverage`', '');
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[checker-changed\]/);
+});
+
+test('floor guard: changing a plain Check field requires review without command quoting', () => {
+  const root = makeRepo();
+  setCheckerBaseline(root, '| Coverage | >= 80% | Check: vitest run --coverage |');
+  editConstraints(root, 'Check: vitest run --coverage', 'Check: echo ok');
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[checker-changed\]/);
+});
+
+test('floor guard: tightening a threshold with the same checker remains silent', () => {
+  const root = makeRepo();
+  setCheckerBaseline(root, '| Coverage | >= 80% | `vitest run --coverage` |');
+  editConstraints(root, '>= 80%', '>= 90%');
+  const result = runGuard(root);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('floor guard: strengthening an assertion in place is not assertion removal', () => {
+  const root = makeRepo();
+  const file = path.join(root, 'app.test.js');
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('assert.equal(', 'assert.strictEqual('));
+  const result = runGuard(root);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('floor guard: changing an assertion import without removing a check remains silent', () => {
+  const root = makeRepo();
+  const file = path.join(root, 'app.test.js');
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace("require('assert')", "require('node:assert/strict')"));
+  const result = runGuard(root);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('floor guard: an assertion added elsewhere does not hide a removed assertion', () => {
+  const root = makeRepo();
+  const file = path.join(root, 'app.test.js');
+  const original = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, original + '\n'.repeat(8) + '// Another test\n');
+  git(root, 'add', 'app.test.js');
+  git(root, 'commit', '-qm', 'separate assertion scopes');
+  fs.writeFileSync(file, original.split('\n')[0] + '\n' + '\n'.repeat(8) + '// Another test\nassert.ok(true);\n');
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[assertion-removed\] app\.test\.js:2\b/);
+});
+
+test('floor guard: added source findings expose location but not matched source', () => {
+  const root = makeRepo();
+  const marker = 'redaction-added-source-marker';
+  fs.writeFileSync(path.join(root, 'app.js'), `module.exports = 1;\nthrow new Error('Not implemented ${marker}');\n`);
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[unfinished-work\] app\.js:2\b/);
+  assert.ok(!`${result.stdout}${result.stderr}`.includes(marker));
+  assert.ok(!result.stderr.includes('throw new Error'));
+});
+
+test('floor guard: removed assertion findings do not expose removed source', () => {
+  const root = makeRepo();
+  const marker = 'redaction-removed-source-marker';
+  const file = path.join(root, 'app.test.js');
+  fs.appendFileSync(file, `assert.ok(true, '${marker}');\n`);
+  git(root, 'add', 'app.test.js');
+  git(root, 'commit', '-qm', 'assertion redaction baseline');
+  fs.writeFileSync(file, "const assert = require('assert');\nassert.equal(require('./app'), 1);\n");
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[assertion-removed\] app\.test\.js:3\b/);
+  assert.ok(!`${result.stdout}${result.stderr}`.includes(marker));
+  assert.ok(!result.stderr.includes('assert.ok'));
+});
+
+test('floor guard: changed threshold and command findings do not expose command values', () => {
+  const root = makeRepo();
+  const oldMarker = 'redaction-old-command-marker';
+  const newMarker = 'redaction-new-command-marker';
+  setCheckerBaseline(root, `| Coverage | >= 80% | \`vitest run --token=${oldMarker}\` |`);
+  editConstraints(root, `| Coverage | >= 80% | \`vitest run --token=${oldMarker}\` |`,
+    `| Coverage | >= 60% | \`echo ${newMarker}\` |`);
+  const result = runGuard(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /\[threshold-loosened\] CONSTRAINTS\.md:11\b/);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.ok(!output.includes(oldMarker));
+  assert.ok(!output.includes(newMarker));
+  assert.ok(!output.includes('vitest run'));
+  assert.ok(!output.includes('echo '));
 });

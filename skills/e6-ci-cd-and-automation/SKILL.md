@@ -1,390 +1,90 @@
 ---
 name: e6-ci-cd-and-automation
-description: Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
+description: Use when setting up or modifying CI/CD build and deployment pipelines, configuring test runners in CI, automating quality gates that block merge on failure, adding a deploy stage with manual approval, debugging CI failures, or establishing preview deployments, staged rollouts, and rollback automation.
 ---
 
 # CI/CD and Automation
 
 ## Overview
 
-Automate quality gates so that no change reaches production without passing tests, lint, type checking, and build. CI/CD is the enforcement mechanism for every other skill — it catches what humans and agents miss, and it does so consistently on every single change.
-
-**Shift Left:** Catch problems as early in the pipeline as possible. A bug caught in linting costs minutes; the same bug caught in production costs hours. Move checks upstream — static analysis before tests, tests before staging, staging before production.
-
-**Faster is Safer:** Smaller batches and more frequent releases reduce risk, not increase it. A deployment with 3 changes is easier to debug than one with 30. Frequent releases build confidence in the release process itself.
+Automate repeatable checks and prove failures block the right action. Fast feedback matters, but critical acceptance checks stay on the path to merge and release.
 
 ## When to Use
 
-- Setting up a new project's CI pipeline
-- Adding or modifying automated checks
-- Configuring deployment pipelines
-- When a change should trigger automated verification
-- Debugging CI failures
+- Creating or modifying automated build, test, audit, or deployment workflows
+- Diagnosing failed/slow CI, required checks, fork behavior, or rollout automation
+- Release readiness itself belongs to `e6-shipping-and-launch`
 
-## The Quality Gate Pipeline
+## Workflow Handoff
 
-Every change goes through these gates before merge:
+For a standalone engineering change with no active workflow, load `using-e6-agent-skills` and `../../references/workflow-contract.md`. With an active coordinator, perform this pipeline step, record evidence, and return to that coordinator. Do not restart the lifecycle. Use `e6-caveman` for concise prose and bounded delegation; preserve exact commands, identifiers, and uncertainty.
 
-```
-Pull Request Opened
-    │
-    ▼
-┌─────────────────┐
-│   LINT CHECK     │  eslint, prettier
-│   ↓ pass         │
-│   TYPE CHECK     │  tsc --noEmit
-│   ↓ pass         │
-│   UNIT TESTS     │  jest/vitest
-│   ↓ pass         │
-│   BUILD          │  npm run build
-│   ↓ pass         │
-│   INTEGRATION    │  API/DB tests
-│   ↓ pass         │
-│   E2E (optional) │  Playwright/Cypress
-│   ↓ pass         │
-│   SECURITY AUDIT │  npm audit
-│   ↓ pass         │
-│   BUNDLE SIZE    │  bundlesize check
-└─────────────────┘
-    │
-    ▼
-  Ready for review
-```
+## Process
 
-**No gate can be skipped.** If lint fails, fix lint — don't disable the rule. If a test fails, fix the code — don't skip the test.
+### 1. Discover the Pipeline Contract
 
-## GitHub Actions Configuration
+Read project instructions, existing workflows/reusable actions, provider configuration, branch rules, and relevant acceptance criteria. Identify installation/workspace boundary, package manager/lockfile, pinned runtime/tools, scripts, runners, services, and artifacts. Check PR, fork, merge-queue, default-branch, release-tag, and manual-dispatch triggers as applicable.
 
-### Basic CI Pipeline
+Find which named checks block merge and which environments protect deployments. Record credential availability and session authorization without exposing values. For dependency/install changes, read installation and supply-chain policy in `../../references/security-checklist.md`; do not execute unreviewed dependency scripts to discover them.
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
+### 2. Map Acceptance to Gates
 
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+Select applicable formatting/lint, type, focused/unit, integration, build, critical user-flow E2E, security audit, and performance/bundle checks. Record reasons for N/A gates; do not add TypeScript or a build script to plain JavaScript merely to match a template.
 
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+Map critical acceptance criteria to required stages, including edge/error paths and flag states. UI journeys need relevant browser tests; desktop journeys need actual runtime capability. E2E is required when it proves behavior earlier stages cannot cover. Use actual scripts and frozen/immutable install supported by the pinned manager.
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+Run cheap feedback early; independent jobs may run in parallel. Deployment depends on every applicable required gate. Do not hide failures with `continue-on-error`, skipped tests, or broad fallbacks. Missing evidence is not success.
 
-      - name: Install dependencies
-        run: npm ci
+### 3. Configure Trust and Deployment
 
-      - name: Lint
-        run: npm run lint
+Run untrusted PR checks without deployment/production secrets. Use non-sensitive disposable credentials for isolated test databases; fork checks must not depend on repository secrets. Wait for service readiness, apply test migrations, and separate test resources from production.
 
-      - name: Type check
-        run: npx tsc --noEmit
+Use least-privilege workflow permissions. Keep privileged deployment jobs on trusted refs/protected environments, with project-required approvals and scoped credentials or workload identity. Never execute PR-controlled code with secrets through `pull_request_target`. Preview deployments need an explicit trust policy; report unsupported privileged previews instead of weakening it.
 
-      - name: Test
-        run: npm test -- --coverage
+Put workflow inputs/expressions into environment variables before shell use. Validate deployment IDs/versions against the provider's format or known artifact set and quote arguments. Direct interpolation of `inputs.version` into shell can become command execution. Do not place secret values directly in shell command text or logs.
 
-      - name: Build
-        run: npm run build
+Serialize production changes with deployment concurrency policy. Build once and promote the same immutable artifact where supported; record revision, artifact ID, version, and target. A rollback job redeploys a known compatible artifact with verified provider tooling. Schema/data recovery follows `e6-deprecation-and-migration`; Git reverts/flags cannot restore data.
 
-      - name: Security audit
-        run: npm audit --audit-level=high
-```
+### 4. Verify Actual Pipeline Behavior
 
-### With Database Integration Tests
+Validate workflow syntax/expressions using project tools. Run equivalent install/check/build commands locally in the matching environment. Start the app and exercise affected acceptance flows when changing packaging, deploy configuration, or runtime setup; compilation does not prove deployment works.
 
-```yaml
-  integration:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: ci_user
-          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+Observe a fresh candidate CI run when available. Verify expected triggers, successful artifacts, a deliberately failing gate in a safe test branch/local runner, and dependencies preventing failed builds from deploying. Check actual branch rules require the correct status names. Remote settings need API/provider evidence; without access, leave exact settings and mark the gate unverified.
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Run migrations
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://ci_user:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/testdb
-      - name: Integration tests
-        run: npm run test:integration
-        env:
-          DATABASE_URL: postgresql://ci_user:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/testdb
-```
+Inspect current run/job logs directly with scoped redacted excerpts. Reproduce failures locally using `e6-debugging-and-error-recovery`; review autofix diffs before committing. Rerun failed and affected gates, then observe the fresh result under existing push authorization. Do not require the user to paste logs when tools can retrieve them.
 
-> **Note:** Even for CI-only test databases, use GitHub Secrets for credentials rather than hardcoding values. This builds good habits and prevents accidental reuse of test credentials in other contexts.
+### 5. Optimize and Hand Off
 
-### E2E Tests
+Measure the slow stage first. Cache dependency downloads with authoritative lockfile keys; `setup-node` caches package-manager downloads, not `node_modules`. Parallelize independent jobs and shard tests. Path filters need dependency-aware coverage and an always-reported required aggregate check; skipped workflows must not leave merges waiting forever.
 
-```yaml
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Build
-        run: npm run build
-      - name: Run E2E tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
-```
+Keep critical acceptance tests required even when slow. Scheduled suites supplement required checks for nonblocking coverage under a stated policy. Fix flakiness instead of rerunning until green. Ten minutes is a useful target, not permission to remove correctness gates.
 
-## Feeding CI Failures Back to Agents
-
-The power of CI with AI agents is the feedback loop. When CI fails:
-
-```
-CI fails
-    │
-    ▼
-Copy the failure output
-    │
-    ▼
-Feed it to the agent:
-"The CI pipeline failed with this error:
-[paste specific error]
-Fix the issue and verify locally before pushing again."
-    │
-    ▼
-Agent fixes → pushes → CI runs again
-```
-
-**Key patterns:**
-
-```
-Lint failure → Agent runs `npm run lint --fix` and commits
-Type error  → Agent reads the error location and fixes the type
-Test failure → Agent follows e6-debugging-and-error-recovery skill
-Build error → Agent checks config and dependencies
-```
-
-## Deployment Strategies
-
-### Preview Deployments
-
-Every PR gets a preview deployment for manual testing:
-
-```yaml
-# Deploy preview on PR (Vercel/Netlify/etc.)
-deploy-preview:
-  runs-on: ubuntu-latest
-  if: github.event_name == 'pull_request'
-  steps:
-    - uses: actions/checkout@v4
-    - name: Deploy preview
-      run: npx vercel --token=${{ secrets.VERCEL_TOKEN }}
-```
-
-### Feature Flags
-
-Feature flags decouple deployment from release. Deploy incomplete or risky features behind flags so you can:
-
-- **Ship code without enabling it.** Merge to main early, enable when ready.
-- **Roll back without redeploying.** Disable the flag instead of reverting code.
-- **Canary new features.** Enable for 1% of users, then 10%, then 100%.
-- **Run A/B tests.** Compare behavior with and without the feature.
-
-```typescript
-// Simple feature flag pattern
-if (featureFlags.isEnabled('new-checkout-flow', { userId })) {
-  return renderNewCheckout();
-}
-return renderLegacyCheckout();
-```
-
-**Flag lifecycle:** Create → Enable for testing → Canary → Full rollout → Remove the flag and dead code. Flags that live forever become technical debt — set a cleanup date when you create them.
-
-### Staged Rollouts
-
-```
-PR merged to main
-    │
-    ▼
-  Staging deployment (auto)
-    │ Manual verification
-    ▼
-  Production deployment (manual trigger or auto after staging)
-    │
-    ▼
-  Monitor for errors (15-minute window)
-    │
-    ├── Errors detected → Rollback
-    └── Clean → Done
-```
-
-### Rollback Plan
-
-Every deployment should be reversible:
-
-```yaml
-# Manual rollback workflow
-name: Rollback
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to rollback to'
-        required: true
-
-jobs:
-  rollback:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Rollback deployment
-        run: |
-          # Deploy the specified previous version
-          npx vercel rollback ${{ inputs.version }}
-```
-
-## Environment Management
-
-```
-.env.example       → Committed (template for developers)
-.env                → NOT committed (local development)
-.env.test           → Committed (test environment, no real secrets)
-CI secrets          → Stored in GitHub Secrets / vault
-Production secrets  → Stored in deployment platform / vault
-```
-
-CI should never have production secrets. Use separate secrets for CI testing.
-
-## Automation Beyond CI
-
-### Dependabot / Renovate
-
-```yaml
-# .github/dependabot.yml
-version: 2
-updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-```
-
-### Build Cop Role
-
-Designate someone responsible for keeping CI green. When the build breaks, the Build Cop's job is to fix or revert — not the person whose change caused the break. This prevents broken builds from accumulating while everyone assumes someone else will fix it.
-
-### PR Checks
-
-- **Required reviews:** At least 1 approval before merge
-- **Required status checks:** CI must pass before merge
-- **Branch protection:** No force-pushes to main
-- **Auto-merge:** If all checks pass and approved, merge automatically
-
-## CI Optimization
-
-When the pipeline exceeds 10 minutes, apply these strategies in order of impact:
-
-```
-Slow CI pipeline?
-├── Cache dependencies
-│   └── Use actions/cache or setup-node cache option for node_modules
-├── Run jobs in parallel
-│   └── Split lint, typecheck, test, build into separate parallel jobs
-├── Only run what changed
-│   └── Use path filters to skip unrelated jobs (e.g., skip e2e for docs-only PRs)
-├── Use matrix builds
-│   └── Shard test suites across multiple runners
-├── Optimize the test suite
-│   └── Remove slow tests from the critical path, run them on a schedule instead
-└── Use larger runners
-    └── GitHub-hosted larger runners or self-hosted for CPU-heavy builds
-```
-
-**Example: caching and parallelism**
-```yaml
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npm run lint
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npx tsc --noEmit
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: 'npm' }
-      - run: npm ci
-      - run: npm test -- --coverage
-```
+Use Dependabot/Renovate within project policy and assign ownership for restoring broken main builds. Hand artifact/run IDs, outcomes, staging evidence, remaining gates, and recovery readiness to `e6-shipping-and-launch`. That skill owns launch thresholds/windows; CI cannot declare release complete after an arbitrary quiet interval.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "CI is too slow" | Optimize the pipeline (see CI Optimization below), don't skip it. A 5-minute pipeline prevents hours of debugging. |
-| "This change is trivial, skip CI" | Trivial changes break builds. CI is fast for trivial changes anyway. |
-| "The test is flaky, just re-run" | Flaky tests mask real bugs and waste everyone's time. Fix the flakiness. |
-| "We'll add CI later" | Projects without CI accumulate broken states. Set it up on day one. |
-| "Manual testing is enough" | Manual testing doesn't scale and isn't repeatable. Automate what you can. |
+| "Copy the Node template" | Discover manager, scripts, and services first. |
+| "Fork checks need secrets" | Disposable test services can use non-sensitive credentials. |
+| "Workflow exists, merge is blocked" | Verify branch rules require the actual check names. |
+| "Move slow checkout tests to nightly" | Speed cannot remove the only critical acceptance proof. |
+| "Just rerun the flaky job" | Investigate and prove the fix with a fresh run. |
 
 ## Red Flags
 
-- No CI pipeline in the project
-- CI failures ignored or silenced
-- Tests disabled in CI to make the pipeline pass
-- Production deploys without staging verification
-- No rollback mechanism
-- Secrets stored in code or CI config files (not secrets manager)
-- Long CI times with no optimization effort
+- Gates absent, silently skipped, or unrelated to acceptance criteria
+- PR-controlled code using deployment credentials
+- Shell interpolation of inputs or printed secrets
+- Green YAML without local execution/current run/required-check evidence
+- Rebuilt artifacts promoted as identical or untested recovery automation
 
 ## Verification
 
-After setting up or modifying CI:
-
-- [ ] All quality gates are present (lint, types, tests, build, audit)
-- [ ] Pipeline runs on every PR and push to main
-- [ ] Failures block merge (branch protection configured)
-- [ ] CI results feed back into the development loop
-- [ ] Secrets are stored in the secrets manager, not in code
-- [ ] Deployment has a rollback mechanism
-- [ ] Pipeline runs in under 10 minutes for the test suite
+- [ ] Project tooling/triggers and acceptance-to-gate mapping are recorded
+- [ ] Workflow validation and equivalent local commands ran; changed runtime setup works
+- [ ] Current run shows checks pass and failures block downstream actions
+- [ ] Required check names match verified branch rules, or exact unverified setup is reported
+- [ ] Fork checks are secretless; deploy trust/permissions/approvals/concurrency follow policy
+- [ ] Artifact identity and compatible rollback/recovery are verified before deployment
+- [ ] Coordinator receives exact outcomes, run/artifact IDs, and remaining gates

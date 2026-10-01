@@ -37,7 +37,11 @@
       "expectations": [
         "Work proceeds in thin vertical slices rather than one large change",
         "Each slice is verified (tests or build) before the next begins",
-        "Each slice is committed separately"
+        "Each slice is committed separately",
+        "The existing task plan and reports implementation/tests are read before behavior changes, preserving archived-report filtering",
+        "A behavior test tied to each changed slice is run and observed failing for the intended assertion before that slice implementation changes",
+        "The download/UI behavior is exercised in an actual browser or existing automation; if capability is absent, the exact blocker is reported and no end-to-end completion is claimed",
+        "The agent progresses through all authorized plan tasks and returns acceptance evidence for final review without asking whether to continue after each passing slice"
       ]
     },
     {
@@ -51,6 +55,20 @@
         "Sunk cost is not accepted as a reason to commit the unverified batch",
         "The work is decomposed into independently useful vertical slices",
         "Verification is required before each slice is committed"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement only the CSV formatter slice in the plan. Export toCsv from reports.js: headers name,total; one row per report; quote fields containing commas or double quotes and escape embedded double quotes. Preserve visibleReports behavior. Leave changes uncommitted; do not make git commits or implement the download/UI slices.",
+      "expected_output": "A scoped formatter proved with failing-then-passing tests, preserved filtering, no commits and no extra slices",
+      "files": [
+        "e6-incremental-implementation"
+      ],
+      "expectations": [
+        "Accepted formatter inputs and escaped output are covered by behavioral tests observed failing before reports.js changes",
+        "Existing archived-report filtering remains correct and the repository test command is run after the change",
+        "No git commit is created despite the fixture plan normally requiring per-slice commits; explicit user scope takes precedence",
+        "Download and UI slices are not implemented, and the final report clearly bounds completion to the formatter request"
       ]
     }
   ]

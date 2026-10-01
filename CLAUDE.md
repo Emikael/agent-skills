@@ -16,6 +16,10 @@ evals/        → Skill eval cases + framework (see evals/README.md)
 docs/         → Setup guides for different tools
 ```
 
+## Workflow
+
+Use `using-e6-agent-skills` as coordinator for authorized engineering work and `e6-caveman` for concise output. Specialists load on demand and return evidence. Respect narrower requests and existing authorization. See [workflow contract](references/workflow-contract.md) and [activation](docs/workflow-activation.md).
+
 ## Skills by Phase
 
 **Define:** e6-interview-me, e6-idea-refine, e6-spec-driven-development
@@ -29,7 +33,7 @@ docs/         → Setup guides for different tools
 
 - Every skill lives in `skills/<name>/SKILL.md`
 - YAML frontmatter with `name` and `description` fields
-- Description starts with what the skill does (third person), followed by trigger conditions ("Use when...")
+- Description starts with "Use when" and concrete triggers; workflow steps stay in the body
 - Every skill has: Overview, When to Use, Process, Common Rationalizations, Red Flags, Verification
 - Shared references are in the root `references/` directory; the emerging convention for self-contained, distributable skills keeps a skill's own references inside `skills/<name>/references/`
 - Supporting files only created when content exceeds 100 lines
@@ -40,8 +44,9 @@ Before adding a new skill or significantly reworking an existing one, run the pr
 
 ## Commands
 
-- `npm test` — Not applicable (this is a documentation project)
-- Validate: Check that all SKILL.md files have valid YAML frontmatter with name and description
+- Tests: `node --test scripts/*test.js scripts/lib/*test.js`
+- Validate: `node scripts/validate-skills.js`, reference/command/artifact/version validators
+- Activation: `bash hooks/session-start-test.sh`, installer tests
 - Evals: `node scripts/run-evals.js` — trigger/routing evals for every skill (CI); `--behavioral <skill>` for graded runs
 
 ## Pull Requests
